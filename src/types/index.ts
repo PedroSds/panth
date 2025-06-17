@@ -1,4 +1,19 @@
 
+export type CategoryIconName =
+  | 'Swords'
+  | 'Shield'
+  | 'WandSparkles'
+  | 'Crosshair'
+  | 'VenetianMask'
+  | 'HeartPulse';
+
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: CategoryIconName;
+}
+
 export interface Account {
   id: string;
   name: string;
@@ -7,7 +22,8 @@ export interface Account {
   isSold: boolean;
   image: string;
   imageHint: string;
-  isVisible: boolean; // Added for admin control
+  isVisible: boolean; 
+  categoryId: string; // Added categoryId
 }
 
 export interface CustomAccountFormData {

@@ -1,8 +1,8 @@
 
 "use client";
 
-import type { Account } from "@/types";
-import { accountsData as initialAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from "@/data/mockData";
+import type { Account, Category } from "@/types";
+import { accountsData as initialAccountsData, categoriesData as initialCategoriesData, DEFAULT_WHATSAPP_PHONE_NUMBER } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,13 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const CATEGORIES_LOCAL_STORAGE_KEY = 'panthStoreCategories'; // Though categories are not editable via admin UI yet
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  // Categories are currently only from mockData, not editable in admin UI
+  // const [categories, setCategories] = useState<Category[]>([]); 
   const [isMounted, setIsMounted] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
@@ -43,11 +46,16 @@ export default function AdminPage() {
       setAccounts(initialAccountsData.map(acc => ({ ...acc })));
     }
 
+    // For now, categories are loaded from mockData and not stored/editable.
+    // If categories were to be admin-editable:
+    // const storedCategoriesData = localStorage.getItem(CATEGORIES_LOCAL_STORAGE_KEY);
+    // if (storedCategoriesData) { /* load categories */ } else { /* set from initialCategoriesData */ }
+
     // Load WhatsApp number
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
-    setWhatsAppNumberInput(initialNumber); // Initialize input with loaded or default number
+    setWhatsAppNumberInput(initialNumber); 
 
     setIsMounted(true);
   }, []);
@@ -81,6 +89,7 @@ export default function AdminPage() {
     const newAccount: Account = {
       ...newAccountData,
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      isSold: false, // Ensure isSold is explicitly set for new accounts
     };
     setAccounts((prevAccounts) => [newAccount, ...prevAccounts]);
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
@@ -129,8 +138,9 @@ export default function AdminPage() {
   }
 
   const resetToMockData = () => {
-    const freshMockData = initialAccountsData.map(acc => ({...acc}));
-    setAccounts(freshMockData);
+    // Ensure mock data is deeply copied and has categoryId
+    const freshMockAccounts = initialAccountsData.map(acc => ({...acc, categoryId: acc.categoryId || initialCategoriesData[0]?.id || 'cat_simples' }));
+    setAccounts(freshMockAccounts);
     setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
     toast({ title: "Dados Resetados", description: "A lista de contas e o número do WhatsApp foram resetados para os valores iniciais." });

@@ -17,7 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import type { Account } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { Account, Category } from "@/types";
+import { categoriesData } from "@/data/mockData"; // Import categories
 import { useEffect } from "react";
 
 const accountFormSchema = z.object({
@@ -26,6 +28,7 @@ const accountFormSchema = z.object({
   details: z.string().min(10, { message: "Detalhes devem ter pelo menos 10 caracteres." }),
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
   imageHint: z.string().max(50).optional(),
+  categoryId: z.string().min(1, { message: "Por favor, selecione uma categoria." }),
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
 });
@@ -47,6 +50,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       details: "",
       image: "https://placehold.co/300x200.png",
       imageHint: "game account",
+      categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Default to first category or empty
       isVisible: true,
       isSold: false,
     },
@@ -56,15 +60,16 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
     if (initialData) {
       form.reset({
         ...initialData,
-        details: initialData.details.join("\n"), // Convert array to string for textarea
+        details: initialData.details.join("\n"), 
       });
     } else {
-       form.reset({ // Reset to default for new account
+       form.reset({ 
         name: "",
         price: 0,
         details: "",
         image: "https://placehold.co/300x200.png",
         imageHint: "game account",
+        categoryId: categoriesData.length > 0 ? categoriesData[0].id : "",
         isVisible: true,
         isSold: false,
       });
@@ -74,7 +79,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
   function onSubmit(data: AccountFormData) {
     const processedData = {
       ...data,
-      details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0), // Convert string to array
+      details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
     };
 
     if (initialData) {
@@ -82,7 +87,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
     } else {
       onSubmitAccount(processedData);
     }
-    form.reset(); // Reset form after submission
+    form.reset(); 
   }
 
   return (
@@ -97,6 +102,30 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
               <FormControl>
                 <Input placeholder="Ex: UNRANKED LVL 30+ (PRONTA)" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="categoryId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoria</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categoriesData.map((category: Category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -136,7 +165,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
               <FormControl>
                 <Input placeholder="https://placehold.co/300x200.png" {...field} />
               </FormControl>
-              <FormDescription>Use URLs do placehold.co ou outra URL de imagem pública.</FormDescription>
+              <FormDescription>Use URLs do placehold.co ou outra URL de imagem pública (Ex: Imgur).</FormDescription>
               <FormMessage />
             </FormItem>
           )}

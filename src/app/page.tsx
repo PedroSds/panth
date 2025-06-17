@@ -2,19 +2,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { Account } from '@/types';
+import type { Account, Category } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CustomAccountForm } from '@/components/CustomAccountForm';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, categoriesData as fallbackCategoriesData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
-import { AccountCard } from '@/components/AccountCard';
+import { CategoryAccordion } from '@/components/CategoryAccordion'; // Import CategoryAccordion
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const CATEGORIES_LOCAL_STORAGE_KEY = 'panthStoreCategories'; // Although not admin-editable yet
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -24,7 +26,12 @@ export default function HomePage() {
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : fallbackAccountsData.map(acc => ({...acc})));
+        // Ensure accounts have categoryId, fallback if not present from older localStorage
+        const accountsWithCategory = parsedAccounts.map(acc => ({
+          ...acc,
+          categoryId: acc.categoryId || fallbackCategoriesData[0]?.id || 'cat_simples' 
+        }));
+        setAccounts(Array.isArray(accountsWithCategory) ? accountsWithCategory : fallbackAccountsData.map(acc => ({...acc})));
       } catch (error) {
         console.error("Error parsing accounts from localStorage for homepage:", error);
         setAccounts(fallbackAccountsData.map(acc => ({...acc})));
@@ -32,6 +39,13 @@ export default function HomePage() {
     } else {
       setAccounts(fallbackAccountsData.map(acc => ({...acc})));
     }
+
+    // Load categories - For now, directly from mockData as they are not admin-editable
+    // If categories were stored:
+    // const storedCategoriesData = localStorage.getItem(CATEGORIES_LOCAL_STORAGE_KEY);
+    // if (storedCategoriesData) { /* parse and setCategories */ } else { setCategories(fallbackCategoriesData); }
+    setCategories(fallbackCategoriesData);
+
 
     // Load WhatsApp number
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
@@ -54,6 +68,10 @@ export default function HomePage() {
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => !acc.isSold && acc.isVisible);
 
+  const activeCategories = categories.filter(category => 
+    visibleAndUnsoldAccounts.some(account => account.categoryId === category.id)
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
@@ -69,18 +87,18 @@ export default function HomePage() {
 
         <Separator className="my-12" />
 
-        <section id="all-accounts" aria-labelledby="all-accounts-heading" className="mb-12">
-          <h2 id="all-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
-            Contas Disponíveis
+        <section id="categorized-accounts" aria-labelledby="categorized-accounts-heading" className="mb-12">
+          <h2 id="categorized-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
+            Contas Disponíveis por Categoria
           </h2>
-          {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleAndUnsoldAccounts.map(account => (
-                <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
-              ))}
-            </div>
+          {activeCategories.length > 0 && visibleAndUnsoldAccounts.length > 0 ? (
+            <CategoryAccordion 
+              categories={activeCategories} 
+              accounts={visibleAndUnsoldAccounts} 
+              whatsAppPhoneNumber={whatsAppNumber} 
+            />
           ) : (
-            <p className="text-center text-muted-foreground">Nenhuma conta disponível no momento.</p>
+            <p className="text-center text-muted-foreground">Nenhuma conta disponível no momento. Volte em breve!</p>
           )}
         </section>
         
