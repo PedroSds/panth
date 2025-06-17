@@ -1,36 +1,13 @@
 
-import type { Account, Category } from '@/types';
+import type { Account } from '@/types';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 
-// categoriesData não é mais usada diretamente pela HomePage ou AdminForm, mas pode ser mantida se o CategoryAccordion for usado em outro lugar.
-// Se não, pode ser removida. Por enquanto, vamos deixar, pois o componente CategoryAccordion ainda existe.
-export const categoriesData: Category[] = [
-  {
-    id: 'cat_pronta',
-    name: 'Contas Prontas para Ranqueada',
-    description: 'Contas nível 30+ com normal games jogados, prontas para suas partidas ranqueadas.',
-    icon: 'Swords',
-  },
-  {
-    id: 'cat_simples',
-    name: 'Contas Simples (Unranked)',
-    description: 'Contas nível 30+ que precisam de alguns normal games antes de entrar nas ranqueadas.',
-    icon: 'Shield',
-  },
-  {
-    id: 'cat_skins',
-    name: 'Contas com Skins Raras',
-    description: 'Contas selecionadas com skins raras e valiosas.',
-    icon: 'VenetianMask',
-  },
-];
-
 export const customAccountServiceData: Account = {
   id: CUSTOM_ACCOUNT_SERVICE_ID,
   name: 'Crie sua Conta Personalizada (Serviço de Upar)',
-  price: 0, // Price can be symbolic or handled differently in the card
+  price: 50, // Preço adicionado para o serviço personalizado
   details: [
     'Iremos upar uma conta do 0 ao 30 pra você',
     'Você escolhe o nome para login e o primeiro nickname',
@@ -39,7 +16,7 @@ export const customAccountServiceData: Account = {
     'Prazo de entrega de 3 dias após o pagamento',
   ],
   isSold: false,
-  image: 'https://placehold.co/300x200.png', // Placeholder or a specific image for the service
+  image: 'https://placehold.co/300x200.png',
   imageHint: 'custom service account',
   isVisible: true,
   isCustomService: true,
@@ -47,7 +24,7 @@ export const customAccountServiceData: Account = {
 
 
 export const accountsData: Account[] = [
-  customAccountServiceData, // Add the custom service to the list
+  customAccountServiceData,
   {
     id: 'pronta001',
     name: 'UNRANKED LVL 30+ (PRONTA PARA RANQUEADA)',

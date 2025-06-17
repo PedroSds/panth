@@ -25,7 +25,7 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
         {account.name}
         {isCustomService && <Badge variant="outline" className="ml-2">Serviço</Badge>}
       </TableCell>
-      <TableCell>{isCustomService ? "N/A" : account.price.toFixed(2)}</TableCell>
+      <TableCell>{account.price.toFixed(2)}</TableCell>
       <TableCell>
         <Badge variant={account.isSold ? "destructive" : (isCustomService ? "default" : "secondary")}>
           {isCustomService ? "Serviço" : (account.isSold ? "Sim" : "Não")}
@@ -48,7 +48,7 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
           size="sm" 
           onClick={() => onEdit(account)} 
           aria-label="Editar conta"
-          disabled={isCustomService} // Disable edit for custom service
+          disabled={isCustomService} 
         >
           <Edit3 className="h-4 w-4" />
         </Button>
@@ -57,7 +57,7 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
           size="sm" 
           onClick={() => onDelete(account.id)} 
           aria-label="Excluir conta"
-          disabled={isCustomService} // Disable delete for custom service
+          disabled={isCustomService} 
         >
           <Trash2 className="h-4 w-4" />
         </Button>

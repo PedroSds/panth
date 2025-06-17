@@ -6,7 +6,6 @@ import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare } from 'l
 import type { Account } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-// import { Badge } from '@/components/ui/badge'; // Badge no longer used here for custom service
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CustomAccountForm } from './CustomAccountForm';
 import React, { useState } from 'react';
@@ -34,7 +33,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
     mainName = nameParts[1].trim();
     subTitle = nameParts[2].trim();
   } else if (account.isCustomService) {
-    mainName = account.name; // Use full name for custom service if no subtitle format
+    mainName = account.name; 
   }
 
 
@@ -52,20 +51,17 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
-        <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
+        <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle || account.isCustomService ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
         {subTitle && !account.isCustomService && (
           <p className="text-sm font-medium text-muted-foreground mb-2">{subTitle}</p>
         )}
         
-        {account.isCustomService ? (
-          <CardDescription className="text-lg font-semibold text-accent mb-3">
-            Serviço Personalizado
-          </CardDescription>
-        ) : (
-          <CardDescription className="text-2xl font-bold text-accent mb-3">
-            R$ {account.price.toFixed(2)}
-          </CardDescription>
+        {account.isCustomService && (
+          <p className="text-sm font-semibold text-foreground mb-1">Serviço Personalizado</p>
         )}
+        <CardDescription className="text-2xl font-bold text-accent mb-3">
+          R$ {account.price.toFixed(2)}
+        </CardDescription>
 
         <ul className="space-y-1 text-sm text-muted-foreground mb-4">
           {account.details.map((detail, index) => (
