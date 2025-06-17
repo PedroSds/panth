@@ -71,7 +71,7 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
             <FormItem>
               <FormLabel className="font-semibold">Nome de Login Desejado</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: meuLoginSupremo42" {...field} />
+                <Input placeholder="Ex: PanthLogin" {...field} />
               </FormControl>
               <FormDescription>
                 Qual login você gostaria de usar para acessar a conta? (Não é o nick do jogo)
