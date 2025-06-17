@@ -11,9 +11,8 @@ export function Navbar() {
             <Image
               src="https://i.imgur.com/4RDlzjM.png"
               alt="PanthStore Logo"
-              width={167}
+              width={167} 
               height={40}
-              className="object-contain" // Added object-contain
               data-ai-hint="company logo"
             />
           </Link>
