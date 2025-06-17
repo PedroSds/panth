@@ -104,7 +104,7 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
               <FormLabel className="font-semibold">Descrição Adicional (Opcional)</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Ex: Gostaria de uma conta com foco em campeões magos, elo mínimo Prata, com algumas skins de Ahri se possível, etc." 
+                  placeholder="" 
                   className="resize-none" 
                   rows={4}
                   {...field} />
