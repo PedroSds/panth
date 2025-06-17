@@ -17,7 +17,6 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
-// const CATEGORIES_LOCAL_STORAGE_KEY = 'panthStoreCategories'; // Removido, não usado
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function AdminPage() {
@@ -129,7 +128,6 @@ export default function AdminPage() {
   }
 
   const resetToMockData = () => {
-    // As contas mockadas já não terão categoryId após a alteração em mockData.ts
     const freshMockAccounts = initialAccountsData.map(acc => ({...acc }));
     setAccounts(freshMockAccounts);
     setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
@@ -167,7 +165,7 @@ export default function AdminPage() {
                   <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingAccount ? "Editar Conta" : "Adicionar Nova Conta"}</DialogTitle>
                 </DialogHeader>
