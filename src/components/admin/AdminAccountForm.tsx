@@ -39,7 +39,7 @@ interface AdminAccountFormProps {
   onSubmitAccount: (data: Account | Omit<Account, "id" | "isSold">) => void;
   initialData?: Account | null;
   onClose: () => void;
-  isEditingCustomService?: boolean; // To slightly adjust form behavior if needed, though not strictly used here
+  isEditingCustomService?: boolean;
 }
 
 export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEditingCustomService }: AdminAccountFormProps) {
@@ -63,14 +63,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       let mainName = initialData.name;
       let nameSuffix = "";
 
-      // For custom service, name might not have suffix, so only split if it's not the custom service or if it has the pattern
-      if (initialData.id !== CUSTOM_ACCOUNT_SERVICE_ID && nameParts && nameParts.length === 3) {
-        mainName = nameParts[1].trim();
-        nameSuffix = nameParts[2].trim();
-      } else if (initialData.id === CUSTOM_ACCOUNT_SERVICE_ID) {
-         mainName = initialData.name; // Use full name for custom service as main name
-         nameSuffix = "";
-      } else if (nameParts && nameParts.length === 3) { // General case for accounts with suffix
+      if (nameParts && nameParts.length === 3) {
         mainName = nameParts[1].trim();
         nameSuffix = nameParts[2].trim();
       }
@@ -101,13 +94,9 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
 
   function onSubmit(data: AccountFormData) {
     let finalName = data.mainName.trim();
-    // Only add suffix if it's not the custom service and suffix is provided
-    if (initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && data.nameSuffix && data.nameSuffix.trim() !== "") {
+    if (data.nameSuffix && data.nameSuffix.trim() !== "") {
       finalName = `${finalName} (${data.nameSuffix.trim()})`;
-    } else if (initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID) {
-      finalName = data.mainName.trim(); // Custom service name shouldn't have suffix logic applied here
     }
-
 
     const processedData = {
       ...data,
@@ -115,16 +104,13 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
     };
 
-    // Ensure mainName and nameSuffix are not part of the final submission object
     const { mainName: _mn, nameSuffix: _ns, ...accountDataForSubmit } = processedData;
 
 
     if (initialData) {
-      // When updating, ensure the isCustomService flag is preserved if it's the custom service
       const existingFlags = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? { isCustomService: true } : {};
       onSubmitAccount({ ...initialData, ...accountDataForSubmit, ...existingFlags });
     } else {
-      // For new accounts, isCustomService is not set here (defaults to false/undefined)
       onSubmitAccount(accountDataForSubmit as Omit<Account, "id" | "isSold">);
     }
     form.reset(); 
@@ -138,31 +124,30 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
           name="mainName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Principal {initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "do Serviço" : "da Conta"}</FormLabel>
+              <FormLabel>Nome Principal {isEditingCustomService ? "do Serviço" : "da Conta"}</FormLabel>
               <FormControl>
-                <Input placeholder={initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "Ex: Crie sua Conta Personalizada" : "Ex: UNRANKED LVL 30+"} {...field} />
+                <Input placeholder={isEditingCustomService ? "Ex: Crie sua Conta Personalizada" : "Ex: UNRANKED LVL 30+"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* Conditionally render nameSuffix field only if not editing custom service */}
-        {initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && (
-          <FormField
-            control={form.control}
-            name="nameSuffix"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subtítulo da Conta (Opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ex: PRONTA PARA RANQUEADA" {...field} />
-                </FormControl>
-                <FormDescription>Texto que aparecerá entre parênteses e com menos destaque.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        
+        <FormField
+          control={form.control}
+          name="nameSuffix"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Subtítulo {isEditingCustomService ? "do Serviço" : "da Conta"} (Opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder={isEditingCustomService ? "Ex: Serviço de Upar" : "Ex: PRONTA PARA RANQUEADA"} {...field} />
+              </FormControl>
+              <FormDescription>Texto que aparecerá entre parênteses e com menos destaque.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      
         <FormField
           control={form.control}
           name="price"
@@ -183,7 +168,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
             <FormItem>
               <FormLabel>Detalhes (um por linha)</FormLabel>
               <FormControl>
-                <Textarea placeholder={initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "Descreva os detalhes do serviço..." : "10.000+ essências azuis\nBaús para abrir"} className="min-h-[100px]" {...field} />
+                <Textarea placeholder={isEditingCustomService ? "Descreva os detalhes do serviço..." : "10.000+ essências azuis\nBaús para abrir"} className="min-h-[100px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -226,7 +211,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
                 <div className="space-y-0.5">
                     <FormLabel>Visível na Loja?</FormLabel>
                     <FormDescription>
-                    Controla se {initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "o serviço" : "a conta"} aparece na página principal.
+                    Controla se {isEditingCustomService ? "o serviço" : "a conta"} aparece na página principal.
                     </FormDescription>
                 </div>
                 <FormControl>
@@ -238,7 +223,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
                 </FormItem>
             )}
             />
-            {/* Conditionally render isSold field only if not editing custom service, as its 'sold' status is handled differently */}
+            
             {initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && (
               <FormField
               control={form.control}
