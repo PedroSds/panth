@@ -2,6 +2,7 @@
 import type { Account, Category } from '@/types';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
+export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 
 // categoriesData não é mais usada diretamente pela HomePage ou AdminForm, mas pode ser mantida se o CategoryAccordion for usado em outro lugar.
 // Se não, pode ser removida. Por enquanto, vamos deixar, pois o componente CategoryAccordion ainda existe.
@@ -26,7 +27,27 @@ export const categoriesData: Category[] = [
   },
 ];
 
+export const customAccountServiceData: Account = {
+  id: CUSTOM_ACCOUNT_SERVICE_ID,
+  name: 'Crie sua Conta Personalizada (Serviço de Upar)',
+  price: 0, // Price can be symbolic or handled differently in the card
+  details: [
+    'Iremos upar uma conta do 0 ao 30 pra você',
+    'Você escolhe o nome para login e o primeiro nickname',
+    'Capsulas adquiridas serão preservadas pra você abrir',
+    'Baùs adquiridos serão preservados para você abrir',
+    'Prazo de entrega de 3 dias após o pagamento',
+  ],
+  isSold: false,
+  image: 'https://placehold.co/300x200.png', // Placeholder or a specific image for the service
+  imageHint: 'custom service account',
+  isVisible: true,
+  isCustomService: true,
+};
+
+
 export const accountsData: Account[] = [
+  customAccountServiceData, // Add the custom service to the list
   {
     id: 'pronta001',
     name: 'UNRANKED LVL 30+ (PRONTA PARA RANQUEADA)',
@@ -42,7 +63,6 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'lol ready',
     isVisible: true,
-    // categoryId: 'cat_pronta', // Removido
   },
   {
     id: 'pronta002',
@@ -58,7 +78,6 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'league account',
     isVisible: true,
-    // categoryId: 'cat_pronta', // Removido
   },
   {
     id: 'simples001',
@@ -75,7 +94,6 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'lol smurf',
     isVisible: true,
-    // categoryId: 'cat_simples', // Removido
   },
   {
     id: 'skins001',
@@ -91,6 +109,5 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'rare skin',
     isVisible: true,
-    // categoryId: 'cat_skins', // Removido
   }
 ];

@@ -4,8 +4,9 @@ import type { Account } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Edit3, Trash2, Eye, EyeOff } from "lucide-react";
+import { Edit3, Trash2, Eye, EyeOff, Wrench } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CUSTOM_ACCOUNT_SERVICE_ID } from "@/data/mockData";
 
 interface AdminAccountItemProps {
   account: Account;
@@ -15,13 +16,19 @@ interface AdminAccountItemProps {
 }
 
 export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility }: AdminAccountItemProps) {
+  const isCustomService = account.id === CUSTOM_ACCOUNT_SERVICE_ID;
+
   return (
     <TableRow>
-      <TableCell className="font-medium">{account.name}</TableCell>
-      <TableCell>{account.price.toFixed(2)}</TableCell>
+      <TableCell className="font-medium flex items-center">
+        {isCustomService && <Wrench className="h-4 w-4 mr-2 text-primary" />}
+        {account.name}
+        {isCustomService && <Badge variant="outline" className="ml-2">Serviço</Badge>}
+      </TableCell>
+      <TableCell>{isCustomService ? "N/A" : account.price.toFixed(2)}</TableCell>
       <TableCell>
-        <Badge variant={account.isSold ? "destructive" : "secondary"}>
-          {account.isSold ? "Sim" : "Não"}
+        <Badge variant={account.isSold ? "destructive" : (isCustomService ? "default" : "secondary")}>
+          {isCustomService ? "Serviço" : (account.isSold ? "Sim" : "Não")}
         </Badge>
       </TableCell>
       <TableCell>
@@ -36,10 +43,22 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
         </div>
       </TableCell>
       <TableCell className="text-right space-x-2">
-        <Button variant="outline" size="sm" onClick={() => onEdit(account)} aria-label="Editar conta">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => onEdit(account)} 
+          aria-label="Editar conta"
+          disabled={isCustomService} // Disable edit for custom service
+        >
           <Edit3 className="h-4 w-4" />
         </Button>
-        <Button variant="destructive" size="sm" onClick={() => onDelete(account.id)} aria-label="Excluir conta">
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          onClick={() => onDelete(account.id)} 
+          aria-label="Excluir conta"
+          disabled={isCustomService} // Disable delete for custom service
+        >
           <Trash2 className="h-4 w-4" />
         </Button>
       </TableCell>

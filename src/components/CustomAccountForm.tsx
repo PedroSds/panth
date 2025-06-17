@@ -17,8 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send, MessageSquare } from 'lucide-react';
+// Card components are no longer needed here as this form is now inside a Dialog in AccountCard
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Send } from 'lucide-react'; // MessageSquare icon is now in AccountCard DialogHeader
 import type { CustomAccountFormData } from "@/types";
 
 
@@ -30,9 +31,10 @@ const formSchema = z.object({
 
 interface CustomAccountFormProps {
   whatsAppPhoneNumber: string;
+  // onCloseDialog?: () => void; // Optional: if needed to close dialog from within form
 }
 
-export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProps) {
+export function CustomAccountForm({ whatsAppPhoneNumber /*, onCloseDialog */ }: CustomAccountFormProps) {
   const { toast } = useToast();
   const form = useForm<CustomAccountFormData>({
     resolver: zodResolver(formSchema),
@@ -60,81 +62,70 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
       description: "Seu pedido de conta personalizada está pronto para ser enviado.",
     });
     form.reset();
+    // onCloseDialog?.(); // Call if passed
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-2xl border-primary border-2">
-      <CardHeader className="text-center">
-        <div className="mx-auto bg-primary text-primary-foreground rounded-full p-3 w-fit mb-4">
-            <MessageSquare className="h-8 w-8" />
-        </div>
-        <CardTitle id="custom-account-heading" className="text-2xl sm:text-3xl font-headline font-bold text-primary">Solicite sua Conta Personalizada</CardTitle>
-        <CardDescription className="text-md text-muted-foreground">
-          Não encontrou o que procurava? Descreva a conta dos seus sonhos abaixo e entraremos em contato para criá-la!
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="accountLogin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Nome de Login Desejado</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: meuLoginSupremo42" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Qual login você gostaria de usar para acessar a conta? (Não é o nick do jogo)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nickname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Nickname Desejado no Jogo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: PantheonInvencivel123" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Como você quer ser chamado dentro do League of Legends?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Descrição Adicional (Opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Ex: Gostaria de uma conta com foco em campeões magos, elo mínimo Prata, com algumas skins de Ahri se possível, etc." 
-                      className="resize-none" 
-                      rows={4}
-                      {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Forneça quaisquer outros detalhes importantes sobre a conta que você procura (campeões principais, skins específicas, elo desejado, etc.).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-6">
-              <Send className="mr-2 h-5 w-5" />
-              Solicitar Conta via WhatsApp
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    // The outer Card has been removed as this form will be placed inside a Dialog
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4 pb-2"> {/* Added pt-4 pb-2 for spacing inside dialog */}
+        <FormField
+          control={form.control}
+          name="accountLogin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-semibold">Nome de Login Desejado</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: meuLoginSupremo42" {...field} />
+              </FormControl>
+              <FormDescription>
+                Qual login você gostaria de usar para acessar a conta? (Não é o nick do jogo)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="nickname"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-semibold">Nickname Desejado no Jogo</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: PantheonInvencivel123" {...field} />
+              </FormControl>
+              <FormDescription>
+                Como você quer ser chamado dentro do League of Legends?
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-semibold">Descrição Adicional (Opcional)</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Ex: Gostaria de uma conta com foco em campeões magos, elo mínimo Prata, com algumas skins de Ahri se possível, etc." 
+                  className="resize-none" 
+                  rows={4}
+                  {...field} />
+              </FormControl>
+              <FormDescription>
+                Forneça quaisquer outros detalhes importantes sobre a conta que você procura.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-6">
+          <Send className="mr-2 h-5 w-5" />
+          Solicitar Conta via WhatsApp
+        </Button>
+      </form>
+    </Form>
   );
 }

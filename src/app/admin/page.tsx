@@ -1,8 +1,8 @@
 
 "use client";
 
-import type { Account } from "@/types"; // Category não é mais necessária aqui
-import { accountsData as initialAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from "@/data/mockData";
+import type { Account } from "@/types";
+import { accountsData as initialAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,21 @@ export default function AdminPage() {
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
+        // Ensure custom service account exists and has correct non-editable fields
+        const customServiceIndex = parsedAccounts.findIndex(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID);
+        const defaultCustomService = initialAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
+
+        if (customServiceIndex > -1) {
+          parsedAccounts[customServiceIndex] = {
+            ...defaultCustomService, // Reset non-editable fields
+            isVisible: parsedAccounts[customServiceIndex].isVisible, // Keep stored visibility
+            isSold: defaultCustomService.isSold, // Reset isSold
+          };
+        } else {
+          parsedAccounts.unshift(defaultCustomService); // Add if missing
+        }
         setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : initialAccountsData.map(acc => ({ ...acc })));
+
       } catch (error) {
         console.error("Error parsing accounts from localStorage:", error);
         setAccounts(initialAccountsData.map(acc => ({ ...acc })));
@@ -81,7 +95,7 @@ export default function AdminPage() {
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       isSold: false,
     };
-    setAccounts((prevAccounts) => [newAccount, ...prevAccounts]);
+    setAccounts((prevAccounts) => [newAccount, ...prevAccounts.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID), ...prevAccounts.filter(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)].sort((a,b) => a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1: 0) );
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
     setIsFormOpen(false);
   };
@@ -98,6 +112,10 @@ export default function AdminPage() {
   };
 
   const handleDeleteAccount = (accountId: string) => {
+     if (accountId === CUSTOM_ACCOUNT_SERVICE_ID) {
+      toast({ title: "Ação não permitida", description: "O serviço de conta personalizada não pode ser excluído.", variant: "destructive"});
+      return;
+    }
     setAccounts((prevAccounts) =>
       prevAccounts.filter((acc) => acc.id !== accountId)
     );
@@ -114,10 +132,14 @@ export default function AdminPage() {
         acc.id === accountId ? { ...acc, isVisible: !acc.isVisible } : acc
       )
     );
-    toast({ title: "Visibilidade Alterada", description: "A visibilidade da conta foi atualizada." });
+    toast({ title: "Visibilidade Alterada", description: "A visibilidade da conta/serviço foi atualizada." });
   };
   
   const openEditForm = (account: Account) => {
+    if (account.id === CUSTOM_ACCOUNT_SERVICE_ID) {
+      toast({ title: "Ação não permitida", description: "Os detalhes do serviço de conta personalizada não podem ser editados aqui. Apenas sua visibilidade pode ser alterada.", variant: "destructive"});
+      return;
+    }
     setEditingAccount({...account});
     setIsFormOpen(true);
   };
@@ -209,7 +231,7 @@ export default function AdminPage() {
         </Card>
 
         <AdminAccountList
-          accounts={accounts}
+          accounts={accounts.sort((a,b) => a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1: 0)} // Ensure custom service is listed first
           onEdit={openEditForm}
           onDelete={handleDeleteAccount}
           onToggleVisibility={handleToggleVisibility}

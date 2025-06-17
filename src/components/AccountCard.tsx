@@ -2,11 +2,15 @@
 "use client";
 
 import Image from 'next/image';
-import { BadgeCheck, ShoppingCart, ExternalLink } from 'lucide-react';
+import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare } from 'lucide-react';
 import type { Account } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge'; // Badge no longer used here for custom service
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CustomAccountForm } from './CustomAccountForm';
+import React, { useState } from 'react';
+
 
 interface AccountCardProps {
   account: Account;
@@ -14,6 +18,8 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) {
+  const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
+
   const handlePurchase = () => {
     const message = `Olá, tenho interesse na conta "${account.name}" (ID: ${account.id}) no valor de R$${account.price.toFixed(2)}. Poderia me passar mais informações?`;
     const whatsappUrl = `https://wa.me/${whatsAppPhoneNumber}?text=${encodeURIComponent(message)}`;
@@ -27,7 +33,10 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
   if (nameParts && nameParts.length === 3) {
     mainName = nameParts[1].trim();
     subTitle = nameParts[2].trim();
+  } else if (account.isCustomService) {
+    mainName = account.name; // Use full name for custom service if no subtitle format
   }
+
 
   return (
     <Card className="flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
@@ -44,12 +53,20 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
         <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
-        {subTitle && (
+        {subTitle && !account.isCustomService && (
           <p className="text-sm font-medium text-muted-foreground mb-2">{subTitle}</p>
         )}
-        <CardDescription className="text-2xl font-bold text-accent mb-3">
-          R$ {account.price.toFixed(2)}
-        </CardDescription>
+        
+        {account.isCustomService ? (
+          <CardDescription className="text-lg font-semibold text-accent mb-3">
+            Serviço Personalizado
+          </CardDescription>
+        ) : (
+          <CardDescription className="text-2xl font-bold text-accent mb-3">
+            R$ {account.price.toFixed(2)}
+          </CardDescription>
+        )}
+
         <ul className="space-y-1 text-sm text-muted-foreground mb-4">
           {account.details.map((detail, index) => (
             <li key={index} className="flex items-center">
@@ -60,15 +77,41 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         </ul>
       </CardContent>
       <CardFooter className="p-4 sm:p-6 border-t">
-        <Button
-          onClick={handlePurchase}
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-          aria-label={`Comprar conta ${account.name}`}
-        >
-          <ShoppingCart className="mr-2 h-5 w-5" />
-          Comprar via WhatsApp
-          <ExternalLink className="ml-2 h-4 w-4" />
-        </Button>
+        {account.isCustomService ? (
+          <Dialog open={isCustomFormOpen} onOpenChange={setIsCustomFormOpen}>
+            <DialogTrigger asChild>
+              <Button
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                aria-label="Personalizar minha conta"
+              >
+                <Wrench className="mr-2 h-5 w-5" />
+                Personalizar Minha Conta
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <div className="mx-auto bg-primary text-primary-foreground rounded-full p-3 w-fit mb-4">
+                    <MessageSquare className="h-8 w-8" />
+                </div>
+                <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-primary text-center">Solicite sua Conta Personalizada</DialogTitle>
+                <DialogDescription className="text-md text-muted-foreground text-center">
+                  Descreva a conta dos seus sonhos abaixo e enviaremos seu pedido via WhatsApp!
+                </DialogDescription>
+              </DialogHeader>
+              <CustomAccountForm whatsAppPhoneNumber={whatsAppPhoneNumber} />
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Button
+            onClick={handlePurchase}
+            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            aria-label={`Comprar conta ${account.name}`}
+          >
+            <ShoppingCart className="mr-2 h-5 w-5" />
+            Comprar via WhatsApp
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

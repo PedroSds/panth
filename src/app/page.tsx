@@ -2,22 +2,19 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { Account } from '@/types'; // Category não é mais necessária aqui
+import type { Account } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { CustomAccountForm } from '@/components/CustomAccountForm';
-import { accountsData as fallbackAccountsData, /* categoriesData as fallbackCategoriesData, */ DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+// import { CustomAccountForm } from '@/components/CustomAccountForm'; // Removed
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
-import { AccountCard } from '@/components/AccountCard'; // Importar AccountCard
-// import { CategoryAccordion } from '@/components/CategoryAccordion'; // Removido
+import { AccountCard } from '@/components/AccountCard';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
-// const CATEGORIES_LOCAL_STORAGE_KEY = 'panthStoreCategories'; // Removido
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  // const [categories, setCategories] = useState<Category[]>([]); // Removido
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -34,9 +31,6 @@ export default function HomePage() {
     } else {
       setAccounts(fallbackAccountsData.map(acc => ({...acc})));
     }
-
-    // Categories não são mais carregadas aqui
-    // setCategories(fallbackCategoriesData);
 
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
@@ -58,11 +52,6 @@ export default function HomePage() {
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => !acc.isSold && acc.isVisible);
 
-  // activeCategories não é mais necessário
-  // const activeCategories = categories.filter(category => 
-  //   visibleAndUnsoldAccounts.some(account => account.categoryId === category.id)
-  // );
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
@@ -80,7 +69,7 @@ export default function HomePage() {
 
         <section id="available-accounts" aria-labelledby="available-accounts-heading" className="mb-12">
           <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
-            Contas Disponíveis
+            Contas e Serviços Disponíveis
           </h2>
           {visibleAndUnsoldAccounts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -89,15 +78,15 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground">Nenhuma conta disponível no momento. Volte em breve!</p>
+            <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
           )}
         </section>
         
-        <Separator className="my-12" />
-
+        {/* Removed the standalone CustomAccountForm section */}
+        {/* <Separator className="my-12" />
         <section id="custom-account" aria-labelledby="custom-account-heading" className="pb-12 pt-8">
           <CustomAccountForm whatsAppPhoneNumber={whatsAppNumber} />
-        </section>
+        </section> */}
       </main>
       <Footer />
     </div>

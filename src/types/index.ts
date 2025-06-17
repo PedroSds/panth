@@ -22,7 +22,8 @@ export interface Account {
   isSold: boolean;
   image: string;
   imageHint: string;
-  isVisible: boolean; 
+  isVisible: boolean;
+  isCustomService?: boolean; // Flag to identify the special custom account service
 }
 
 export interface CustomAccountFormData {
@@ -30,3 +31,4 @@ export interface CustomAccountFormData {
   nickname: string;
   description?: string;
 }
+
