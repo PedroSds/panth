@@ -58,7 +58,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
           R$ {account.price.toFixed(2)}
         </CardDescription>
 
-        <ul className="space-y-1 text-sm text-muted-foreground mb-4">
+        <ul className="space-y-1 text-sm text-primary mb-4">
           {account.details.map((detail, index) => (
             <li key={index} className="flex items-center">
               <BadgeCheck className="h-4 w-4 mr-2 text-accent flex-shrink-0" />
