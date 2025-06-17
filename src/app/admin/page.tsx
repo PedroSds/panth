@@ -2,58 +2,67 @@
 "use client";
 
 import type { Account } from "@/types";
-import { accountsData as initialAccountsData } from "@/data/mockData";
+import { accountsData as initialAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, RefreshCw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PlusCircle, RefreshCw, Save, Phone } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [whatsAppNumberInput, setWhatsAppNumberInput] = useState('');
+  const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const { toast } = useToast();
 
   useEffect(() => {
-    const storedAccountsData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    // Load accounts
+    const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        if (Array.isArray(parsedAccounts)) {
-          setAccounts(parsedAccounts);
-        } else {
-          // Data in localStorage is corrupted or not an array, fallback to initial
-          const initialData = initialAccountsData.map(acc => ({ ...acc }));
-          setAccounts(initialData);
-        }
+        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : initialAccountsData.map(acc => ({ ...acc })));
       } catch (error) {
         console.error("Error parsing accounts from localStorage:", error);
-        // Fallback to initial data on error
-        const initialData = initialAccountsData.map(acc => ({ ...acc }));
-        setAccounts(initialData);
+        setAccounts(initialAccountsData.map(acc => ({ ...acc })));
       }
     } else {
-      // No data in localStorage, use initial mock data
-      const initialData = initialAccountsData.map(acc => ({ ...acc }));
-      setAccounts(initialData);
+      setAccounts(initialAccountsData.map(acc => ({ ...acc })));
     }
+
+    // Load WhatsApp number
+    const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
+    const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
+    setCurrentWhatsAppNumber(initialNumber);
+    setWhatsAppNumberInput(initialNumber); // Initialize input with loaded or default number
+
     setIsMounted(true);
-  }, []); // Runs once on component mount
+  }, []);
 
   useEffect(() => {
     if (isMounted) {
-      // Save accounts to localStorage whenever they change, but only after initial mount and data load
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(accounts));
+      localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts));
     }
-  }, [accounts, isMounted]); // Re-run when accounts or isMounted status changes
+  }, [accounts, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber);
+    }
+  }, [currentWhatsAppNumber, isMounted]);
 
 
   if (!isMounted) {
@@ -72,7 +81,6 @@ export default function AdminPage() {
     const newAccount: Account = {
       ...newAccountData,
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      // isSold is already part of newAccountData from the form
     };
     setAccounts((prevAccounts) => [newAccount, ...prevAccounts]);
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
@@ -82,7 +90,7 @@ export default function AdminPage() {
   const handleUpdateAccount = (updatedAccountData: Account) => {
     setAccounts((prevAccounts) =>
       prevAccounts.map((acc) =>
-        acc.id === updatedAccountData.id ? { ...updatedAccountData } : acc // Ensure full update
+        acc.id === updatedAccountData.id ? { ...updatedAccountData } : acc
       )
     );
     toast({ title: "Sucesso!", description: "Conta atualizada." });
@@ -111,7 +119,7 @@ export default function AdminPage() {
   };
   
   const openEditForm = (account: Account) => {
-    setEditingAccount({...account}); // Pass a copy to avoid direct state mutation if form changes it
+    setEditingAccount({...account});
     setIsFormOpen(true);
   };
 
@@ -123,9 +131,19 @@ export default function AdminPage() {
   const resetToMockData = () => {
     const freshMockData = initialAccountsData.map(acc => ({...acc}));
     setAccounts(freshMockData);
-    // localStorage will be updated by the useEffect hook watching 'accounts'
-    toast({ title: "Dados Resetados", description: "A lista de contas foi resetada para os dados iniciais." });
+    setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
+    setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
+    toast({ title: "Dados Resetados", description: "A lista de contas e o número do WhatsApp foram resetados para os valores iniciais." });
   }
+
+  const handleSaveWhatsAppNumber = () => {
+    if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
+      setCurrentWhatsAppNumber(whatsAppNumberInput.trim());
+      toast({ title: "Sucesso!", description: "Número do WhatsApp atualizado." });
+    } else {
+      toast({ title: "Erro", description: "Por favor, insira um número de WhatsApp válido (apenas dígitos).", variant: "destructive"});
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -140,7 +158,7 @@ export default function AdminPage() {
             <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
               setIsFormOpen(isOpen);
               if (!isOpen) {
-                setEditingAccount(null); // Clear editing account when dialog closes
+                setEditingAccount(null);
               }
             }}>
               <DialogTrigger asChild>
@@ -164,6 +182,33 @@ export default function AdminPage() {
             </Dialog>
           </div>
         </div>
+
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center"><Phone className="mr-2 h-5 w-5 text-primary"/>Configurar Número do WhatsApp</CardTitle>
+            <CardDescription>Este número será usado para os links de "Comprar via WhatsApp" e "Solicitar via WhatsApp". Use apenas dígitos (ex: 5511999998888).</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-end gap-4">
+              <div className="flex-grow">
+                <Label htmlFor="whatsapp-number" className="font-semibold">Número do WhatsApp</Label>
+                <Input
+                  id="whatsapp-number"
+                  type="tel"
+                  placeholder="Ex: 5511999998888"
+                  value={whatsAppNumberInput}
+                  onChange={(e) => setWhatsAppNumberInput(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <Button onClick={handleSaveWhatsAppNumber}>
+                <Save className="mr-2 h-4 w-4" /> Salvar Número
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">Número atual: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
+          </CardContent>
+        </Card>
+
 
         <AdminAccountList
           accounts={accounts}

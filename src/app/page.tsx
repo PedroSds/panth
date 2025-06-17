@@ -6,33 +6,37 @@ import type { Account } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CustomAccountForm } from '@/components/CustomAccountForm';
-import { accountsData as fallbackAccountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
 
-const LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const storedAccountsData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    // Load accounts
+    const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        if (Array.isArray(parsedAccounts)) {
-          setAccounts(parsedAccounts);
-        } else {
-          setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback if not array
-        }
+        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : fallbackAccountsData.map(acc => ({...acc})));
       } catch (error) {
         console.error("Error parsing accounts from localStorage for homepage:", error);
-        setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback on error
+        setAccounts(fallbackAccountsData.map(acc => ({...acc})));
       }
     } else {
-      setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback if nothing in localStorage
+      setAccounts(fallbackAccountsData.map(acc => ({...acc})));
     }
+
+    // Load WhatsApp number
+    const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
+    setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
+
     setIsMounted(true);
   }, []);
 
@@ -41,7 +45,7 @@ export default function HomePage() {
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <p>Carregando contas...</p>
+          <p>Carregando loja...</p>
         </main>
         <Footer />
       </div>
@@ -72,7 +76,7 @@ export default function HomePage() {
           {visibleAndUnsoldAccounts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {visibleAndUnsoldAccounts.map(account => (
-                <AccountCard key={account.id} account={account} whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
+                <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
             </div>
           ) : (
@@ -83,7 +87,7 @@ export default function HomePage() {
         <Separator className="my-12" />
 
         <section id="custom-account" aria-labelledby="custom-account-heading" className="pb-12 pt-8">
-          <CustomAccountForm whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
+          <CustomAccountForm whatsAppPhoneNumber={whatsAppNumber} />
         </section>
       </main>
       <Footer />

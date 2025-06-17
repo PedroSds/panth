@@ -1,7 +1,7 @@
 
 import type { Account } from '@/types';
 
-export const WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
+export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
 
 export const accountsData: Account[] = [
   {
