@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck } from 'lucide-react'; // Using a generic "trust" icon for PanthStore
+import Image from 'next/image';
 
 export function Navbar() {
   return (
@@ -7,12 +7,17 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
-            <ShieldCheck className="h-8 w-8" />
-            <span className="text-2xl font-headline font-bold">PanthStore</span>
+            <Image 
+              src="/logo.png" 
+              alt="PanthStore Logo" 
+              width={150} 
+              height={36}
+              priority 
+              data-ai-hint="store logo"
+            />
           </Link>
           <nav>
             <ul className="flex items-center space-x-4 sm:space-x-6">
-              {/* Link para contas foi removido pois não há mais seção de categorias */}
               <li>
                 <Link href="/#custom-account" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Pedido Personalizado
