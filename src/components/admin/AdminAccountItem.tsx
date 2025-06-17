@@ -23,7 +23,6 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
       <TableCell className="font-medium flex items-center">
         {isCustomService && <Wrench className="h-4 w-4 mr-2 text-primary" />}
         {account.name}
-        {isCustomService && <Badge variant="outline" className="ml-2">Serviço</Badge>}
       </TableCell>
       <TableCell>{account.price.toFixed(2)}</TableCell>
       <TableCell>
@@ -48,7 +47,6 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
           size="sm" 
           onClick={() => onEdit(account)} 
           aria-label="Editar conta ou serviço"
-          // Removed disabled={isCustomService} 
         >
           <Edit3 className="h-4 w-4" />
         </Button>
