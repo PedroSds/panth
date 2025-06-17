@@ -146,7 +146,6 @@ export default function AdminPage() {
   };
   
   const openEditForm = (account: Account) => {
-    // Removed restriction for CUSTOM_ACCOUNT_SERVICE_ID
     setEditingAccount({...account});
     setIsFormOpen(true);
   };

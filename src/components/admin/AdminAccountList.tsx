@@ -25,7 +25,7 @@ export function AdminAccountList({ accounts, onEdit, onDelete, onToggleVisibilit
           <TableRow>
             <TableHead className="w-[250px]">Nome</TableHead>
             <TableHead>Preço (R$)</TableHead>
-            <TableHead>Vendida</TableHead>
+            <TableHead>Vendida / Tipo</TableHead>
             <TableHead>Visível</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>

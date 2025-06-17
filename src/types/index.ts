@@ -12,6 +12,7 @@ export interface Category {
   name: string;
   description: string;
   icon: CategoryIconName;
+  categoryId?: string; // Optional: if categories can be nested or related
 }
 
 export interface Account {
@@ -23,7 +24,8 @@ export interface Account {
   image: string;
   imageHint: string;
   isVisible: boolean;
-  isCustomService?: boolean; // Flag to identify the special custom account service
+  isCustomService?: boolean; 
+  categoryId?: string; // Added for categorizing accounts
 }
 
 export interface CustomAccountFormData {
@@ -31,4 +33,3 @@ export interface CustomAccountFormData {
   nickname: string;
   description?: string;
 }
-

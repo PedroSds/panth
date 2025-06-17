@@ -17,9 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-// Card components are no longer needed here as this form is now inside a Dialog in AccountCard
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Send } from 'lucide-react'; // MessageSquare icon is now in AccountCard DialogHeader
+import { Send } from 'lucide-react';
 import type { CustomAccountFormData } from "@/types";
 
 
@@ -31,10 +29,9 @@ const formSchema = z.object({
 
 interface CustomAccountFormProps {
   whatsAppPhoneNumber: string;
-  // onCloseDialog?: () => void; // Optional: if needed to close dialog from within form
 }
 
-export function CustomAccountForm({ whatsAppPhoneNumber /*, onCloseDialog */ }: CustomAccountFormProps) {
+export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProps) {
   const { toast } = useToast();
   const form = useForm<CustomAccountFormData>({
     resolver: zodResolver(formSchema),
@@ -62,13 +59,11 @@ export function CustomAccountForm({ whatsAppPhoneNumber /*, onCloseDialog */ }: 
       description: "Seu pedido de conta personalizada está pronto para ser enviado.",
     });
     form.reset();
-    // onCloseDialog?.(); // Call if passed
   }
 
   return (
-    // The outer Card has been removed as this form will be placed inside a Dialog
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4 pb-2"> {/* Added pt-4 pb-2 for spacing inside dialog */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4 pb-2">
         <FormField
           control={form.control}
           name="accountLogin"

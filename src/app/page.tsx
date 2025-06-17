@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import type { Account } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-// import { CustomAccountForm } from '@/components/CustomAccountForm'; // Removed
 import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
@@ -50,7 +49,8 @@ export default function HomePage() {
     );
   }
 
-  const visibleAndUnsoldAccounts = accounts.filter(acc => !acc.isSold && acc.isVisible);
+  const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -82,11 +82,6 @@ export default function HomePage() {
           )}
         </section>
         
-        {/* Removed the standalone CustomAccountForm section */}
-        {/* <Separator className="my-12" />
-        <section id="custom-account" aria-labelledby="custom-account-heading" className="pb-12 pt-8">
-          <CustomAccountForm whatsAppPhoneNumber={whatsAppNumber} />
-        </section> */}
       </main>
       <Footer />
     </div>

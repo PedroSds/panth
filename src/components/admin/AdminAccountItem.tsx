@@ -26,8 +26,8 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
       </TableCell>
       <TableCell>{account.price.toFixed(2)}</TableCell>
       <TableCell>
-        <Badge variant={account.isSold ? "destructive" : (isCustomService ? "default" : "secondary")}>
-          {isCustomService ? "Serviço" : (account.isSold ? "Sim" : "Não")}
+        <Badge variant={account.isSold && !isCustomService ? "destructive" : (isCustomService ? "default" : "secondary")}>
+            {isCustomService ? "Serviço" : (account.isSold ? "Sim" : "Não")}
         </Badge>
       </TableCell>
       <TableCell>

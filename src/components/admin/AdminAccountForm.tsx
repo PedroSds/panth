@@ -108,8 +108,18 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
 
 
     if (initialData) {
+      // Preserve isCustomService flag if editing the custom service
       const existingFlags = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? { isCustomService: true } : {};
-      onSubmitAccount({ ...initialData, ...accountDataForSubmit, ...existingFlags });
+      // Ensure 'isSold' is not set for custom service from the form, its 'isSold' from mockData is effectively the default.
+      // For actual accounts, isSold comes from the form.
+      const finalIsSold = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? initialData.isSold : accountDataForSubmit.isSold;
+
+      onSubmitAccount({ 
+        ...initialData, 
+        ...accountDataForSubmit, 
+        ...existingFlags,
+        isSold: finalIsSold 
+      });
     } else {
       onSubmitAccount(accountDataForSubmit as Omit<Account, "id" | "isSold">);
     }

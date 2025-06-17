@@ -1,13 +1,13 @@
 
 import type { Account } from '@/types';
 
-export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
+export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; 
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 
 export const customAccountServiceData: Account = {
   id: CUSTOM_ACCOUNT_SERVICE_ID,
   name: 'Crie sua Conta Personalizada (Serviço de Upar)',
-  price: 50, // Preço adicionado para o serviço personalizado
+  price: 50, 
   details: [
     'Iremos upar uma conta do 0 ao 30 pra você',
     'Você escolhe o nome para login e o primeiro nickname',
