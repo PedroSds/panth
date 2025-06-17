@@ -87,7 +87,7 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
             <FormItem>
               <FormLabel className="font-semibold">Nickname Desejado no Jogo</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: PantheonInvencivel123" {...field} />
+                <Input placeholder="Ex: Panth#STR" {...field} />
               </FormControl>
               <FormDescription>
                 Como você quer ser chamado dentro do League of Legends?
