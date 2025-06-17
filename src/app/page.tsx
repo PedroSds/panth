@@ -1,9 +1,10 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CustomAccountForm } from '@/components/CustomAccountForm';
 import { accountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
-import { AccountCard } from '@/components/AccountCard'; // Potentially needed if we list all accounts
+import { AccountCard } from '@/components/AccountCard';
 
 export default function HomePage() {
   const unsoldAccounts = accountsData.filter(acc => !acc.isSold);
@@ -21,10 +22,9 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* Section for displaying all unsold accounts could go here if desired in a future step */}
-        {/* For example:
         <Separator className="my-12" />
-        <section id="all-accounts" aria-labelledby="all-accounts-heading" className="mb-16">
+
+        <section id="all-accounts" aria-labelledby="all-accounts-heading" className="mb-12">
           <h2 id="all-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
             Contas Disponíveis
           </h2>
@@ -38,9 +38,8 @@ export default function HomePage() {
             <p className="text-center text-muted-foreground">Nenhuma conta disponível no momento.</p>
           )}
         </section>
-        */}
         
-        <Separator className="my-16" />
+        <Separator className="my-12" />
 
         <section id="custom-account" aria-labelledby="custom-account-heading" className="pb-12 pt-8">
           <CustomAccountForm whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
