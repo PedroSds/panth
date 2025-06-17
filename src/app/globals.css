@@ -16,7 +16,7 @@
     --secondary-foreground: 220 13% 20%;
     --muted: 220 15% 80%; /* Muted gray */
     --muted-foreground: 220 10% 45%;
-    --accent: 19 90% 61%; /* Vivid orange #f57c42 */
+    --accent: 42 92% 57%; /* Golden yellow #F7B52A (was 19 90% 61% - Vivid orange #f57c42) */
     --accent-foreground: 0 0% 100%; /* White text on accent */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -52,7 +52,7 @@
     --secondary-foreground: 0 0% 98%;
     --muted: 220 10% 20%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 19 90% 61%; /* Vivid orange */
+    --accent: 42 92% 57%; /* Golden yellow #F7B52A (was 19 90% 61% - Vivid orange) */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
