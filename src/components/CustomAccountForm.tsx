@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,9 +23,9 @@ import type { CustomAccountFormData } from "@/types";
 
 
 const formSchema = z.object({
-  desiredNickname: z.string().min(3, { message: "Nickname deve ter pelo menos 3 caracteres." }).max(50),
-  desiredLogin: z.string().min(3, { message: "Login desejado deve ter pelo menos 3 caracteres." }).max(100, {message: "Login muito longo. Descreva brevemente o tipo de conta ou campeões principais."}),
-  desiredPassword: z.string().optional(), // Interpreting password as additional details
+  accountLogin: z.string().min(3, { message: "O nome de login deve ter pelo menos 3 caracteres." }).max(100, {message: "Nome de login muito longo."}),
+  nickname: z.string().min(3, { message: "O nickname deve ter pelo menos 3 caracteres." }).max(50, { message: "Nickname muito longo."}),
+  description: z.string().max(500, { message: "Descrição muito longa. Máximo 500 caracteres."}).optional(),
 });
 
 interface CustomAccountFormProps {
@@ -36,20 +37,20 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
   const form = useForm<CustomAccountFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      desiredNickname: "",
-      desiredLogin: "",
-      desiredPassword: "",
+      accountLogin: "",
+      nickname: "",
+      description: "",
     },
   });
 
   function onSubmit(data: CustomAccountFormData) {
-    let message = `Olá, gostaria de solicitar uma conta personalizada com as seguintes características:\n`;
-    message += `Nickname Desejado: ${data.desiredNickname}\n`;
-    message += `Login/Tipo de Conta: ${data.desiredLogin}\n`;
-    if (data.desiredPassword) {
-      message += `Detalhes Adicionais (Senha/Especificações): ${data.desiredPassword}\n`;
+    let message = `Olá, gostaria de solicitar uma conta personalizada com as seguintes características:\n\n`;
+    message += `Nome de Login Desejado: ${data.accountLogin}\n`;
+    message += `Nickname Desejado no Jogo: ${data.nickname}\n`;
+    if (data.description && data.description.trim() !== "") {
+      message += `Descrição Adicional: ${data.description}\n`;
     }
-    message += `\nAguardo contato.`;
+    message += `\nAguardo contato para discutirmos os detalhes e o orçamento.`;
 
     const whatsappUrl = `https://wa.me/${whatsAppPhoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -67,9 +68,9 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
         <div className="mx-auto bg-primary text-primary-foreground rounded-full p-3 w-fit mb-4">
             <MessageSquare className="h-8 w-8" />
         </div>
-        <CardTitle id="custom-account-heading" className="text-2xl sm:text-3xl font-headline font-bold text-primary">Peça sua Conta Personalizada</CardTitle>
+        <CardTitle id="custom-account-heading" className="text-2xl sm:text-3xl font-headline font-bold text-primary">Solicite sua Conta Personalizada</CardTitle>
         <CardDescription className="text-md text-muted-foreground">
-          Não encontrou o que procurava? Descreva a conta dos seus sonhos e faremos o possível para encontrá-la!
+          Não encontrou o que procurava? Descreva a conta dos seus sonhos abaixo e entraremos em contato para criá-la!
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -77,15 +78,15 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="desiredNickname"
+              name="accountLogin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-semibold">Nickname Desejado</FormLabel>
+                  <FormLabel className="font-semibold">Nome de Login Desejado</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: PantheonInvencivel" {...field} />
+                    <Input placeholder="Ex: meuLoginSupremo42" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Qual nick você gostaria na sua nova conta?
+                    Qual login você gostaria de usar para acessar a conta? (Não é o nick do jogo)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -93,15 +94,15 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
             />
             <FormField
               control={form.control}
-              name="desiredLogin"
+              name="nickname"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-semibold">Login / Tipo de Conta / Campeões Principais</FormLabel>
+                  <FormLabel className="font-semibold">Nickname Desejado no Jogo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Conta com Yasuo e Yone, Elo Ouro" {...field} />
+                    <Input placeholder="Ex: PantheonInvencivel123" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Especifique o login desejado, tipo de conta (ex: muitos campeões, skins raras) ou campeões que você mais quer.
+                    Como você quer ser chamado dentro do League of Legends?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -109,15 +110,19 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
             />
             <FormField
               control={form.control}
-              name="desiredPassword"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-semibold">Senha / Detalhes Adicionais (Opcional)</FormLabel>
+                  <FormLabel className="font-semibold">Descrição Adicional (Opcional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Ex: Skins específicas, elo mínimo, etc." className="resize-none" {...field} />
+                    <Textarea 
+                      placeholder="Ex: Gostaria de uma conta com foco em campeões magos, elo mínimo Prata, com algumas skins de Ahri se possível, etc." 
+                      className="resize-none" 
+                      rows={4}
+                      {...field} />
                   </FormControl>
                   <FormDescription>
-                    Forneça quaisquer outros detalhes importantes, como senha preferida (se aplicável), skins específicas, ou faixa de elo.
+                    Forneça quaisquer outros detalhes importantes sobre a conta que você procura (campeões principais, skins específicas, elo desejado, etc.).
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +130,7 @@ export function CustomAccountForm({ whatsAppPhoneNumber }: CustomAccountFormProp
             />
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-6">
               <Send className="mr-2 h-5 w-5" />
-              Solicitar via WhatsApp
+              Solicitar Conta via WhatsApp
             </Button>
           </form>
         </Form>

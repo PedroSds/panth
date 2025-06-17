@@ -23,11 +23,10 @@ export interface Account {
   image: string;
   imageHint: string;
   isVisible: boolean; 
-  // categoryId: string; // Removido
 }
 
 export interface CustomAccountFormData {
-  desiredNickname: string;
-  desiredLogin: string;
-  desiredPassword?: string;
+  accountLogin: string;
+  nickname: string;
+  description?: string;
 }
