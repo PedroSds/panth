@@ -26,11 +26,7 @@ export function Navbar() {
                   Pedido Personalizado
                 </Link>
               </li>
-              <li>
-                <Link href="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                  Admin
-                </Link>
-              </li>
+              {/* Admin link removido */}
             </ul>
           </nav>
         </div>
