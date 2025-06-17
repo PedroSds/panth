@@ -51,7 +51,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
       <CardContent className="p-4 sm:p-6 flex-grow">
         <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
         {subTitle && (
-          <p className="text-sm font-medium text-foreground mb-2">{subTitle}</p>
+          <p className="text-sm font-medium text-accent mb-2">{subTitle}</p>
         )}
         
         <CardDescription className="text-2xl font-bold text-accent mb-3">
@@ -95,7 +95,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         ) : (
           <Button
             onClick={handlePurchase}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
             aria-label={`Comprar conta ${account.name}`}
           >
             <ShoppingCart className="mr-2 h-5 w-5" />
