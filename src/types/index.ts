@@ -23,7 +23,7 @@ export interface Account {
   image: string;
   imageHint: string;
   isVisible: boolean; 
-  categoryId: string; // Added categoryId
+  // categoryId: string; // Removido
 }
 
 export interface CustomAccountFormData {

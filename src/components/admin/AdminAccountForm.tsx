@@ -17,19 +17,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Account, Category } from "@/types";
-import { categoriesData } from "@/data/mockData"; 
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Removido
+import type { Account } from "@/types";
+// import { categoriesData } from "@/data/mockData"; // Removido
 import { useEffect } from "react";
 
 const accountFormSchema = z.object({
   mainName: z.string().min(5, { message: "Nome principal deve ter pelo menos 5 caracteres." }).max(70),
-  nameSuffix: z.string().max(50).optional(), // O subtítulo que vai entre parênteses
+  nameSuffix: z.string().max(50).optional(),
   price: z.coerce.number().min(0, { message: "Preço deve ser positivo." }),
   details: z.string().min(10, { message: "Detalhes devem ter pelo menos 10 caracteres." }),
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
   imageHint: z.string().max(50).optional(),
-  categoryId: z.string().min(1, { message: "Por favor, selecione uma categoria." }),
+  // categoryId: z.string().min(1, { message: "Por favor, selecione uma categoria." }), // Removido
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
 });
@@ -52,7 +52,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       details: "",
       image: "https://placehold.co/300x200.png",
       imageHint: "game account",
-      categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", 
+      // categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Removido
       isVisible: true,
       isSold: false,
     },
@@ -60,7 +60,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
 
   useEffect(() => {
     if (initialData) {
-      // Extrair nome principal e sufixo
       const nameParts = initialData.name.match(/^(.*?)\s*\((.*?)\)$/);
       let mainName = initialData.name;
       let nameSuffix = "";
@@ -71,10 +70,16 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       }
       
       form.reset({
-        ...initialData,
+        // ...initialData, // Resetamos campos específicos para evitar incluir categoryId
         mainName: mainName,
         nameSuffix: nameSuffix,
-        details: initialData.details.join("\n"), 
+        price: initialData.price,
+        details: initialData.details.join("\n"),
+        image: initialData.image,
+        imageHint: initialData.imageHint,
+        isVisible: initialData.isVisible,
+        isSold: initialData.isSold,
+        // categoryId: initialData.categoryId, // Removido
       });
     } else {
        form.reset({ 
@@ -84,7 +89,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
         details: "",
         image: "https://placehold.co/300x200.png",
         imageHint: "game account",
-        categoryId: categoriesData.length > 0 ? categoriesData[0].id : "",
+        // categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Removido
         isVisible: true,
         isSold: false,
       });
@@ -99,19 +104,17 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
 
     const processedData = {
       ...data,
-      name: finalName, // Combinar nome principal e sufixo
+      name: finalName,
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
     };
 
-    // Remover mainName e nameSuffix do objeto final, pois não existem no tipo Account
     const { mainName: mn, nameSuffix: ns, ...accountDataForSubmit } = processedData;
 
 
     if (initialData) {
       onSubmitAccount({ ...initialData, ...accountDataForSubmit });
     } else {
-      // Para novas contas, o tipo Omit<Account, "id" | "isSold"> é esperado
-      const { id, isSold, ...newAccountData } = accountDataForSubmit as Account;
+      const { id, isSold, ...newAccountData } = accountDataForSubmit as Account; // Removendo categoryId implicitamente se ainda estiver lá
       onSubmitAccount(newAccountData as Omit<Account, "id" | "isSold">);
     }
     form.reset(); 
@@ -147,6 +150,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
             </FormItem>
           )}
         />
+         {/* Campo de Categoria Removido 
          <FormField
           control={form.control}
           name="categoryId"
@@ -170,7 +174,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <FormField
           control={form.control}
           name="price"
@@ -268,7 +272,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
             />
         </div>
 
-
         <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
             <Button type="submit">{initialData ? "Salvar Alterações" : "Adicionar Conta"}</Button>
@@ -277,5 +280,3 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
     </Form>
   );
 }
-
-    

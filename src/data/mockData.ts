@@ -3,6 +3,8 @@ import type { Account, Category } from '@/types';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; // Replace with actual WhatsApp number e.g. 55119XXXXXXXX
 
+// categoriesData não é mais usada diretamente pela HomePage ou AdminForm, mas pode ser mantida se o CategoryAccordion for usado em outro lugar.
+// Se não, pode ser removida. Por enquanto, vamos deixar, pois o componente CategoryAccordion ainda existe.
 export const categoriesData: Category[] = [
   {
     id: 'cat_pronta',
@@ -40,11 +42,11 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'lol ready',
     isVisible: true,
-    categoryId: 'cat_pronta',
+    // categoryId: 'cat_pronta', // Removido
   },
   {
     id: 'pronta002',
-    name: 'UNRANKED LVL 30+ (PRONTA)', // Adjusted name for variety
+    name: 'UNRANKED LVL 30+ (PRONTA)',
     price: 90,
     details: [
       '15.000+ essências azuis',
@@ -56,7 +58,7 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'league account',
     isVisible: true,
-    categoryId: 'cat_pronta',
+    // categoryId: 'cat_pronta', // Removido
   },
   {
     id: 'simples001',
@@ -73,7 +75,7 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'lol smurf',
     isVisible: true,
-    categoryId: 'cat_simples',
+    // categoryId: 'cat_simples', // Removido
   },
   {
     id: 'skins001',
@@ -89,6 +91,6 @@ export const accountsData: Account[] = [
     image: 'https://placehold.co/300x200.png',
     imageHint: 'rare skin',
     isVisible: true,
-    categoryId: 'cat_skins',
+    // categoryId: 'cat_skins', // Removido
   }
 ];
