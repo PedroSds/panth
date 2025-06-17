@@ -30,21 +30,27 @@ export default function AdminPage() {
 
   useEffect(() => {
     const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
+    const defaultCustomService = initialAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
+
     if (storedAccountsData) {
       try {
-        const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        // Ensure custom service account exists and has correct non-editable fields
+        let parsedAccounts = JSON.parse(storedAccountsData) as Account[];
         const customServiceIndex = parsedAccounts.findIndex(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID);
-        const defaultCustomService = initialAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
 
         if (customServiceIndex > -1) {
+          // Custom service found in localStorage. Preserve its editable fields.
+          const storedCustomService = parsedAccounts[customServiceIndex];
           parsedAccounts[customServiceIndex] = {
-            ...defaultCustomService, // Reset non-editable fields
-            isVisible: parsedAccounts[customServiceIndex].isVisible, // Keep stored visibility
-            isSold: defaultCustomService.isSold, // Reset isSold
+            ...storedCustomService, // Keep most stored values (name, price, details, image, imageHint, isVisible)
+            id: CUSTOM_ACCOUNT_SERVICE_ID,        // Ensure correct ID
+            isCustomService: true,               // Ensure it's marked as custom service
+            isSold: defaultCustomService.isSold, // Reset isSold to its default (false from mockData)
+                                                 // This ensures the service itself isn't accidentally marked "sold" permanently
+                                                 // Its availability is controlled by isVisible
           };
         } else {
-          parsedAccounts.unshift(defaultCustomService); // Add if missing
+          // Custom service not found, add it from defaults, ensuring it's a fresh copy
+          parsedAccounts.unshift({ ...defaultCustomService });
         }
         setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : initialAccountsData.map(acc => ({ ...acc })));
 
@@ -53,6 +59,7 @@ export default function AdminPage() {
         setAccounts(initialAccountsData.map(acc => ({ ...acc })));
       }
     } else {
+      // No stored data, use initial mock data, ensuring fresh copies
       setAccounts(initialAccountsData.map(acc => ({ ...acc })));
     }
 
@@ -93,8 +100,11 @@ export default function AdminPage() {
     const newAccount: Account = {
       ...newAccountData,
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      isSold: false,
+      isSold: false, // New accounts are not sold by default
     };
+     // Ensure new accounts are not custom service unless explicitly set (which isn't possible via this form)
+    if (newAccount.isCustomService) delete newAccount.isCustomService;
+
     setAccounts((prevAccounts) => [newAccount, ...prevAccounts.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID), ...prevAccounts.filter(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)].sort((a,b) => a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1: 0) );
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
     setIsFormOpen(false);
@@ -103,7 +113,7 @@ export default function AdminPage() {
   const handleUpdateAccount = (updatedAccountData: Account) => {
     setAccounts((prevAccounts) =>
       prevAccounts.map((acc) =>
-        acc.id === updatedAccountData.id ? { ...updatedAccountData } : acc
+        acc.id === updatedAccountData.id ? { ...acc, ...updatedAccountData } : acc
       )
     );
     toast({ title: "Sucesso!", description: "Conta atualizada." });
@@ -136,10 +146,7 @@ export default function AdminPage() {
   };
   
   const openEditForm = (account: Account) => {
-    if (account.id === CUSTOM_ACCOUNT_SERVICE_ID) {
-      toast({ title: "Ação não permitida", description: "Os detalhes do serviço de conta personalizada não podem ser editados aqui. Apenas sua visibilidade pode ser alterada.", variant: "destructive"});
-      return;
-    }
+    // Removed restriction for CUSTOM_ACCOUNT_SERVICE_ID
     setEditingAccount({...account});
     setIsFormOpen(true);
   };
@@ -189,7 +196,7 @@ export default function AdminPage() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>{editingAccount ? "Editar Conta" : "Adicionar Nova Conta"}</DialogTitle>
+                  <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
                 </DialogHeader>
                 <AdminAccountForm
                   onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
@@ -198,6 +205,7 @@ export default function AdminPage() {
                     setIsFormOpen(false);
                     setEditingAccount(null);
                   }}
+                  isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
                 />
               </DialogContent>
             </Dialog>
@@ -231,7 +239,7 @@ export default function AdminPage() {
         </Card>
 
         <AdminAccountList
-          accounts={accounts.sort((a,b) => a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1: 0)} // Ensure custom service is listed first
+          accounts={accounts.sort((a,b) => a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1: 0)}
           onEdit={openEditForm}
           onDelete={handleDeleteAccount}
           onToggleVisibility={handleToggleVisibility}

@@ -47,8 +47,8 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
           variant="outline" 
           size="sm" 
           onClick={() => onEdit(account)} 
-          aria-label="Editar conta"
-          disabled={isCustomService} 
+          aria-label="Editar conta ou serviço"
+          // Removed disabled={isCustomService} 
         >
           <Edit3 className="h-4 w-4" />
         </Button>

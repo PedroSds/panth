@@ -17,10 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Removido
 import type { Account } from "@/types";
-// import { categoriesData } from "@/data/mockData"; // Removido
 import { useEffect } from "react";
+import { CUSTOM_ACCOUNT_SERVICE_ID } from "@/data/mockData";
+
 
 const accountFormSchema = z.object({
   mainName: z.string().min(5, { message: "Nome principal deve ter pelo menos 5 caracteres." }).max(70),
@@ -29,7 +29,6 @@ const accountFormSchema = z.object({
   details: z.string().min(10, { message: "Detalhes devem ter pelo menos 10 caracteres." }),
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
   imageHint: z.string().max(50).optional(),
-  // categoryId: z.string().min(1, { message: "Por favor, selecione uma categoria." }), // Removido
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
 });
@@ -40,9 +39,10 @@ interface AdminAccountFormProps {
   onSubmitAccount: (data: Account | Omit<Account, "id" | "isSold">) => void;
   initialData?: Account | null;
   onClose: () => void;
+  isEditingCustomService?: boolean; // To slightly adjust form behavior if needed, though not strictly used here
 }
 
-export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: AdminAccountFormProps) {
+export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEditingCustomService }: AdminAccountFormProps) {
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
@@ -52,7 +52,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       details: "",
       image: "https://placehold.co/300x200.png",
       imageHint: "game account",
-      // categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Removido
       isVisible: true,
       isSold: false,
     },
@@ -64,13 +63,19 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       let mainName = initialData.name;
       let nameSuffix = "";
 
-      if (nameParts && nameParts.length === 3) {
+      // For custom service, name might not have suffix, so only split if it's not the custom service or if it has the pattern
+      if (initialData.id !== CUSTOM_ACCOUNT_SERVICE_ID && nameParts && nameParts.length === 3) {
+        mainName = nameParts[1].trim();
+        nameSuffix = nameParts[2].trim();
+      } else if (initialData.id === CUSTOM_ACCOUNT_SERVICE_ID) {
+         mainName = initialData.name; // Use full name for custom service as main name
+         nameSuffix = "";
+      } else if (nameParts && nameParts.length === 3) { // General case for accounts with suffix
         mainName = nameParts[1].trim();
         nameSuffix = nameParts[2].trim();
       }
       
       form.reset({
-        // ...initialData, // Resetamos campos específicos para evitar incluir categoryId
         mainName: mainName,
         nameSuffix: nameSuffix,
         price: initialData.price,
@@ -79,7 +84,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
         imageHint: initialData.imageHint,
         isVisible: initialData.isVisible,
         isSold: initialData.isSold,
-        // categoryId: initialData.categoryId, // Removido
       });
     } else {
        form.reset({ 
@@ -89,7 +93,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
         details: "",
         image: "https://placehold.co/300x200.png",
         imageHint: "game account",
-        // categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Removido
         isVisible: true,
         isSold: false,
       });
@@ -98,9 +101,13 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
 
   function onSubmit(data: AccountFormData) {
     let finalName = data.mainName.trim();
-    if (data.nameSuffix && data.nameSuffix.trim() !== "") {
+    // Only add suffix if it's not the custom service and suffix is provided
+    if (initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && data.nameSuffix && data.nameSuffix.trim() !== "") {
       finalName = `${finalName} (${data.nameSuffix.trim()})`;
+    } else if (initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID) {
+      finalName = data.mainName.trim(); // Custom service name shouldn't have suffix logic applied here
     }
+
 
     const processedData = {
       ...data,
@@ -108,14 +115,17 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
     };
 
-    const { mainName: mn, nameSuffix: ns, ...accountDataForSubmit } = processedData;
+    // Ensure mainName and nameSuffix are not part of the final submission object
+    const { mainName: _mn, nameSuffix: _ns, ...accountDataForSubmit } = processedData;
 
 
     if (initialData) {
-      onSubmitAccount({ ...initialData, ...accountDataForSubmit });
+      // When updating, ensure the isCustomService flag is preserved if it's the custom service
+      const existingFlags = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? { isCustomService: true } : {};
+      onSubmitAccount({ ...initialData, ...accountDataForSubmit, ...existingFlags });
     } else {
-      const { id, isSold, ...newAccountData } = accountDataForSubmit as Account; // Removendo categoryId implicitamente se ainda estiver lá
-      onSubmitAccount(newAccountData as Omit<Account, "id" | "isSold">);
+      // For new accounts, isCustomService is not set here (defaults to false/undefined)
+      onSubmitAccount(accountDataForSubmit as Omit<Account, "id" | "isSold">);
     }
     form.reset(); 
   }
@@ -128,53 +138,31 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
           name="mainName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Principal da Conta</FormLabel>
+              <FormLabel>Nome Principal {initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "do Serviço" : "da Conta"}</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: UNRANKED LVL 30+" {...field} />
+                <Input placeholder={initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "Ex: Crie sua Conta Personalizada" : "Ex: UNRANKED LVL 30+"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="nameSuffix"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Subtítulo da Conta (Opcional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: PRONTA PARA RANQUEADA" {...field} />
-              </FormControl>
-              <FormDescription>Texto que aparecerá entre parênteses e com menos destaque.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-         {/* Campo de Categoria Removido 
-         <FormField
-          control={form.control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Categoria</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+        {/* Conditionally render nameSuffix field only if not editing custom service */}
+        {initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && (
+          <FormField
+            control={form.control}
+            name="nameSuffix"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subtítulo da Conta (Opcional)</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma categoria" />
-                  </SelectTrigger>
+                  <Input placeholder="Ex: PRONTA PARA RANQUEADA" {...field} />
                 </FormControl>
-                <SelectContent>
-                  {categoriesData.map((category: Category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+                <FormDescription>Texto que aparecerá entre parênteses e com menos destaque.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="price"
@@ -195,7 +183,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
             <FormItem>
               <FormLabel>Detalhes (um por linha)</FormLabel>
               <FormControl>
-                <Textarea placeholder="10.000+ essências azuis\nBaús para abrir" className="min-h-[100px]" {...field} />
+                <Textarea placeholder={initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "Descreva os detalhes do serviço..." : "10.000+ essências azuis\nBaús para abrir"} className="min-h-[100px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -238,7 +226,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
                 <div className="space-y-0.5">
                     <FormLabel>Visível na Loja?</FormLabel>
                     <FormDescription>
-                    Controla se a conta aparece na página principal.
+                    Controla se {initialData?.id === CUSTOM_ACCOUNT_SERVICE_ID ? "o serviço" : "a conta"} aparece na página principal.
                     </FormDescription>
                 </div>
                 <FormControl>
@@ -250,26 +238,29 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
                 </FormItem>
             )}
             />
-             <FormField
-            control={form.control}
-            name="isSold"
-            render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-1/2">
-                <div className="space-y-0.5">
-                    <FormLabel>Marcada como Vendida?</FormLabel>
-                     <FormDescription>
-                     Indica se a conta já foi vendida.
-                    </FormDescription>
-                </div>
-                <FormControl>
-                    <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    />
-                </FormControl>
-                </FormItem>
+            {/* Conditionally render isSold field only if not editing custom service, as its 'sold' status is handled differently */}
+            {initialData?.id !== CUSTOM_ACCOUNT_SERVICE_ID && (
+              <FormField
+              control={form.control}
+              name="isSold"
+              render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-1/2">
+                  <div className="space-y-0.5">
+                      <FormLabel>Marcada como Vendida?</FormLabel>
+                      <FormDescription>
+                      Indica se a conta já foi vendida.
+                      </FormDescription>
+                  </div>
+                  <FormControl>
+                      <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      />
+                  </FormControl>
+                  </FormItem>
+              )}
+              />
             )}
-            />
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
