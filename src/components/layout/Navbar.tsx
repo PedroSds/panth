@@ -11,8 +11,8 @@ export function Navbar() {
             <Image
               src="https://i.imgur.com/4RDlzjM.png"
               alt="PanthStore Logo"
-              width={150}
-              height={36}
+              width={167}
+              height={40}
               data-ai-hint="company logo"
             />
           </Link>
