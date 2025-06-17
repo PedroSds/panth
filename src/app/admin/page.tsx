@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
+const LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -21,9 +23,38 @@ export default function AdminPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setAccounts(initialAccountsData.map(acc => ({...acc}))); // Deep copy to allow modification
+    const storedAccountsData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedAccountsData) {
+      try {
+        const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
+        if (Array.isArray(parsedAccounts)) {
+          setAccounts(parsedAccounts);
+        } else {
+          // Data in localStorage is corrupted or not an array, fallback to initial
+          const initialData = initialAccountsData.map(acc => ({ ...acc }));
+          setAccounts(initialData);
+        }
+      } catch (error) {
+        console.error("Error parsing accounts from localStorage:", error);
+        // Fallback to initial data on error
+        const initialData = initialAccountsData.map(acc => ({ ...acc }));
+        setAccounts(initialData);
+      }
+    } else {
+      // No data in localStorage, use initial mock data
+      const initialData = initialAccountsData.map(acc => ({ ...acc }));
+      setAccounts(initialData);
+    }
     setIsMounted(true);
-  }, []);
+  }, []); // Runs once on component mount
+
+  useEffect(() => {
+    if (isMounted) {
+      // Save accounts to localStorage whenever they change, but only after initial mount and data load
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(accounts));
+    }
+  }, [accounts, isMounted]); // Re-run when accounts or isMounted status changes
+
 
   if (!isMounted) {
     return (
@@ -41,7 +72,7 @@ export default function AdminPage() {
     const newAccount: Account = {
       ...newAccountData,
       id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      isSold: false,
+      // isSold is already part of newAccountData from the form
     };
     setAccounts((prevAccounts) => [newAccount, ...prevAccounts]);
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
@@ -51,7 +82,7 @@ export default function AdminPage() {
   const handleUpdateAccount = (updatedAccountData: Account) => {
     setAccounts((prevAccounts) =>
       prevAccounts.map((acc) =>
-        acc.id === updatedAccountData.id ? { ...acc, ...updatedAccountData } : acc
+        acc.id === updatedAccountData.id ? { ...updatedAccountData } : acc // Ensure full update
       )
     );
     toast({ title: "Sucesso!", description: "Conta atualizada." });
@@ -80,7 +111,7 @@ export default function AdminPage() {
   };
   
   const openEditForm = (account: Account) => {
-    setEditingAccount(account);
+    setEditingAccount({...account}); // Pass a copy to avoid direct state mutation if form changes it
     setIsFormOpen(true);
   };
 
@@ -90,7 +121,9 @@ export default function AdminPage() {
   }
 
   const resetToMockData = () => {
-    setAccounts(initialAccountsData.map(acc => ({...acc})));
+    const freshMockData = initialAccountsData.map(acc => ({...acc}));
+    setAccounts(freshMockData);
+    // localStorage will be updated by the useEffect hook watching 'accounts'
     toast({ title: "Dados Resetados", description: "A lista de contas foi resetada para os dados iniciais." });
   }
 
@@ -104,7 +137,12 @@ export default function AdminPage() {
             <Button onClick={resetToMockData} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" /> Resetar Dados
             </Button>
-            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
+              setIsFormOpen(isOpen);
+              if (!isOpen) {
+                setEditingAccount(null); // Clear editing account when dialog closes
+              }
+            }}>
               <DialogTrigger asChild>
                 <Button onClick={openAddForm}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta

@@ -1,13 +1,54 @@
 
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import type { Account } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CustomAccountForm } from '@/components/CustomAccountForm';
-import { accountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
 
+const LOCAL_STORAGE_KEY = 'panthStoreAccounts';
+
 export default function HomePage() {
-  const visibleAndUnsoldAccounts = accountsData.filter(acc => !acc.isSold && acc.isVisible);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const storedAccountsData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedAccountsData) {
+      try {
+        const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
+        if (Array.isArray(parsedAccounts)) {
+          setAccounts(parsedAccounts);
+        } else {
+          setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback if not array
+        }
+      } catch (error) {
+        console.error("Error parsing accounts from localStorage for homepage:", error);
+        setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback on error
+      }
+    } else {
+      setAccounts(fallbackAccountsData.map(acc => ({...acc}))); // Fallback if nothing in localStorage
+    }
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <p>Carregando contas...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const visibleAndUnsoldAccounts = accounts.filter(acc => !acc.isSold && acc.isVisible);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
