@@ -7,6 +7,7 @@ export interface Account {
   isSold: boolean;
   image: string;
   imageHint: string;
+  isVisible: boolean; // Added for admin control
 }
 
 export interface CustomAccountFormData {

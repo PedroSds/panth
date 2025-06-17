@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
 
 export default function HomePage() {
-  const unsoldAccounts = accountsData.filter(acc => !acc.isSold);
+  const visibleAndUnsoldAccounts = accountsData.filter(acc => !acc.isSold && acc.isVisible);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -28,9 +28,9 @@ export default function HomePage() {
           <h2 id="all-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
             Contas Disponíveis
           </h2>
-          {unsoldAccounts.length > 0 ? (
+          {visibleAndUnsoldAccounts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {unsoldAccounts.map(account => (
+              {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
               ))}
             </div>

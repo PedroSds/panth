@@ -9,7 +9,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
             <Image
-              src="https://placehold.co/150x36.png"
+              src="https://placehold.co/150x36.png" 
               alt="PanthStore Logo"
               width={150}
               height={36}
@@ -21,6 +21,11 @@ export function Navbar() {
               <li>
                 <Link href="/#custom-account" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Pedido Personalizado
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Admin
                 </Link>
               </li>
             </ul>

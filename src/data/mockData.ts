@@ -17,12 +17,13 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'lol ready'
+    imageHint: 'lol ready',
+    isVisible: true,
   },
   {
     id: 'pronta002',
     name: 'UNRANKED LVL 30+ (PRONTA PARA RANQUEADA)',
-    price: 90, // Slightly different price for variety
+    price: 90,
     details: [
       '10.000+ essências azuis',
       'Baús para abrir',
@@ -32,7 +33,8 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'league account'
+    imageHint: 'league account',
+    isVisible: true,
   },
   {
     id: 'simples001',
@@ -47,6 +49,7 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'lol smurf'
+    imageHint: 'lol smurf',
+    isVisible: true,
   },
 ];
