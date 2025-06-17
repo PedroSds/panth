@@ -32,8 +32,6 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
   if (nameParts && nameParts.length === 3) {
     mainName = nameParts[1].trim();
     subTitle = nameParts[2].trim();
-  } else if (account.isCustomService) {
-    mainName = account.name; 
   }
 
 
@@ -51,14 +49,11 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
-        <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle || account.isCustomService ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
-        {subTitle && !account.isCustomService && (
-          <p className="text-sm font-medium text-muted-foreground mb-2">{subTitle}</p>
+        <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
+        {subTitle && (
+          <p className="text-sm font-medium text-foreground mb-2">{subTitle}</p>
         )}
         
-        {account.isCustomService && (
-          <p className="text-sm font-semibold text-foreground mb-1">Serviço Personalizado</p>
-        )}
         <CardDescription className="text-2xl font-bold text-accent mb-3">
           R$ {account.price.toFixed(2)}
         </CardDescription>
