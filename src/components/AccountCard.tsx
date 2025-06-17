@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -19,6 +20,15 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
     window.open(whatsappUrl, '_blank');
   };
 
+  const nameParts = account.name.match(/^(.*?)\s*\((.*?)\)$/);
+  let mainName = account.name;
+  let subTitle: string | null = null;
+
+  if (nameParts && nameParts.length === 3) {
+    mainName = nameParts[1].trim();
+    subTitle = nameParts[2].trim();
+  }
+
   return (
     <Card className="flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
       <CardHeader className="p-0">
@@ -33,7 +43,10 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
-        <CardTitle className="text-xl font-headline font-semibold text-primary mb-2">{account.name}</CardTitle>
+        <CardTitle className={`text-xl font-headline font-semibold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
+        {subTitle && (
+          <p className="text-sm font-medium text-muted-foreground mb-2">{subTitle}</p>
+        )}
         <CardDescription className="text-2xl font-bold text-accent mb-3">
           R$ {account.price.toFixed(2)}
         </CardDescription>
