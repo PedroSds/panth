@@ -13,6 +13,7 @@ export function Navbar() {
               alt="PanthStore Logo"
               width={167}
               height={40}
+              className="object-contain" // Added object-contain
               data-ai-hint="company logo"
             />
           </Link>
