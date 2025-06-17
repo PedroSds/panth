@@ -12,11 +12,7 @@ export function Navbar() {
           </Link>
           <nav>
             <ul className="flex items-center space-x-4 sm:space-x-6">
-              <li>
-                <Link href="/#accounts-by-category" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                  Contas
-                </Link>
-              </li>
+              {/* Link para contas foi removido pois não há mais seção de categorias */}
               <li>
                 <Link href="/#custom-account" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Pedido Personalizado

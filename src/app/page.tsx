@@ -1,9 +1,9 @@
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { CategoryAccordion } from '@/components/CategoryAccordion';
 import { CustomAccountForm } from '@/components/CustomAccountForm';
-import { categoriesData, accountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+import { accountsData, WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
+import { AccountCard } from '@/components/AccountCard'; // Potentially needed if we list all accounts
 
 export default function HomePage() {
   const unsoldAccounts = accountsData.filter(acc => !acc.isSold);
@@ -17,22 +17,28 @@ export default function HomePage() {
             PanthStore
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Encontre sua conta de League of Legends perfeita! Navegue por nossas categorias ou peça uma conta personalizada.
+            Encontre sua conta de League of Legends perfeita! Navegue por nossas contas disponíveis ou peça uma conta personalizada.
           </p>
         </section>
 
+        {/* Section for displaying all unsold accounts could go here if desired in a future step */}
+        {/* For example:
         <Separator className="my-12" />
-
-        <section id="accounts-by-category" aria-labelledby="accounts-by-category-heading" className="mb-16">
-          <h2 id="accounts-by-category-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
-            Contas Disponíveis por Categoria
+        <section id="all-accounts" aria-labelledby="all-accounts-heading" className="mb-16">
+          <h2 id="all-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
+            Contas Disponíveis
           </h2>
-          {categoriesData.length > 0 ? (
-            <CategoryAccordion categories={categoriesData} accounts={unsoldAccounts} whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
+          {unsoldAccounts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {unsoldAccounts.map(account => (
+                <AccountCard key={account.id} account={account} whatsAppPhoneNumber={WHATSAPP_PHONE_NUMBER} />
+              ))}
+            </div>
           ) : (
-            <p className="text-center text-muted-foreground">Nenhuma categoria disponível no momento.</p>
+            <p className="text-center text-muted-foreground">Nenhuma conta disponível no momento.</p>
           )}
         </section>
+        */}
         
         <Separator className="my-16" />
 
