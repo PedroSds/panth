@@ -9,11 +9,11 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
             <Image
-              src="https://placehold.co/150x36.png" 
+              src="https://i.imgur.com/4RDlzjM.png"
               alt="PanthStore Logo"
               width={150}
               height={36}
-              data-ai-hint="store logo"
+              data-ai-hint="company logo"
             />
           </Link>
           <nav>
