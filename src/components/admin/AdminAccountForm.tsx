@@ -19,11 +19,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Account, Category } from "@/types";
-import { categoriesData } from "@/data/mockData"; // Import categories
+import { categoriesData } from "@/data/mockData"; 
 import { useEffect } from "react";
 
 const accountFormSchema = z.object({
-  name: z.string().min(5, { message: "Nome deve ter pelo menos 5 caracteres." }).max(100),
+  mainName: z.string().min(5, { message: "Nome principal deve ter pelo menos 5 caracteres." }).max(70),
+  nameSuffix: z.string().max(50).optional(), // O subtítulo que vai entre parênteses
   price: z.coerce.number().min(0, { message: "Preço deve ser positivo." }),
   details: z.string().min(10, { message: "Detalhes devem ter pelo menos 10 caracteres." }),
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
@@ -45,12 +46,13 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
   const form = useForm<AccountFormData>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      name: "",
+      mainName: "",
+      nameSuffix: "",
       price: 0,
       details: "",
       image: "https://placehold.co/300x200.png",
       imageHint: "game account",
-      categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", // Default to first category or empty
+      categoryId: categoriesData.length > 0 ? categoriesData[0].id : "", 
       isVisible: true,
       isSold: false,
     },
@@ -58,13 +60,26 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
 
   useEffect(() => {
     if (initialData) {
+      // Extrair nome principal e sufixo
+      const nameParts = initialData.name.match(/^(.*?)\s*\((.*?)\)$/);
+      let mainName = initialData.name;
+      let nameSuffix = "";
+
+      if (nameParts && nameParts.length === 3) {
+        mainName = nameParts[1].trim();
+        nameSuffix = nameParts[2].trim();
+      }
+      
       form.reset({
         ...initialData,
+        mainName: mainName,
+        nameSuffix: nameSuffix,
         details: initialData.details.join("\n"), 
       });
     } else {
        form.reset({ 
-        name: "",
+        mainName: "",
+        nameSuffix: "",
         price: 0,
         details: "",
         image: "https://placehold.co/300x200.png",
@@ -77,15 +92,27 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
   }, [initialData, form]);
 
   function onSubmit(data: AccountFormData) {
+    let finalName = data.mainName.trim();
+    if (data.nameSuffix && data.nameSuffix.trim() !== "") {
+      finalName = `${finalName} (${data.nameSuffix.trim()})`;
+    }
+
     const processedData = {
       ...data,
+      name: finalName, // Combinar nome principal e sufixo
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
     };
 
+    // Remover mainName e nameSuffix do objeto final, pois não existem no tipo Account
+    const { mainName: mn, nameSuffix: ns, ...accountDataForSubmit } = processedData;
+
+
     if (initialData) {
-      onSubmitAccount({ ...initialData, ...processedData });
+      onSubmitAccount({ ...initialData, ...accountDataForSubmit });
     } else {
-      onSubmitAccount(processedData);
+      // Para novas contas, o tipo Omit<Account, "id" | "isSold"> é esperado
+      const { id, isSold, ...newAccountData } = accountDataForSubmit as Account;
+      onSubmitAccount(newAccountData as Omit<Account, "id" | "isSold">);
     }
     form.reset(); 
   }
@@ -95,13 +122,27 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
         <FormField
           control={form.control}
-          name="name"
+          name="mainName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome da Conta</FormLabel>
+              <FormLabel>Nome Principal da Conta</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: UNRANKED LVL 30+ (PRONTA)" {...field} />
+                <Input placeholder="Ex: UNRANKED LVL 30+" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="nameSuffix"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Subtítulo da Conta (Opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: PRONTA PARA RANQUEADA" {...field} />
+              </FormControl>
+              <FormDescription>Texto que aparecerá entre parênteses e com menos destaque.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -236,3 +277,5 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose }: Admi
     </Form>
   );
 }
+
+    
