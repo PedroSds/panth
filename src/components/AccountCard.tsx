@@ -49,7 +49,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
-        <CardTitle className={`text-2xl font-headline font-bold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
+        <CardTitle className={`text-2xl font-bold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
         {subTitle && (
           <p className="text-sm font-medium text-accent mb-2">{subTitle}</p>
         )}
@@ -61,7 +61,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         <ul className="space-y-1 text-sm text-muted-foreground mb-4">
           {account.details.map((detail, index) => (
             <li key={index} className="flex items-center">
-              <BadgeCheck className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+              <BadgeCheck className="h-4 w-4 mr-2 text-accent flex-shrink-0" />
               {detail}
             </li>
           ))}
