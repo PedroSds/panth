@@ -21,11 +21,7 @@ export function Navbar() {
           </Link>
           <nav>
             <ul className="flex items-center space-x-4 sm:space-x-6">
-              <li>
-                <Link href="/#custom-account" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                  Pedido Personalizado
-                </Link>
-              </li>
+              {/* Link removido */}
             </ul>
           </nav>
         </div>
