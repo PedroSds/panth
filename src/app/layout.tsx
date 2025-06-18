@@ -1,6 +1,8 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import React from 'react';
 
 export const metadata: Metadata = {
   title: 'PanthStore',
@@ -8,15 +10,18 @@ export const metadata: Metadata = {
 };
 
 // Note for debugging: The "params are being enumerated" error typically arises
-// in Server Components when `params` or `searchParams` are iterated (e.g., Object.keys())
-// without being properly handled (e.g. React.use() or conversion to a plain object if needed).
-// This RootLayout does not currently use params or searchParams in its signature.
-// If the error persists, investigate other Server Components or how props are passed
-// to Client Components that might indirectly lead to enumeration of these special objects.
+// in Server Components when `params` or `searchParams` (which are not plain objects)
+// are iterated (e.g., using Object.keys(), spreading {...params})
+// without being properly handled. If these objects need to be read, use React.use(),
+// or convert them to plain objects if passing to Client Components.
 export default function RootLayout({
   children,
+  params, // Explicitly destructure, even if not directly used here.
+  searchParams, // Explicitly destructure, even if not directly used here.
 }: Readonly<{
   children: React.ReactNode;
+  params: { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }>) {
   return (
     <html lang="pt-BR">
