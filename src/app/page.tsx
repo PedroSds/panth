@@ -151,8 +151,18 @@ export default function HomePage() {
   const showFaqSection = faqItems.length > 0;
   const showContactSection = hasActiveSocialLinks;
 
+  const accountsSectionStyle = getSectionStyle('accounts');
+  const videoSectionStyle = getSectionStyle('video');
+  const faqSectionStyle = getSectionStyle('faq');
+  const contactSectionStyle = getSectionStyle('contact');
+  
   // Determine if any content section (other than hero) will be displayed
   const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showVideoSection || showFaqSection || showContactSection;
+
+  const waveContainerStyle: React.CSSProperties = {
+    transform: 'translateY(1px)', // Keep the slight overlap for seamless transition
+    color: accountsSectionStyle.backgroundColor || 'hsl(var(--background))', // Dynamic color or fallback
+  };
 
 
   return (
@@ -180,7 +190,10 @@ export default function HomePage() {
             </Button>
           </div>
           {hasAnyContentSection && (
-            <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
+            <div 
+              className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0px]" 
+              style={waveContainerStyle}
+            >
               <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block " style={{ minHeight: '40px', maxHeight: '120px' }}>
                 <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
               </svg>
@@ -192,7 +205,7 @@ export default function HomePage() {
         <section 
           aria-labelledby="available-accounts-heading" 
           className="py-12 md:py-16 lg:py-20"
-          style={getSectionStyle('accounts')}
+          style={accountsSectionStyle}
         >
           <div id="available-accounts-content" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
@@ -215,7 +228,7 @@ export default function HomePage() {
             id="video-player" 
             aria-labelledby="video-heading" 
             className="py-12 md:py-16 lg:py-20"
-            style={getSectionStyle('video')}
+            style={videoSectionStyle}
           >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-8">
@@ -247,7 +260,7 @@ export default function HomePage() {
           <section 
             id="faq-container" 
             className="py-12 md:py-16 lg:py-20"
-            style={getSectionStyle('faq')}
+            style={faqSectionStyle}
           >
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <FaqSection faqItems={faqItems} />
@@ -260,7 +273,7 @@ export default function HomePage() {
            <section 
             id="contact-outer-wrapper" 
             className="pt-4 pb-12 md:pt-6 md:pb-16 lg:pt-8 lg:pb-20"
-            style={getSectionStyle('contact')}
+            style={contactSectionStyle}
            >
              <ContactSection socialLinks={socialLinks} />
            </section>
@@ -277,6 +290,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-    
