@@ -29,6 +29,7 @@ export interface Account {
   isVisible: boolean;
   isCustomService?: boolean;
   categoryId?: string;
+  automaticDeliveryLink?: string; // Added new field
 }
 
 export interface CustomAccountFormData {
@@ -78,4 +79,3 @@ export interface SocialPlatformConfigEntry {
 export interface SocialLink extends SocialPlatformConfigEntry {
   url: string;
 }
-

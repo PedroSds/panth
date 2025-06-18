@@ -31,6 +31,7 @@ const accountFormSchema = z.object({
   imageHint: z.string().max(50).optional(),
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
+  automaticDeliveryLink: z.string().url({ message: "URL inválida para entrega automática." }).optional().or(z.literal('')),
 });
 
 type AccountFormData = z.infer<typeof accountFormSchema>;
@@ -54,6 +55,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       imageHint: "game account",
       isVisible: true,
       isSold: false,
+      automaticDeliveryLink: "",
     },
   });
 
@@ -77,6 +79,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         imageHint: initialData.imageHint,
         isVisible: initialData.isVisible,
         isSold: initialData.isSold,
+        automaticDeliveryLink: initialData.automaticDeliveryLink || "",
       });
     } else {
        form.reset({ 
@@ -88,6 +91,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         imageHint: "game account",
         isVisible: true,
         isSold: false,
+        automaticDeliveryLink: "",
       });
     }
   }, [initialData, form]);
@@ -102,6 +106,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       ...data,
       name: finalName,
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
+      automaticDeliveryLink: data.automaticDeliveryLink?.trim() === '' ? undefined : data.automaticDeliveryLink?.trim(),
     };
 
     const { mainName: _mn, nameSuffix: _ns, ...accountDataForSubmit } = processedData;
@@ -212,6 +217,22 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
             </FormItem>
           )}
         />
+        {!isEditingCustomService && (
+          <FormField
+            control={form.control}
+            name="automaticDeliveryLink"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Link de Entrega Automática (opcional)</FormLabel>
+                <FormControl>
+                  <Input type="url" placeholder="https://seu-link-de-venda.com/produto" {...field} />
+                </FormControl>
+                <FormDescription>Se preenchido, um botão para compra com entrega automática aparecerá no card da conta.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <div className="flex items-center space-x-4">
             <FormField
             control={form.control}

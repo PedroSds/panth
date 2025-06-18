@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare } from 'lucide-react';
+import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare, Send } from 'lucide-react'; // Added Send icon
 import type { Account } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,7 +19,7 @@ interface AccountCardProps {
 export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) {
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
 
-  const handlePurchase = () => {
+  const handleWhatsAppPurchase = () => {
     const message = `Olá, tenho interesse na conta "${account.name}" (ID: ${account.id}) no valor de R$${account.price.toFixed(2)}. Poderia me passar mais informações?`;
     const whatsappUrl = `https://wa.me/${whatsAppPhoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -93,15 +93,30 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
             </DialogContent>
           </Dialog>
         ) : (
-          <Button
-            onClick={handlePurchase}
-            className="w-full bg-green-600 hover:bg-green-700 text-white"
-            aria-label={`Comprar conta ${account.name}`}
-          >
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            Comprar via WhatsApp
-            <ExternalLink className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="w-full space-y-2">
+            {account.automaticDeliveryLink && account.automaticDeliveryLink.trim() !== '' && (
+              <Button
+                asChild
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                aria-label={`Comprar ${account.name} com entrega automática`}
+              >
+                <a href={account.automaticDeliveryLink} target="_blank" rel="noopener noreferrer">
+                  <Send className="mr-2 h-5 w-5" />
+                  Entrega Automática
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            )}
+            <Button
+              onClick={handleWhatsAppPurchase}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              aria-label={`Comprar conta ${account.name} via WhatsApp`}
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Comprar via WhatsApp
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         )}
       </CardFooter>
     </Card>
