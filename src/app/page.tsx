@@ -95,7 +95,7 @@ export default function HomePage() {
               100% SEGURA DE BANIMENTOS
             </p>
             <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-10 py-6 text-lg font-semibold">
-              <Link href="/#available-accounts">Ver Contas Disponíveis</Link>
+              <Link href="/#available-accounts">VER CONTAS DISPONÍVEIS</Link>
             </Button>
           </div>
           <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
@@ -150,3 +150,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
