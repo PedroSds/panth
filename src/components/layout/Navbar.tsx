@@ -12,8 +12,8 @@ export function Navbar() {
               src="https://i.imgur.com/4RDlzjM.png"
               alt="PanthStore Logo"
               style={{
-                width: '266px',
-                height: '64px',
+                width: '292px',
+                height: '70px',
                 objectFit: 'contain',
                 display: 'block',
               }}
