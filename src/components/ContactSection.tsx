@@ -51,7 +51,7 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
                 {LucideIconComponent && (
                   <LucideIconComponent className="h-6 w-6 text-accent" />
                 )}
-                <span className="text-lg font-medium text-primary">{link.name}</span>
+                <span className="text-lg font-semibold text-primary">{link.name}</span>
               </Link>
             );
           })}
