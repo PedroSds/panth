@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig, FeedbackItem } from "@/types";
+import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig } from "@/types";
 import { 
   accountsData as initialAccountsData, 
   customAccountServiceData, 
@@ -21,14 +22,12 @@ import {
   SECTION_STYLES_LOCAL_STORAGE_KEY,
   initialSectionStyles,
   sectionConfig,
-  FEEDBACKS_LOCAL_STORAGE_KEY,
-  initialFeedbacksData
 } from "@/data/mockData";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film, Brush, Trash2Icon, StarIcon } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film, Brush, Trash2Icon, StarIcon, LogOut } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -42,6 +41,7 @@ import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/acco
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { logoutAction } from '@/app/admin/actions';
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -54,7 +54,7 @@ const getVideoEmbedUrl = (url: string): string | null => {
   const youtubeRegexes = [
     /[?&]v=([^&]+)/,
     /youtu\.be\/([^?&]+)/,
-    /youtube\.com\/embed\/([^?&]+)/
+    /youtube\.com\/embed\/([^?&]+)/,
   ];
   for (const regex of youtubeRegexes) {
     const match = url.match(regex);
@@ -105,7 +105,6 @@ export default function AdminPage() {
   const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData.map(link => ({...link})));
 
   const [sectionCustomStyles, setSectionCustomStyles] = useState<PageSectionStyles>(initialSectionStyles);
-  // Temporary state for section style inputs, to avoid updating main state on every keystroke
   const [tempSectionStyles, setTempSectionStyles] = useState<PageSectionStyles>(initialSectionStyles);
 
 
@@ -113,7 +112,6 @@ export default function AdminPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Load Accounts
     try {
       const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
       if (storedAccountsData) {
@@ -142,7 +140,6 @@ export default function AdminPage() {
       toast({ title: "Erro ao carregar contas", description: "Não foi possível carregar as contas salvas.", variant: "destructive" });
     }
 
-    // Load FAQs
     try {
       const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
       if (storedFaqData) {
@@ -157,7 +154,6 @@ export default function AdminPage() {
       toast({ title: "Erro ao carregar FAQs", description: "Não foi possível carregar os FAQs salvos.", variant: "destructive" });
     }
     
-    // Load WhatsApp Number, Logo, Banner, Video, Social Links
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
@@ -200,12 +196,10 @@ export default function AdminPage() {
       toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
     }
 
-    // Load Section Styles
     try {
       const storedSectionStyles = localStorage.getItem(SECTION_STYLES_LOCAL_STORAGE_KEY);
       if (storedSectionStyles) {
         const parsedStyles = JSON.parse(storedSectionStyles) as PageSectionStyles;
-        // Ensure all keys from sectionConfig are present
         const validatedStyles: PageSectionStyles = { ...initialSectionStyles };
         for (const config of sectionConfig) {
           if (parsedStyles[config.key]) {
@@ -213,7 +207,7 @@ export default function AdminPage() {
           }
         }
         setSectionCustomStyles(validatedStyles);
-        setTempSectionStyles(JSON.parse(JSON.stringify(validatedStyles))); // Deep copy for temp state
+        setTempSectionStyles(JSON.parse(JSON.stringify(validatedStyles))); 
       } else {
         setSectionCustomStyles(initialSectionStyles);
         setTempSectionStyles(JSON.parse(JSON.stringify(initialSectionStyles)));
@@ -224,12 +218,10 @@ export default function AdminPage() {
       setTempSectionStyles(JSON.parse(JSON.stringify(initialSectionStyles)));
       toast({ title: "Erro ao carregar estilos de seção", description: "Configurações de estilo personalizadas não puderam ser carregadas.", variant: "destructive" });
     }
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Ensure this runs only once on mount
+  }, []); 
 
 
-  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, Video, Social Links, Section Styles
   useEffect(() => { if (isMounted) localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts)); }, [accounts, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems)); }, [faqItems, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber); }, [currentWhatsAppNumber, isMounted]);
@@ -261,7 +253,6 @@ export default function AdminPage() {
     );
   }
 
-  // Account Handlers
   const handleAddAccount = (newAccountData: Omit<Account, "id" | "isSold">) => {
     const newAccount: Account = {
       ...newAccountData,
@@ -293,7 +284,6 @@ export default function AdminPage() {
   const openEditAccountForm = (account: Account) => { setEditingAccount({ ...account }); setIsAccountFormOpen(true); };
   const openAddAccountForm = () => { setEditingAccount(null); setIsAccountFormOpen(true); }
 
-  // FAQ Handlers
   const handleAddFaqItem = (newFaqItemData: Omit<FaqItem, "id">) => {
     const newFaqItem: FaqItem = { ...newFaqItemData, id: `faq-${Date.now()}-${Math.random().toString(36).substring(2, 7)}` };
     setFaqItems((prevFaqs) => [newFaqItem, ...prevFaqs]);
@@ -312,7 +302,6 @@ export default function AdminPage() {
   const openEditFaqForm = (faqItem: FaqItem) => { setEditingFaqItem({ ...faqItem }); setIsFaqFormOpen(true); };
   const openAddFaqForm = () => { setEditingFaqItem(null); setIsFaqFormOpen(true); };
 
-  // Other Save Handlers (WhatsApp, Logo, Banner, Video, Social Links)
   const handleSaveWhatsAppNumber = () => {
     if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
       setCurrentWhatsAppNumber(whatsAppNumberInput.trim());
@@ -349,7 +338,7 @@ export default function AdminPage() {
         }
     }
     if (allValid) { 
-      setSectionCustomStyles(prev => ({ ...prev })); // This forces update which triggers localStorage save
+      setSectionCustomStyles(prev => ({ ...prev })); 
       toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -374,12 +363,10 @@ export default function AdminPage() {
       });
       return;
     }
-    // Validate hex color if present
     if (currentStyle?.bgColor && currentStyle.bgColor.trim() !== '' && !/^#([0-9A-Fa-f]{3,4}){1,2}$/.test(currentStyle.bgColor)) {
         toast({ title: "Erro de Validação", description: `Cor hexadecimal inválida para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}". Use formato #RRGGBB ou #RGB.`, variant: "destructive" });
         return;
     }
-    // Validate URL if present
     if (currentStyle?.bgImageUrl && currentStyle.bgImageUrl.trim() !== '') {
         try {
             new URL(currentStyle.bgImageUrl);
@@ -399,16 +386,20 @@ export default function AdminPage() {
   const handleResetSectionStyle = (sectionKey: SectionIdentifier) => {
     setTempSectionStyles(prev => ({
       ...prev,
-      [sectionKey]: {} // Reset temp state
+      [sectionKey]: {} 
     }));
     setSectionCustomStyles(prev => {
       const updatedStyles = { ...prev };
-      delete updatedStyles[sectionKey]; // Remove the key to signify default
+      delete updatedStyles[sectionKey]; 
       return updatedStyles;
     });
     toast({ title: "Estilo Resetado", description: `Estilo da seção "${sectionConfig.find(s => s.key === sectionKey)?.label}" resetado para o padrão.` });
   };
 
+  const handleLogout = async () => {
+    await logoutAction();
+    toast({ title: "Logout", description: "Você foi desconectado." });
+  };
 
   const sortedAccounts = [...accounts].sort((a, b) => {
     if (a.id === CUSTOM_ACCOUNT_SERVICE_ID) return -1; if (b.id === CUSTOM_ACCOUNT_SERVICE_ID) return 1; return 0;
@@ -420,6 +411,9 @@ export default function AdminPage() {
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Painel de Administração</h1>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" /> Logout
+          </Button>
         </div>
 
         <Card className="mb-8 shadow-lg">
@@ -567,7 +561,7 @@ export default function AdminPage() {
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
               <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
+                 <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
                   <div className="flex flex-1 flex-col text-left">
                     <div className="flex items-center">
                       <Share2 className="mr-3 h-5 w-5 text-primary" />
