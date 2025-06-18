@@ -89,21 +89,36 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts));
+      try {
+        localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts));
+      } catch (error) {
+        console.error("Error saving accounts to localStorage:", error);
+        toast({ title: "Erro ao salvar contas", description: "Não foi possível salvar as alterações das contas localmente.", variant: "destructive" });
+      }
     }
-  }, [accounts, isMounted]);
+  }, [accounts, isMounted, toast]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems));
+      try {
+        localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems));
+      } catch (error) {
+        console.error("Error saving FAQs to localStorage:", error);
+        toast({ title: "Erro ao salvar FAQs", description: "Não foi possível salvar as alterações do FAQ localmente.", variant: "destructive" });
+      }
     }
-  }, [faqItems, isMounted]);
+  }, [faqItems, isMounted, toast]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber);
+      try {
+        localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber);
+      } catch (error) {
+        console.error("Error saving WhatsApp number to localStorage:", error);
+        toast({ title: "Erro ao salvar WhatsApp", description: "Não foi possível salvar o número do WhatsApp localmente.", variant: "destructive" });
+      }
     }
-  }, [currentWhatsAppNumber, isMounted]);
+  }, [currentWhatsAppNumber, isMounted, toast]);
 
 
   if (!isMounted) {
