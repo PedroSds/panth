@@ -509,7 +509,7 @@ export default function AdminPage() {
                 <img 
                   src={currentLogoImageUrl} 
                   alt="Logo preview" 
-                  className="rounded-md border max-h-20 object-contain bg-muted p-2"
+                  className="max-h-20 object-contain"
                   data-ai-hint="store logo"
                 />
               </div>
@@ -667,3 +667,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
