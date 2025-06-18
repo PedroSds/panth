@@ -15,13 +15,15 @@ import {
   socialPlatformConfig, 
   initialSocialLinksData,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
-  DEFAULT_LOGO_IMAGE_URL
+  DEFAULT_LOGO_IMAGE_URL,
+  DEFAULT_YOUTUBE_VIDEO_URL,
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
 } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -40,6 +42,38 @@ import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  if (!url || typeof url !== 'string') return null;
+  let videoId = null;
+  
+  // Standard URL: https://www.youtube.com/watch?v=VIDEO_ID
+  let match = url.match(/[?&]v=([^&]+)/);
+  if (match) {
+    videoId = match[1];
+  } else {
+    // Shortened URL: https://youtu.be/VIDEO_ID
+    match = url.match(/youtu\.be\/([^?&]+)/);
+    if (match) {
+      videoId = match[1];
+    } else {
+      // Embed URL: https://www.youtube.com/embed/VIDEO_ID
+      match = url.match(/embed\/([^?&]+)/);
+      if (match) {
+        videoId = match[1]; 
+      }
+    }
+  }
+
+  if (videoId) {
+    // Basic check for valid YouTube video ID characters and length
+    if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  }
+  return null;
+};
+
+
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
@@ -56,6 +90,9 @@ export default function AdminPage() {
   
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
+
+  const [youtubeVideoUrlInput, setYoutubeVideoUrlInput] = useState('');
+  const [currentYoutubeVideoUrl, setCurrentYoutubeVideoUrl] = useState(DEFAULT_YOUTUBE_VIDEO_URL);
   
   const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData.map(link => ({...link})));
 
@@ -124,6 +161,12 @@ export default function AdminPage() {
     const initialBannerUrl = storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL;
     setCurrentBannerImageUrl(initialBannerUrl);
     setBannerImageUrlInput(initialBannerUrl);
+
+    // Load YouTube Video URL
+    const storedYoutubeVideoUrl = localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY);
+    const initialYoutubeUrl = storedYoutubeVideoUrl || DEFAULT_YOUTUBE_VIDEO_URL;
+    setCurrentYoutubeVideoUrl(initialYoutubeUrl);
+    setYoutubeVideoUrlInput(initialYoutubeUrl);
 
     // Load Social Media Links
     try {
@@ -204,6 +247,18 @@ export default function AdminPage() {
       }
     }
   }, [currentBannerImageUrl, isMounted, toast]);
+  
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY, currentYoutubeVideoUrl);
+      } catch (error) {
+        console.error("Error saving YouTube Video URL to localStorage:", error);
+        toast({ title: "Erro ao salvar URL do Vídeo", description: "Não foi possível salvar a URL do vídeo do YouTube localmente.", variant: "destructive" });
+      }
+    }
+  }, [currentYoutubeVideoUrl, isMounted, toast]);
+
 
   useEffect(() => {
     if (isMounted) {
@@ -319,22 +374,6 @@ export default function AdminPage() {
     setIsFaqFormOpen(true);
   };
 
-
-  // General Admin Handlers
-  const resetToMockData = () => {
-    const freshMockAccounts = initialAccountsData.map(acc => ({ ...acc }));
-    setAccounts(freshMockAccounts);
-    setFaqItems([...initialFaqData]);
-    setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
-    setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
-    setCurrentLogoImageUrl(DEFAULT_LOGO_IMAGE_URL);
-    setLogoImageUrlInput(DEFAULT_LOGO_IMAGE_URL);
-    setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
-    setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
-    setEditableSocialLinks(socialPlatformConfig.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''}))); 
-    toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
-  }
-
   const handleSaveWhatsAppNumber = () => {
     if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
       setCurrentWhatsAppNumber(whatsAppNumberInput.trim());
@@ -363,6 +402,23 @@ export default function AdminPage() {
       toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do banner.", variant: "destructive" });
     }
   };
+  
+  const handleSaveYoutubeVideoUrl = () => {
+    const trimmedUrl = youtubeVideoUrlInput.trim();
+    if (trimmedUrl === '') { // Allow clearing the URL
+      setCurrentYoutubeVideoUrl('');
+      toast({ title: "Sucesso!", description: "URL do vídeo do YouTube removida." });
+      return;
+    }
+    const embedUrl = getYouTubeEmbedUrl(trimmedUrl);
+    if (embedUrl) {
+      setCurrentYoutubeVideoUrl(embedUrl);
+      toast({ title: "Sucesso!", description: "URL do vídeo do YouTube atualizada." });
+    } else {
+      toast({ title: "Erro de Validação", description: "Por favor, insira uma URL do YouTube válida (ex: youtube.com/watch?v=... ou youtu.be/... ou youtube.com/embed/...)", variant: "destructive" });
+    }
+  };
+
 
   const handleSocialLinkChange = (index: number, value: string) => {
     setEditableSocialLinks(prevLinks =>
@@ -387,8 +443,6 @@ export default function AdminPage() {
     }
 
     if (allValid) {
-        // No need to call setEditableSocialLinks if it's already up-to-date by handleSocialLinkChange
-        // localStorage will be updated by its useEffect trigger
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -550,6 +604,48 @@ export default function AdminPage() {
             )}
           </CardContent>
         </Card>
+
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center"><YoutubeIcon className="mr-2 h-5 w-5 text-primary" />Configurar Vídeo do YouTube</CardTitle>
+            <CardDescription>Insira a URL de um vídeo do YouTube para exibi-lo na página inicial. URLs de watch, shorts ou embed são aceitas.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-end gap-4">
+              <div className="flex-grow">
+                <Label htmlFor="youtube-video-url" className="font-semibold">URL do Vídeo do YouTube</Label>
+                <Input
+                  id="youtube-video-url"
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+                  value={youtubeVideoUrlInput}
+                  onChange={(e) => setYoutubeVideoUrlInput(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <Button onClick={handleSaveYoutubeVideoUrl}>
+                <Save className="mr-2 h-4 w-4" /> Salvar URL do Vídeo
+              </Button>
+            </div>
+            {currentYoutubeVideoUrl && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Prévia do vídeo atual:</p>
+                <div className="aspect-video w-full max-w-md mx-auto">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={currentYoutubeVideoUrl}
+                    title="YouTube video player preview"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="rounded-md border"
+                  ></iframe>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         
         <Accordion type="multiple" defaultValue={[]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
@@ -664,5 +760,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    

@@ -17,12 +17,15 @@ import {
   initialSocialLinksData, 
   socialPlatformConfig,
   DEFAULT_LOGO_IMAGE_URL,
-  LOGO_IMAGE_URL_LOCAL_STORAGE_KEY
+  LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
+  DEFAULT_YOUTUBE_VIDEO_URL,
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
 } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Button } from '@/components/ui/button';
+import { Youtube } from 'lucide-react';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
@@ -33,6 +36,7 @@ export default function HomePage() {
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
+  const [youtubeVideoUrl, setYoutubeVideoUrl] = useState(DEFAULT_YOUTUBE_VIDEO_URL);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -76,6 +80,10 @@ export default function HomePage() {
     // Load Banner Image URL
     const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
     setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
+
+    // Load YouTube Video URL
+    const storedYoutubeVideoUrl = localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY);
+    setYoutubeVideoUrl(storedYoutubeVideoUrl || DEFAULT_YOUTUBE_VIDEO_URL);
 
     // Load Social Media Links
     const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
@@ -161,8 +169,34 @@ export default function HomePage() {
             )}
           </div>
         </section>
+
+        {isMounted && youtubeVideoUrl && (
+          <section id="youtube-video" aria-labelledby="youtube-video-heading" className="py-12 md:py-16 lg:py-20 bg-muted/30">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-8">
+                <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
+                  <Youtube className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
+                  <h2 id="youtube-video-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
+                    Confira nosso Destaque
+                  </h2>
+                </div>
+              </div>
+              <div className="aspect-video w-full max-w-3xl mx-auto rounded-lg shadow-2xl overflow-hidden border border-border">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={youtubeVideoUrl}
+                  title="Vídeo do YouTube em destaque"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </section>
+        )}
         
-        {(visibleAndUnsoldAccounts.length > 0 || faqItems.length > 0) && hasActiveSocialLinks && (
+        {(visibleAndUnsoldAccounts.length > 0 || faqItems.length > 0 || (isMounted && youtubeVideoUrl)) && hasActiveSocialLinks && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
               <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
@@ -191,7 +225,7 @@ export default function HomePage() {
           </section>
         )}
 
-        {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (
+        {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (!isMounted || !youtubeVideoUrl) && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
           </div>
