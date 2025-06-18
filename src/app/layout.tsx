@@ -9,16 +9,11 @@ export const metadata: Metadata = {
   description: 'Encontre sua conta perfeita de League of Legends!',
 };
 
-// Simplify props to only what's explicitly used.
-// Next.js will still pass params and searchParams to layouts/pages,
-// but this component doesn't need to declare them in its props if it doesn't use them.
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
 export default function RootLayout({
   children,
-}: RootLayoutProps) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR">
       <head>
