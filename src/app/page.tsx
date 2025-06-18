@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem, SocialMediaLinks } from '@/types';
+import type { Account, FaqItem, SocialLink } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialMediaLinks, socialPlatformConfig } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialLinksData, socialPlatformConfig } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
@@ -20,7 +20,7 @@ export default function HomePage() {
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
-  const [socialLinks, setSocialLinks] = useState<SocialMediaLinks>(initialSocialMediaLinks);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -61,17 +61,26 @@ export default function HomePage() {
     setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
 
     // Load Social Media Links
-    const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
-    if (storedSocialLinks) {
+    const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
+    if (storedSocialLinksData) {
         try {
-            const parsedLinks = JSON.parse(storedSocialLinks) as SocialMediaLinks;
-            setSocialLinks(parsedLinks);
+            const parsedLinks = JSON.parse(storedSocialLinksData) as SocialLink[];
+             // Merge with config to ensure all platforms are present and have defaults
+            const mergedLinks = socialPlatformConfig.map(configPlatform => {
+                const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                return {
+                    ...configPlatform, // key, name, placeholder, lucideIcon from config
+                    url: storedPlatform?.url || '',
+                    customSvg: storedPlatform?.customSvg || '',
+                };
+            });
+            setSocialLinks(mergedLinks);
         } catch (error) {
             console.error("Error parsing social media links from localStorage for homepage:", error);
-            setSocialLinks(initialSocialMediaLinks);
+            setSocialLinks(initialSocialLinksData.map(link => ({...link})));
         }
     } else {
-        setSocialLinks(initialSocialMediaLinks);
+        setSocialLinks(initialSocialLinksData.map(link => ({...link})));
     }
 
     setIsMounted(true);
@@ -90,7 +99,7 @@ export default function HomePage() {
   }
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
-  const hasActiveSocialLinks = socialPlatformConfig.some(p => socialLinks[p.key] && socialLinks[p.key].trim() !== '');
+  const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -137,8 +146,7 @@ export default function HomePage() {
             )}
           </div>
         </section>
-
-        {/* Wave Divider between Accounts and Contacts */}
+        
         {(visibleAndUnsoldAccounts.length > 0 || faqItems.length > 0) && hasActiveSocialLinks && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
@@ -148,11 +156,10 @@ export default function HomePage() {
         )}
         
         {hasActiveSocialLinks && (
-           <ContactSection socialLinks={socialLinks} socialPlatforms={socialPlatformConfig} />
+           <ContactSection socialLinks={socialLinks} />
         )}
 
 
-        {/* Wave Divider between Contacts and FAQ */}
         {hasActiveSocialLinks && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
@@ -169,7 +176,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Fallback message if all content sections are empty */}
         {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>

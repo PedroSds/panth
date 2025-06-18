@@ -1,13 +1,14 @@
 
 "use client";
 
-import type { Account, FaqItem, SocialMediaLinks, SocialLink } from "@/types";
-import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialMediaLinks, socialPlatformConfig } from "@/data/mockData";
+import type { Account, FaqItem, SocialLink } from "@/types";
+import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, socialPlatformConfig, initialSocialLinksData } from "@/data/mockData";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2, UploadCloud } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -35,8 +36,8 @@ export default function AdminPage() {
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
-  const [socialLinks, setSocialLinks] = useState<SocialMediaLinks>(initialSocialMediaLinks);
-  const [socialLinksInput, setSocialLinksInput] = useState<SocialMediaLinks>(initialSocialMediaLinks);
+  
+  const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
 
   const { toast } = useToast();
 
@@ -101,20 +102,25 @@ export default function AdminPage() {
     try {
         const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
         if (storedSocialLinks) {
-            const parsedLinks = JSON.parse(storedSocialLinks) as SocialMediaLinks;
-            setSocialLinks(parsedLinks);
-            setSocialLinksInput(parsedLinks);
+            const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
+            // Merge with config to ensure all platforms are present and have defaults
+            const mergedLinks = socialPlatformConfig.map(configPlatform => {
+                const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                return {
+                    ...configPlatform, // key, name, placeholder, lucideIcon from config
+                    url: storedPlatform?.url || '',
+                    customSvg: storedPlatform?.customSvg || '',
+                };
+            });
+            setEditableSocialLinks(mergedLinks);
         } else {
-            setSocialLinks(initialSocialMediaLinks);
-            setSocialLinksInput(initialSocialMediaLinks);
+            setEditableSocialLinks(initialSocialLinksData.map(link => ({...link}))); // Use a fresh copy
         }
     } catch (error) {
         console.error("Error parsing social media links from localStorage:", error);
-        setSocialLinks(initialSocialMediaLinks);
-        setSocialLinksInput(initialSocialMediaLinks);
+        setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
         toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
     }
-
 
     setIsMounted(true);
   }, [toast]);
@@ -166,13 +172,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(socialLinks));
+        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(editableSocialLinks));
       } catch (error) {
         console.error("Error saving social media links to localStorage:", error);
         toast({ title: "Erro ao salvar links sociais", description: "Não foi possível salvar os links de redes sociais localmente.", variant: "destructive" });
       }
     }
-  }, [socialLinks, isMounted, toast]);
+  }, [editableSocialLinks, isMounted, toast]);
 
 
   if (!isMounted) {
@@ -286,8 +292,7 @@ export default function AdminPage() {
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
     setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
-    setSocialLinks(initialSocialMediaLinks);
-    setSocialLinksInput(initialSocialMediaLinks);
+    setEditableSocialLinks(initialSocialLinksData.map(link => ({...link}))); // Reset social links
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
 
@@ -310,29 +315,39 @@ export default function AdminPage() {
     }
   };
 
-  const handleSocialLinkInputChange = (key: keyof SocialMediaLinks, value: string) => {
-    setSocialLinksInput(prev => ({ ...prev, [key]: value }));
+  const handleSocialLinkChange = (index: number, field: 'url' | 'customSvg', value: string) => {
+    setEditableSocialLinks(prevLinks =>
+      prevLinks.map((link, i) =>
+        i === index ? { ...link, [field]: value } : link
+      )
+    );
   };
 
   const handleSaveSocialLinks = () => {
-    // Basic validation: check if URLs are valid (optional, can be improved)
     let allValid = true;
-    for (const key in socialLinksInput) {
-        const url = socialLinksInput[key as keyof SocialMediaLinks];
-        if (url.trim() !== '') {
+    for (const link of editableSocialLinks) {
+        if (link.url && link.url.trim() !== '') {
             try {
-                new URL(url.trim());
+                new URL(link.url.trim());
             } catch (error) {
                 allValid = false;
-                toast({ title: "Erro de Validação", description: `URL inválida para ${key}: ${url}`, variant: "destructive"});
+                toast({ title: "Erro de Validação de URL", description: `URL inválida para ${link.name}: ${link.url}`, variant: "destructive"});
                 break; 
+            }
+        }
+        if (link.customSvg && link.customSvg.trim() !== '') {
+            const svgTrimmed = link.customSvg.trim();
+            if (!svgTrimmed.startsWith('<svg') || !svgTrimmed.endsWith('</svg>')) {
+                allValid = false;
+                toast({ title: "Erro de Validação de SVG", description: `Conteúdo SVG inválido para ${link.name}. Deve começar com <svg> e terminar com </svg>.`, variant: "destructive"});
+                break;
             }
         }
     }
 
     if (allValid) {
-        setSocialLinks(socialLinksInput);
-        toast({ title: "Sucesso!", description: "Links de redes sociais atualizados." });
+        // The state is already updated by handleSocialLinkChange, useEffect will save it.
+        toast({ title: "Sucesso!", description: "Links de redes sociais e SVGs atualizados. As alterações serão salvas." });
     }
   };
 
@@ -413,31 +428,58 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</CardTitle>
-            <CardDescription>Adicione os links para suas redes sociais. Apenas links preenchidos aparecerão na seção de contatos da loja.</CardDescription>
+            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links e Ícones de Redes Sociais</CardTitle>
+            <CardDescription>Adicione os links para suas redes sociais e, opcionalmente, cole o código SVG para um ícone personalizado. SVGs devem usar `currentColor` para herdar a cor do tema.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {socialPlatformConfig.map((platform) => {
-              const IconComponent = platform.icon;
+            {editableSocialLinks.map((platformLink, index) => {
+              const FallbackIcon = platformLink.lucideIcon;
               return (
-                <div key={platform.key} className="space-y-2">
-                  <Label htmlFor={`social-${platform.key}`} className="font-semibold flex items-center">
-                    {IconComponent && <IconComponent className="mr-2 h-5 w-5 text-primary" />}
-                    {platform.name}
-                  </Label>
-                  <Input
-                    id={`social-${platform.key}`}
-                    type="url"
-                    placeholder={platform.placeholder}
-                    value={socialLinksInput[platform.key]}
-                    onChange={(e) => handleSocialLinkInputChange(platform.key, e.target.value)}
-                  />
-                </div>
+                <Card key={platformLink.key} className="p-4">
+                  <CardHeader className="p-0 pb-3">
+                     <CardTitle className="text-lg flex items-center">
+                        {platformLink.customSvg ? (
+                           <span className="h-6 w-6 mr-2 inline-block text-accent [&_svg]:h-full [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: platformLink.customSvg }} title="Prévia do SVG Customizado"/>
+                        ) : FallbackIcon ? (
+                           <FallbackIcon className="mr-2 h-5 w-5 text-primary" />
+                        ) : null}
+                        {platformLink.name}
+                     </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-3">
+                    <div>
+                      <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold">URL para {platformLink.name}</Label>
+                      <Input
+                        id={`social-url-${platformLink.key}`}
+                        type="url"
+                        placeholder={platformLink.placeholder}
+                        value={platformLink.url}
+                        onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`social-svg-${platformLink.key}`} className="font-semibold flex items-center">
+                        <UploadCloud className="mr-2 h-4 w-4 text-muted-foreground" />
+                        SVG do Ícone Personalizado (Opcional)
+                      </Label>
+                      <Textarea
+                        id={`social-svg-${platformLink.key}`}
+                        placeholder={`Cole o código SVG aqui para ${platformLink.name}...`}
+                        value={platformLink.customSvg || ''}
+                        onChange={(e) => handleSocialLinkChange(index, 'customSvg', e.target.value)}
+                        className="mt-1 min-h-[100px] font-mono text-xs"
+                        rows={3}
+                      />
+                       <p className="text-xs text-muted-foreground mt-1">Se deixado em branco, um ícone padrão (se disponível) será usado. Certifique-se que seu SVG use `fill="currentColor"` ou `stroke="currentColor"` para aplicar a cor do tema.</p>
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4">
                 <Button onClick={handleSaveSocialLinks}>
-                    <Save className="mr-2 h-4 w-4" /> Salvar Links Sociais
+                    <Save className="mr-2 h-4 w-4" /> Salvar Configurações Sociais
                 </Button>
             </div>
           </CardContent>

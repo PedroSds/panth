@@ -1,13 +1,13 @@
 
-import type { Account, FaqItem, LucideIconName, SocialMediaKey, SocialMediaLinks, SocialLink } from '@/types';
-import { Instagram, Twitter, Youtube, Send } from 'lucide-react'; // Removed Smartphone
+import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
+import { Instagram, Twitter, Youtube, Send, MessageCircle, Phone } from 'lucide-react';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
-export const DEFAULT_BANNER_IMAGE_URL = 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png'; // Default banner image
+export const DEFAULT_BANNER_IMAGE_URL = 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png';
 export const BANNER_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreBannerImageUrl';
-export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialMediaLinks';
+export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData'; // Changed key name for clarity
 
 
 export const customAccountServiceData: Account = {
@@ -147,21 +147,19 @@ export const faqIconList: { value: LucideIconName; label: string }[] = [
   { value: 'Anchor', label: 'Âncora (Estabilidade/Confiança)' },
 ];
 
-export const initialSocialMediaLinks: SocialMediaLinks = {
-  discord: '',
-  whatsapp: '',
-  instagram: '',
-  twitter: '',
-  youtube: '',
-  telegram: '',
-};
-
-export const socialPlatformConfig: SocialLink[] = [
-  { key: 'discord', name: 'Discord', url: '', placeholder: 'https://discord.gg/seu-servidor' }, // Icon handled in ContactSection
-  { key: 'whatsapp', name: 'WhatsApp', url: '', placeholder: 'https://wa.me/5511999998888' }, // Icon handled in ContactSection
-  { key: 'instagram', name: 'Instagram', url: '', placeholder: 'https://instagram.com/seuusuario', icon: Instagram },
-  { key: 'twitter', name: 'Twitter (X)', url: '', placeholder: 'https://twitter.com/seuusuario', icon: Twitter },
-  { key: 'youtube', name: 'Youtube', url: '', placeholder: 'https://youtube.com/seu-canal', icon: Youtube },
-  { key: 'telegram', name: 'Telegram', url: '', placeholder: 'https://t.me/seuusuario', icon: Send },
+// Defines the standard set of social media platforms
+export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
+  { key: 'discord', name: 'Discord', placeholder: 'https://discord.gg/seu-servidor', lucideIcon: MessageCircle },
+  { key: 'whatsapp', name: 'WhatsApp', placeholder: 'https://wa.me/5511999998888', lucideIcon: Phone },
+  { key: 'instagram', name: 'Instagram', placeholder: 'https://instagram.com/seuusuario', lucideIcon: Instagram },
+  { key: 'twitter', name: 'Twitter (X)', placeholder: 'https://twitter.com/seuusuario', lucideIcon: Twitter },
+  { key: 'youtube', name: 'Youtube', placeholder: 'https://youtube.com/seu-canal', lucideIcon: Youtube },
+  { key: 'telegram', name: 'Telegram', placeholder: 'https://t.me/seuusuario', lucideIcon: Send },
 ];
 
+// Generates the initial state for social links with empty URLs and SVGs
+export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(platform => ({
+  ...platform,
+  url: '',
+  customSvg: '',
+}));

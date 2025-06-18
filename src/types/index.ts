@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react';
 
 export type CategoryIconName =
   | 'Swords'
@@ -12,7 +13,7 @@ export interface Category {
   name: string;
   description: string;
   icon: CategoryIconName;
-  categoryId?: string; // Optional: if categories can be nested or related
+  categoryId?: string; 
 }
 
 export interface Account {
@@ -25,7 +26,7 @@ export interface Account {
   imageHint: string;
   isVisible: boolean;
   isCustomService?: boolean;
-  categoryId?: string; // Added for categorizing accounts
+  categoryId?: string; 
 }
 
 export interface CustomAccountFormData {
@@ -61,12 +62,20 @@ export interface FaqItem {
 
 export type SocialMediaKey = 'discord' | 'whatsapp' | 'instagram' | 'twitter' | 'youtube' | 'telegram';
 
-export interface SocialLink {
+// This defines the configuration for each platform (name, placeholder, default icon)
+export interface SocialPlatformConfigEntry {
   key: SocialMediaKey;
   name: string;
-  url: string;
-  placeholder: string;
-  icon?: React.ComponentType<{ className?: string }>; // Lucide icons or custom
+  placeholder: string; // For the URL input in admin
+  lucideIcon?: LucideIcon; // Fallback Lucide icon component
 }
 
-export type SocialMediaLinks = Record<SocialMediaKey, string>;
+// This defines the actual data stored and used, including user-provided URL and SVG
+export interface SocialLink extends SocialPlatformConfigEntry {
+  url: string;         // User-defined URL, initially empty
+  customSvg?: string;   // User-uploaded SVG string, initially empty or undefined
+}
+
+// This type is no longer a simple Record, it's an array of SocialLink objects.
+// The old SocialMediaLinks type can be removed or considered deprecated.
+// For clarity, we won't reuse SocialMediaLinks for the array type.
