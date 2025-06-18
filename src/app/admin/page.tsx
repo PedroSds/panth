@@ -185,7 +185,7 @@ export default function AdminPage() {
       setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
       toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
     }
-  }, [toast]);
+  }, []);
 
 
   // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, YouTube, Social Links
@@ -434,3 +434,4 @@ export default function AdminPage() {
 }
 
     
+
