@@ -3,11 +3,11 @@
 
 import type { Account, FaqItem, SocialLink } from "@/types";
 import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, socialPlatformConfig, initialSocialLinksData } from "@/data/mockData";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, MessageCircle, Phone } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -45,6 +45,7 @@ export default function AdminPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    setIsMounted(true);
     // Load Accounts
     try {
       const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
@@ -103,37 +104,28 @@ export default function AdminPage() {
 
     // Load Social Media Links
     try {
-        const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
-        const configWithIcons = socialPlatformConfig.map(config => {
-          let icon = config.lucideIcon; // Default Lucide icon
-          // If a custom SVG component is needed, assign it here
-          if (config.key === 'whatsapp') icon = WhatsAppIcon;
-          if (config.key === 'discord') icon = DiscordIcon;
-          return { ...config, lucideIcon: icon };
+      const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
+      if (storedSocialLinks) {
+        const parsedLinks = JSON.parse(storedSocialLinks) as Array<Pick<SocialLink, 'key' | 'url'>>;
+        const mergedLinks = socialPlatformConfig.map(configPlatform => {
+            const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+            const defaultPlatformData = initialSocialLinksData.find(initLink => initLink.key === configPlatform.key) || configPlatform;
+            return {
+                ...configPlatform, 
+                url: storedPlatform?.url || defaultPlatformData.url || '',
+            };
         });
-
-        if (storedSocialLinks) {
-            const parsedLinks = JSON.parse(storedSocialLinks) as Array<Pick<SocialLink, 'key' | 'url'>>;
-            const mergedLinks = configWithIcons.map(configPlatform => {
-                const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
-                const defaultPlatformData = initialSocialLinksData.find(initLink => initLink.key === configPlatform.key) || configPlatform;
-                return {
-                    ...configPlatform, 
-                    url: storedPlatform?.url || defaultPlatformData.url || '',
-                };
-            });
-            setEditableSocialLinks(mergedLinks);
-        } else {
-            setEditableSocialLinks(configWithIcons.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''})));
-        }
+        setEditableSocialLinks(mergedLinks);
+      } else {
+         setEditableSocialLinks(socialPlatformConfig.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''})));
+      }
     } catch (error) {
-        console.error("Error parsing social media links from localStorage:", error);
-        setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
-        toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
+      console.error("Error parsing social media links from localStorage:", error);
+      setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
+      toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
     }
-
-    setIsMounted(true);
   }, [toast]);
+
 
   useEffect(() => {
     if (isMounted) {
@@ -182,9 +174,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        const linksToStore = editableSocialLinks.map(({ key, url }) => ({
+        const linksToStore = editableSocialLinks.map(({ key, url, name, placeholder, lucideIcon }) => ({
           key,
           url,
+          // We don't need to store name, placeholder, lucideIcon as they come from config
         }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
       } catch (error) {
@@ -307,13 +300,7 @@ export default function AdminPage() {
     setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
     setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
     
-    const configWithIcons = socialPlatformConfig.map(config => {
-      let icon = config.lucideIcon;
-      if (config.key === 'whatsapp') icon = WhatsAppIcon;
-      if (config.key === 'discord') icon = DiscordIcon;
-      return { ...config, lucideIcon: icon };
-    });
-    setEditableSocialLinks(configWithIcons.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || '' }))); 
+    setEditableSocialLinks(socialPlatformConfig.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''}))); 
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
 
@@ -359,7 +346,6 @@ export default function AdminPage() {
     }
 
     if (allValid) {
-        // Trigger useEffect to save to localStorage by creating a new array reference
         setEditableSocialLinks([...editableSocialLinks]); 
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
@@ -428,9 +414,7 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center">
-              <WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)
-            </CardTitle>
+            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
             <CardDescription>Este número será usado para os links de compra/solicitação de contas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -489,26 +473,26 @@ export default function AdminPage() {
         <Accordion type="multiple" defaultValue={["social-links-section", "faq-section"]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
-            <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                <AccordionPrimitive.Trigger
-                  className={cn(
-                    "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
-                  )}
-                >
-                  <div>
-                    <h3 className="text-xl font-semibold flex items-center text-card-foreground"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</h3>
-                    <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais.</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </AccordionPrimitive.Trigger>
-                <div className="pr-6 py-6 pl-4" onClick={(e) => e.stopPropagation()}>
-                  <Button onClick={handleSaveSocialLinks} size="sm">
-                    <Save className="mr-2 h-4 w-4" /> Salvar Redes
-                  </Button>
-                </div>
-            </AccordionPrimitive.Header>
+              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                  <AccordionPrimitive.Trigger
+                    className={cn(
+                      "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
+                    )}
+                  >
+                    <div>
+                      <h3 className="text-xl font-semibold flex items-center text-card-foreground"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</h3>
+                      <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais.</p>
+                    </div>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                  </AccordionPrimitive.Trigger>
+              </AccordionPrimitive.Header>
               <AccordionContent className="bg-card rounded-b-lg">
                 <div className="p-6 space-y-6">
+                  <div className="flex justify-end mb-4">
+                    <Button onClick={handleSaveSocialLinks} size="sm">
+                      <Save className="mr-2 h-4 w-4" /> Salvar Redes
+                    </Button>
+                  </div>
                   {editableSocialLinks.map((platformLink, index) => {
                     const IconComponent = platformLink.lucideIcon;
                     return (
@@ -555,7 +539,10 @@ export default function AdminPage() {
                         </div>
                         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                     </AccordionPrimitive.Trigger>
-                    <div className="pr-6 py-6 pl-4" onClick={(e) => e.stopPropagation()}>
+                </AccordionPrimitive.Header>
+                <AccordionContent className="bg-card rounded-b-lg">
+                  <div className="p-6">
+                    <div className="flex justify-end mb-4">
                         <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
                         <DialogTrigger asChild>
                             <Button onClick={openAddFaqForm} size="sm">
@@ -577,9 +564,6 @@ export default function AdminPage() {
                         </DialogContent>
                         </Dialog>
                     </div>
-                </AccordionPrimitive.Header>
-                <AccordionContent className="bg-card rounded-b-lg">
-                    <div className="p-6">
                     <AdminFaqList
                         faqItems={faqItems}
                         onEdit={openEditFaqForm}
