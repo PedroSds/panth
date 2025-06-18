@@ -18,11 +18,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import type { Account } from "@/types";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { CUSTOM_ACCOUNT_SERVICE_ID } from "@/data/mockData";
 
 
-const accountFormSchema = z.object({
+const baseAccountFormSchema = z.object({
   mainName: z.string().min(5, { message: "Nome principal deve ter pelo menos 5 caracteres." }).max(70),
   nameSuffix: z.string().max(50).optional(),
   price: z.coerce.number().min(0, { message: "Preço deve ser positivo." }),
@@ -30,10 +30,10 @@ const accountFormSchema = z.object({
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
-  automaticDeliveryLink: z.string().url({ message: "URL inválida para entrega automática." }).optional().or(z.literal('')),
+  automaticDeliveryLink: z.string().url({ message: "URL inválida para o botão de compra." }).optional().or(z.literal('')),
 });
 
-type AccountFormData = z.infer<typeof accountFormSchema>;
+type AccountFormData = z.infer<typeof baseAccountFormSchema>;
 
 interface AdminAccountFormProps {
   onSubmitAccount: (data: Account | Omit<Account, "id" | "isSold">) => void;
@@ -43,8 +43,21 @@ interface AdminAccountFormProps {
 }
 
 export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEditingCustomService }: AdminAccountFormProps) {
+  
+  const currentAccountSchema = React.useMemo(() => {
+    if (isEditingCustomService) {
+      return baseAccountFormSchema; // For custom service, link is optional (effectively '')
+    }
+    // For new accounts or editing non-custom accounts, link is mandatory
+    return baseAccountFormSchema.extend({
+      automaticDeliveryLink: z.string()
+        .min(1, { message: "O link do botão de compra é obrigatório." })
+        .url({ message: "URL inválida para o botão de compra." })
+    });
+  }, [isEditingCustomService]);
+  
   const form = useForm<AccountFormData>({
-    resolver: zodResolver(accountFormSchema),
+    resolver: zodResolver(currentAccountSchema),
     defaultValues: {
       mainName: "",
       nameSuffix: "",
@@ -90,7 +103,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         automaticDeliveryLink: "",
       });
     }
-  }, [initialData, form]);
+  }, [initialData, form, isEditingCustomService]); // Added isEditingCustomService to re-evaluate schema on prop change if needed
 
   function onSubmit(data: AccountFormData) {
     let finalName = data.mainName.trim();
@@ -102,17 +115,14 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       ...data,
       name: finalName,
       details: data.details.split("\n").map(d => d.trim()).filter(d => d.length > 0),
-      automaticDeliveryLink: data.automaticDeliveryLink?.trim() === '' ? undefined : data.automaticDeliveryLink?.trim(),
+      automaticDeliveryLink: data.automaticDeliveryLink || '', // Ensures it's a string
     };
 
     const { mainName: _mn, nameSuffix: _ns, ...accountDataForSubmit } = processedData;
 
 
     if (initialData) {
-      // Preserve isCustomService flag if editing the custom service
       const existingFlags = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? { isCustomService: true } : {};
-      // Ensure 'isSold' is not set for custom service from the form, its 'isSold' from mockData is effectively the default.
-      // For actual accounts, isSold comes from the form.
       const finalIsSold = initialData.id === CUSTOM_ACCOUNT_SERVICE_ID ? initialData.isSold : accountDataForSubmit.isSold;
 
       onSubmitAccount({ 
@@ -120,7 +130,7 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         ...accountDataForSubmit, 
         ...existingFlags,
         isSold: finalIsSold 
-      });
+      } as Account);
     } else {
       onSubmitAccount(accountDataForSubmit as Omit<Account, "id" | "isSold">);
     }
@@ -205,11 +215,11 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
             name="automaticDeliveryLink"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Link de Entrega Automática (opcional)</FormLabel>
+                <FormLabel>Link do botão de compra</FormLabel>
                 <FormControl>
                   <Input type="url" placeholder="https://seu-link-de-venda.com/produto" {...field} />
                 </FormControl>
-                <FormDescription>Se preenchido, um botão para compra com entrega automática aparecerá no card da conta.</FormDescription>
+                <FormDescription>Este link será usado para o botão de compra direta da conta. É obrigatório.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

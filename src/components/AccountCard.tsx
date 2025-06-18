@@ -100,7 +100,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
             </Button>
           ) : (
             <div className="w-full text-center">
-              <p className="text-sm text-muted-foreground">Disponível apenas sob encomenda.</p>
+              <p className="text-sm text-muted-foreground">Detalhes sobre a compra via admin/config.</p>
             </div>
           )
         )}

@@ -28,7 +28,7 @@ export interface Account {
   isVisible: boolean;
   isCustomService?: boolean;
   categoryId?: string;
-  automaticDeliveryLink?: string;
+  automaticDeliveryLink: string;
 }
 
 export interface CustomAccountFormData {

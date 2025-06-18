@@ -53,7 +53,7 @@ export const accountsData: Account[] = [
     isSold: false,
     image: 'https://placehold.co/300x200.png',
     isVisible: true,
-    automaticDeliveryLink: '',
+    automaticDeliveryLink: 'https://example.com/buy-pronta001',
   },
   {
     id: 'pronta002',
@@ -68,7 +68,7 @@ export const accountsData: Account[] = [
     isSold: false,
     image: 'https://placehold.co/300x200.png',
     isVisible: true,
-    automaticDeliveryLink: '',
+    automaticDeliveryLink: 'https://example.com/buy-pronta002',
   },
   {
     id: 'simples001',
@@ -84,7 +84,7 @@ export const accountsData: Account[] = [
     isSold: false,
     image: 'https://placehold.co/300x200.png',
     isVisible: true,
-    automaticDeliveryLink: '',
+    automaticDeliveryLink: 'https://example.com/buy-simples001',
   },
   {
     id: 'skins001',
@@ -99,7 +99,7 @@ export const accountsData: Account[] = [
     isSold: false,
     image: 'https://placehold.co/300x200.png',
     isVisible: true,
-    automaticDeliveryLink: '',
+    automaticDeliveryLink: 'https://example.com/buy-skins001',
   }
 ];
 
@@ -113,7 +113,7 @@ export const initialFaqData: FaqItem[] = [
   {
     id: 'faq-2',
     question: 'Qual o tempo de entrega?',
-    answer: 'Para contas prontas com "Entrega Automática", o acesso é liberado instantaneamente após a confirmação do pagamento pelo link fornecido. Para contas personalizadas (serviço de upar), o prazo é de até 3 dias úteis após o pagamento. Se uma conta não tiver link de entrega automática, o processo é manual via WhatsApp.',
+    answer: 'Para contas prontas com botão de compra e "Entrega Automática", o acesso é liberado instantaneamente após a confirmação do pagamento pelo link fornecido. Para contas personalizadas (serviço de upar), o prazo é de até 3 dias úteis após o pagamento. Se uma conta não tiver link de entrega automática, o processo é manual via WhatsApp.',
     icon: 'Clock',
   },
   {
@@ -131,7 +131,7 @@ export const initialFaqData: FaqItem[] = [
   {
     id: 'faq-5',
     question: 'Quais as formas de pagamento?',
-    answer: 'Para entrega automática, o link de pagamento fornecerá as opções disponíveis na plataforma de venda. Para serviços de conta personalizada via WhatsApp, aceitamos PIX, transferência bancária e PicPay.',
+    answer: 'Para entrega automática, o link de pagamento do botão de compra fornecerá as opções disponíveis na plataforma de venda. Para serviços de conta personalizada via WhatsApp, aceitamos PIX, transferência bancária e PicPay.',
     icon: 'CircleDollarSign',
   },
 ];
