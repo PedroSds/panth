@@ -16,7 +16,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
           {/* Logotipo */}
           <Link
             href="/#page-top"
-            className="flex items-center text-primary hover:opacity-80 transition-opacity -ml-6" // Applied -1.5rem negative margin
+            className="flex items-center text-primary hover:opacity-80 transition-opacity"
             aria-label="Voltar para o início da página PanthStore"
           >
             <img
