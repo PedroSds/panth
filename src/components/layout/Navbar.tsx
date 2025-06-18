@@ -23,7 +23,7 @@ export function Navbar() {
             <ul className="flex items-center space-x-4 sm:space-x-6">
               <li>
                 <Link
-                  href="/"
+                  href="/#page-top"
                   className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
                 >
                   Início
