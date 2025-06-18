@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig } from "@/types";
@@ -411,7 +410,11 @@ export default function AdminPage() {
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Painel de Administração</h1>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            className="hover:bg-primary hover:text-primary-foreground"
+          >
             <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
         </div>
@@ -562,7 +565,7 @@ export default function AdminPage() {
             <Card className="m-0 shadow-none border-none rounded-none">
               <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                  <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                  <div className="flex flex-1 flex-col text-left">
+                 <div className="flex flex-1 flex-col text-left">
                     <div className="flex items-center">
                       <Share2 className="mr-3 h-5 w-5 text-primary" />
                       <h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3>
@@ -592,7 +595,7 @@ export default function AdminPage() {
              <Card className="m-0 shadow-none border-none rounded-none">
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                   <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                    <div className="flex flex-1 flex-col text-left">
+                  <div className="flex flex-1 flex-col text-left">
                         <div className="flex items-center">
                           <HelpCircleIcon className="mr-3 h-5 w-5 text-primary" />
                           <h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3>
@@ -627,3 +630,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
