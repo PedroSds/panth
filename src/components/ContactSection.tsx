@@ -44,7 +44,7 @@ export function ContactSection({ socialLinks, socialPlatforms }: ContactSectionP
                 className="bg-card p-4 rounded-lg shadow-md hover:bg-muted transition-colors flex items-center justify-center space-x-3 border border-border"
                 aria-label={`Visite nosso ${platform.name}`}
               >
-                {IconComponent && <IconComponent className="h-6 w-6 text-[hsl(var(--secondary))]" />}
+                {IconComponent && <IconComponent className="h-6 w-6 text-accent" />}
                 <span className="text-lg font-medium text-[hsl(var(--primary))]">{platform.name}</span>
               </Link>
             );
