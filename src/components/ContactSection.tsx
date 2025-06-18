@@ -27,7 +27,7 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
   }
 
   return (
-    <section id="contact" className="pt-8 pb-12 md:pt-10 md:pb-16 lg:pt-12 lg:pb-20 scroll-mt-20">
+    <section id="contact" className="pt-4 pb-12 md:pt-6 md:pb-16 lg:pt-8 lg:pb-20 scroll-mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className={gridLayoutClasses}>
           {activeLinks.map((link) => {
