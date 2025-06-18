@@ -108,7 +108,7 @@ export default function HomePage() {
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
   const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
   
-  const showVideoSection = isMounted && videoUrl;
+  const showVideoSection = isMounted && videoUrl && videoUrl.trim() !== '';
   const showFaqSection = faqItems.length > 0;
   const showContactSection = hasActiveSocialLinks;
 
@@ -168,7 +168,7 @@ export default function HomePage() {
 
         {/* Video Section */}
         {showVideoSection && (
-          <section id="video-player" aria-labelledby="video-heading" className="py-12 md:py-16 lg:py-20 bg-muted/30">
+          <section id="video-player" aria-labelledby="video-heading" className="py-12 md:py-16 lg:py-20 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-8">
                 <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
