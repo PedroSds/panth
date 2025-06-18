@@ -67,4 +67,3 @@ export function ContactSection({ socialLinks, socialPlatforms }: ContactSectionP
     </section>
   );
 }
-
