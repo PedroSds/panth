@@ -27,9 +27,8 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
   }
 
   return (
-    <section id="contact" className="py-12 md:py-16 lg:py-20">
+    <section id="contact" className="py-12 md:py-16 lg:py-20 scroll-mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* O título e o ícone Share2 foram removidos daqui */}
         <div className={gridLayoutClasses}>
           {activeLinks.map((link) => {
             const LucideIconComponent = link.lucideIcon;

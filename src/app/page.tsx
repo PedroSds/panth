@@ -132,7 +132,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
+        <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20 scroll-mt-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             {visibleAndUnsoldAccounts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
@@ -168,7 +168,7 @@ export default function HomePage() {
         )}
 
         {faqItems.length > 0 && (
-          <section id="faq" className="py-12 md:py-16 lg:py-20">
+          <section id="faq-container" className="py-12 md:py-16 lg:py-20"> {/* Container for FaqSection */}
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <FaqSection faqItems={faqItems} />
              </div>
