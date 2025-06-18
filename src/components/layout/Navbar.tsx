@@ -22,17 +22,26 @@ export function Navbar() {
           <nav>
             <ul className="flex items-center space-x-4 sm:space-x-6">
               <li>
-                <Link href="/#hero" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/#hero"
+                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                >
                   Início
                 </Link>
               </li>
               <li>
-                <Link href="/#available-accounts" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/#available-accounts"
+                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                >
                   Contas
                 </Link>
               </li>
               <li>
-                <Link href="/#faq" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <Link
+                  href="/#faq"
+                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                >
                   FAQ
                 </Link>
               </li>
