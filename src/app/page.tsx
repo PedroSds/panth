@@ -7,7 +7,6 @@ import type { Account, FaqItem } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY } from '@/data/mockData';
-import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
 import { Button } from '@/components/ui/button';
@@ -79,7 +78,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
-      <main className="flex-grow"> {/* Removed container and padding for full-width hero */}
+      <main className="flex-grow">
         <section
           id="hero"
           aria-labelledby="hero-heading"
@@ -87,10 +86,7 @@ export default function HomePage() {
           style={{ backgroundImage: `url(${isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL})` }}
           data-ai-hint="game hero background"
         >
-          {/* Overlay for better text readability */}
           <div className="absolute inset-0 bg-black/60"></div>
-        
-          {/* Content container */}
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-32 lg:pb-40">
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
               COMPRE SUA SMURF DE LEAGUE OF LEGENDS
@@ -102,22 +98,17 @@ export default function HomePage() {
               <Link href="/#available-accounts">Ver Contas Disponíveis</Link>
             </Button>
           </div>
-
-          {/* Curved bottom shape SVG */}
-          <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}> {/* fill is currentColor, text-background sets it */}
+          <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block " 
-                 style={{ minHeight: '60px', maxHeight: '150px' }} // Control responsiveness of curve height
+                 style={{ minHeight: '60px', maxHeight: '150px' }}
             >
               <path d="M0,70 C200,110 350,20 720,50 S1000,100 1440,70 L1440,100 L0,100 Z" fill="currentColor"></path>
             </svg>
           </div>
         </section>
         
-        {/* Content below the hero needs its own container for padding */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <Separator className="my-12" />
-
-            <section id="available-accounts" aria-labelledby="available-accounts-heading" className="mb-12">
+        <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
                 Contas e Serviços Disponíveis
             </h2>
@@ -130,15 +121,30 @@ export default function HomePage() {
             ) : (
                 <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
             )}
-            </section>
+          </div>
+        </section>
 
-            {faqItems.length > 0 && (
-            <>
-                <Separator className="my-12" />
-                <FaqSection faqItems={faqItems} />
-            </>
-            )}
-        </div>
+        {/* Wave Divider between Accounts and FAQ */}
+        {visibleAndUnsoldAccounts.length > 0 && faqItems.length > 0 && (
+          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '60px', maxHeight: '150px' }}>
+              <path d="M0,70 C200,110 350,20 720,50 S1000,100 1440,70 L1440,100 L0,100 Z" fill="currentColor"></path>
+            </svg>
+          </div>
+        )}
+
+        {faqItems.length > 0 && (
+          <div className="py-12 md:py-16 lg:py-20">
+            <FaqSection faqItems={faqItems} />
+          </div>
+        )}
+        
+        {/* Fallback message if both accounts and FAQ are empty and were not rendered above */}
+        {visibleAndUnsoldAccounts.length === 0 && faqItems.length === 0 && (
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+              <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

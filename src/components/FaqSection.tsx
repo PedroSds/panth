@@ -43,7 +43,7 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
   }
 
   return (
-    <section id="faq" aria-labelledby="faq-heading" className="mb-12">
+    <section id="faq" aria-labelledby="faq-heading">
       <div className="flex items-center justify-center mb-8">
         <HelpCircle className="h-8 w-8 text-accent mr-3" />
         <h2 id="faq-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center text-primary">
@@ -76,4 +76,3 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
     </section>
   );
 }
-
