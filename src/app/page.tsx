@@ -99,14 +99,14 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block " 
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block "
                  style={{ minHeight: '60px', maxHeight: '150px' }}
             >
-              <path d="M0,70 C200,110 350,20 720,50 S1000,100 1440,70 L1440,100 L0,100 Z" fill="currentColor"></path>
+              <path d="M0,50 Q720,0 1440,50 L1440,100 L0,100 Z" fill="currentColor"></path>
             </svg>
           </div>
         </section>
-        
+
         <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
@@ -128,17 +128,19 @@ export default function HomePage() {
         {visibleAndUnsoldAccounts.length > 0 && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '60px', maxHeight: '150px' }}>
-              <path d="M0,70 C200,110 350,20 720,50 S1000,100 1440,70 L1440,100 L0,100 Z" fill="currentColor"></path>
+              <path d="M0,50 Q720,0 1440,50 L1440,100 L0,100 Z" fill="currentColor"></path>
             </svg>
           </div>
         )}
 
         {faqItems.length > 0 && (
-          <div className="py-12 md:py-16 lg:py-20">
-            <FaqSection faqItems={faqItems} />
-          </div>
+          <section id="faq" className="py-12 md:py-16 lg:py-20">
+             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <FaqSection faqItems={faqItems} />
+             </div>
+          </section>
         )}
-        
+
         {/* Fallback message if both accounts and FAQ are empty and were not rendered above */}
         {visibleAndUnsoldAccounts.length === 0 && faqItems.length === 0 && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
