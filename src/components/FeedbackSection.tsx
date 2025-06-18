@@ -21,7 +21,7 @@ export function FeedbackSection({ feedbackItems }: FeedbackSectionProps) {
           <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
             <Star className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
             <h2 id="feedbacks-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
-              O que Nossos Clientes Dizem
+              Avaliações
             </h2>
           </div>
         </div>
@@ -34,3 +34,4 @@ export function FeedbackSection({ feedbackItems }: FeedbackSectionProps) {
     </section>
   );
 }
+
