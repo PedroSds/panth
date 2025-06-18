@@ -67,7 +67,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
           ))}
         </ul>
       </CardContent>
-      <CardFooter className="p-4 sm:p-6 border-t">
+      <CardFooter className="p-4 sm:p-6 border-t items-end">
         {account.isCustomService ? (
           <Dialog open={isCustomFormOpen} onOpenChange={setIsCustomFormOpen}>
             <DialogTrigger asChild>
