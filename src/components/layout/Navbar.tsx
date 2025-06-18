@@ -11,8 +11,8 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-2 sm:px-3 lg:px-4"> {/* Reduced padding */}
-        <div className="flex items-center justify-between h-20"> {/* Ensured justify-between and removed space-x */}
+      <div className="container mx-auto px-4 md:px-6"> {/* Adjusted padding for responsiveness */}
+        <div className="flex items-center justify-between h-20">
           {/* Logotipo */}
           <Link
             href="/#page-top"
@@ -34,7 +34,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
           {/* Navegação */}
           <nav className="flex items-center">
-            <ul className="flex items-center space-x-4 sm:space-x-6">
+            <ul className="flex items-center space-x-4 md:space-x-6"> {/* Responsive spacing for nav links */}
               <li>
                 <Link
                   href="/#page-top"
