@@ -45,8 +45,8 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
   return (
     <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center">
-          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-accent mr-2 sm:mr-3" />
+        <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
+          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-accent mb-2 sm:mb-0 sm:mr-3" />
           <h2 id="faq-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
             Perguntas Frequentes (FAQ)
           </h2>
@@ -78,4 +78,3 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
     </section>
   );
 }
-
