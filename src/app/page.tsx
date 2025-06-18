@@ -180,7 +180,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/60"></div>
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-32 lg:pb-40">
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
-              TESTE VISUAL AGORA - COMPRE SUA SMURF DE LEAGUE OF LEGENDS
+              COMPRE SUA SMURF DE LEAGUE OF LEGENDS
             </h1>
             <p className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-3xl mx-auto text-shadow-md">
               100% SEGURA DE BANIMENTOS
