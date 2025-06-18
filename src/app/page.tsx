@@ -18,14 +18,14 @@ import {
   socialPlatformConfig,
   DEFAULT_LOGO_IMAGE_URL,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
-  DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
+  DEFAULT_VIDEO_URL,
+  VIDEO_URL_LOCAL_STORAGE_KEY
 } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Button } from '@/components/ui/button';
-import { Youtube } from 'lucide-react';
+import { Film } from 'lucide-react';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
@@ -36,7 +36,7 @@ export default function HomePage() {
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
-  const [youtubeVideoUrl, setYoutubeVideoUrl] = useState(DEFAULT_YOUTUBE_VIDEO_URL);
+  const [videoUrl, setVideoUrl] = useState(DEFAULT_VIDEO_URL);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -69,11 +69,11 @@ export default function HomePage() {
       setFaqItems([...fallbackFaqData]);
     }
 
-    // Load WhatsApp Number, Logo, Banner, YouTube, Social Links
+    // Load WhatsApp Number, Logo, Banner, Video, Social Links
     setWhatsAppNumber(localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY) || DEFAULT_WHATSAPP_PHONE_NUMBER);
     setLogoImageUrl(localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_LOGO_IMAGE_URL);
     setBannerImageUrl(localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_BANNER_IMAGE_URL);
-    setYoutubeVideoUrl(localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY) || DEFAULT_YOUTUBE_VIDEO_URL);
+    setVideoUrl(localStorage.getItem(VIDEO_URL_LOCAL_STORAGE_KEY) || DEFAULT_VIDEO_URL);
 
     const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
     if (storedSocialLinksData) {
@@ -108,12 +108,12 @@ export default function HomePage() {
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
   const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
   
-  const showYouTubeSection = isMounted && youtubeVideoUrl;
+  const showVideoSection = isMounted && videoUrl;
   const showFaqSection = faqItems.length > 0;
   const showContactSection = hasActiveSocialLinks;
 
   // Determine if any content section (other than hero) will be displayed
-  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showYouTubeSection || showFaqSection || showContactSection;
+  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showVideoSection || showFaqSection || showContactSection;
 
 
   return (
@@ -150,7 +150,7 @@ export default function HomePage() {
         </section>
 
         {/* Available Accounts Section */}
-        <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
+         <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div id="available-accounts" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
@@ -159,27 +159,36 @@ export default function HomePage() {
                 ))}
                 </div>
             ) : (
-                !showYouTubeSection && !showFaqSection && !showContactSection && ( // Only show if no other content follows
+                !showVideoSection && !showFaqSection && !showContactSection && ( 
                     <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
                 )
             )}
           </div>
         </section>
 
-        {/* YouTube Video Section */}
-        {showYouTubeSection && (
-          <section id="youtube-video" aria-labelledby="youtube-video-heading" className="py-12 md:py-16 lg:py-20 bg-muted/30">
+        {/* Video Section */}
+        {showVideoSection && (
+          <section id="video-player" aria-labelledby="video-heading" className="py-12 md:py-16 lg:py-20 bg-muted/30">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-8">
                 <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
-                  <Youtube className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
-                  <h2 id="youtube-video-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
+                  <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
+                  <h2 id="video-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
                     Confira nosso Destaque
                   </h2>
                 </div>
               </div>
               <div className="aspect-video w-full max-w-3xl mx-auto rounded-lg shadow-2xl overflow-hidden border border-border">
-                <iframe width="100%" height="100%" src={youtubeVideoUrl!} title="Vídeo do YouTube em destaque" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={videoUrl!} 
+                    title="Vídeo em destaque" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowFullScreen
+                    className="rounded-md">
+                </iframe>
               </div>
             </div>
           </section>
@@ -200,7 +209,7 @@ export default function HomePage() {
         )}
 
         {/* Fallback content if no main sections are visible and no accounts shown above */}
-        {visibleAndUnsoldAccounts.length === 0 && !showYouTubeSection && !showFaqSection && !showContactSection && (
+        {visibleAndUnsoldAccounts.length === 0 && !showVideoSection && !showFaqSection && !showContactSection && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
           </div>
@@ -210,5 +219,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

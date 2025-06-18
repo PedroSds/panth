@@ -16,14 +16,14 @@ import {
   initialSocialLinksData,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_LOGO_IMAGE_URL,
-  DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
+  DEFAULT_VIDEO_URL,
+  VIDEO_URL_LOCAL_STORAGE_KEY
 } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -42,30 +42,36 @@ import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
-const getYouTubeEmbedUrl = (url: string): string | null => {
+const getVideoEmbedUrl = (url: string): string | null => {
   if (!url || typeof url !== 'string') return null;
   let videoId = null;
-  
-  let match = url.match(/[?&]v=([^&]+)/);
-  if (match) {
-    videoId = match[1];
-  } else {
-    match = url.match(/youtu\.be\/([^?&]+)/);
-    if (match) {
+
+  // Try YouTube: matches v=VIDEO_ID, youtu.be/VIDEO_ID, embed/VIDEO_ID
+  const youtubeRegexes = [
+    /[?&]v=([^&]+)/,
+    /youtu\.be\/([^?&]+)/,
+    /youtube\.com\/embed\/([^?&]+)/
+  ];
+  for (const regex of youtubeRegexes) {
+    const match = url.match(regex);
+    if (match && match[1]) {
       videoId = match[1];
-    } else {
-      match = url.match(/embed\/([^?&]+)/);
-      if (match) {
-        videoId = match[1]; 
+      if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) { // Standard YouTube ID
+        return `https://www.youtube.com/embed/${videoId}`;
       }
+      videoId = null; 
     }
   }
 
-  if (videoId) {
-    if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
-      return `https://www.youtube.com/embed/${videoId}`;
+  // Try Wistia: matches wistia.com/medias/VIDEO_ID
+  const wistiaMatch = url.match(/wistia\.com\/medias\/([^?&/\s]+)/);
+  if (wistiaMatch && wistiaMatch[1]) {
+    videoId = wistiaMatch[1];
+    if (/^[a-z0-9]+$/.test(videoId)) { // Wistia ID (alphanumeric)
+      return `https://fast.wistia.net/embed/iframe/${videoId}`;
     }
   }
+  
   return null;
 };
 
@@ -90,8 +96,8 @@ export default function AdminPage() {
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
 
-  const [youtubeVideoUrlInput, setYoutubeVideoUrlInput] = useState('');
-  const [currentYoutubeVideoUrl, setCurrentYoutubeVideoUrl] = useState(DEFAULT_YOUTUBE_VIDEO_URL);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [currentVideoUrl, setCurrentVideoUrl] = useState(DEFAULT_VIDEO_URL);
   
   const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData.map(link => ({...link})));
 
@@ -143,7 +149,7 @@ export default function AdminPage() {
       toast({ title: "Erro ao carregar FAQs", description: "Não foi possível carregar os FAQs salvos.", variant: "destructive" });
     }
     
-    // Load WhatsApp Number, Logo, Banner, YouTube, Social Links
+    // Load WhatsApp Number, Logo, Banner, Video, Social Links
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
@@ -159,10 +165,10 @@ export default function AdminPage() {
     setCurrentBannerImageUrl(initialBannerUrl);
     setBannerImageUrlInput(initialBannerUrl);
 
-    const storedYoutubeVideoUrl = localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY);
-    const initialYoutubeUrl = storedYoutubeVideoUrl || DEFAULT_YOUTUBE_VIDEO_URL;
-    setCurrentYoutubeVideoUrl(initialYoutubeUrl);
-    setYoutubeVideoUrlInput(initialYoutubeUrl);
+    const storedVideoUrl = localStorage.getItem(VIDEO_URL_LOCAL_STORAGE_KEY);
+    const initialVideoUrl = storedVideoUrl || DEFAULT_VIDEO_URL;
+    setCurrentVideoUrl(initialVideoUrl);
+    setVideoUrlInput(initialVideoUrl);
 
     try {
       const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
@@ -188,13 +194,13 @@ export default function AdminPage() {
   }, []);
 
 
-  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, YouTube, Social Links
+  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, Video, Social Links
   useEffect(() => { if (isMounted) localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts)); }, [accounts, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems)); }, [faqItems, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber); }, [currentWhatsAppNumber, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY, currentLogoImageUrl); }, [currentLogoImageUrl, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl); }, [currentBannerImageUrl, isMounted]);
-  useEffect(() => { if (isMounted) localStorage.setItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY, currentYoutubeVideoUrl); }, [currentYoutubeVideoUrl, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(VIDEO_URL_LOCAL_STORAGE_KEY, currentVideoUrl); }, [currentVideoUrl, isMounted]);
   useEffect(() => {
     if (isMounted) {
       const linksToStore = editableSocialLinks.map(({ key, url }) => ({ key, url }));
@@ -266,7 +272,7 @@ export default function AdminPage() {
   const openEditFaqForm = (faqItem: FaqItem) => { setEditingFaqItem({ ...faqItem }); setIsFaqFormOpen(true); };
   const openAddFaqForm = () => { setEditingFaqItem(null); setIsFaqFormOpen(true); };
 
-  // Other Save Handlers (WhatsApp, Logo, Banner, YouTube, Social Links)
+  // Other Save Handlers (WhatsApp, Logo, Banner, Video, Social Links)
   const handleSaveWhatsAppNumber = () => {
     if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
       setCurrentWhatsAppNumber(whatsAppNumberInput.trim());
@@ -283,12 +289,12 @@ export default function AdminPage() {
     try { new URL(bannerImageUrlInput.trim()); setCurrentBannerImageUrl(bannerImageUrlInput.trim()); toast({ title: "Sucesso!", description: "URL da imagem do banner atualizada." });
     } catch (error) { toast({ title: "Erro", description: "URL inválida para a imagem do banner.", variant: "destructive" }); }
   };
-  const handleSaveYoutubeVideoUrl = () => {
-    const trimmedUrl = youtubeVideoUrlInput.trim();
-    if (trimmedUrl === '') { setCurrentYoutubeVideoUrl(''); toast({ title: "Sucesso!", description: "URL do vídeo do YouTube removida." }); return; }
-    const embedUrl = getYouTubeEmbedUrl(trimmedUrl);
-    if (embedUrl) { setCurrentYoutubeVideoUrl(embedUrl); toast({ title: "Sucesso!", description: "URL do vídeo do YouTube atualizada." });
-    } else { toast({ title: "Erro de Validação", description: "URL do YouTube inválida.", variant: "destructive" });}
+  const handleSaveVideoUrl = () => {
+    const trimmedUrl = videoUrlInput.trim();
+    if (trimmedUrl === '') { setCurrentVideoUrl(''); toast({ title: "Sucesso!", description: "URL do vídeo removida." }); return; }
+    const embedUrl = getVideoEmbedUrl(trimmedUrl);
+    if (embedUrl) { setCurrentVideoUrl(embedUrl); toast({ title: "Sucesso!", description: "URL do vídeo atualizada." });
+    } else { toast({ title: "Erro de Validação", description: "URL do YouTube ou Wistia inválida.", variant: "destructive" });}
   };
   const handleSocialLinkChange = (index: number, url: string) => {
     setEditableSocialLinks(prevLinks => 
@@ -368,13 +374,29 @@ export default function AdminPage() {
         </Card>
 
         <Card className="mb-8 shadow-lg">
-          <CardHeader><CardTitle className="text-xl flex items-center"><YoutubeIcon className="mr-2 h-5 w-5 text-primary" />Configurar Vídeo do YouTube</CardTitle><CardDescription>Insira a URL de um vídeo (watch, shorts ou embed).</CardDescription></CardHeader>
+          <CardHeader><CardTitle className="text-xl flex items-center"><Film className="mr-2 h-5 w-5 text-primary" />Configurar Vídeo em Destaque</CardTitle><CardDescription>Insira a URL de um vídeo do YouTube ou Wistia (watch, medias, embed, etc.).</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
-              <div className="flex-grow"><Label htmlFor="youtube-video-url" className="font-semibold">URL do Vídeo do YouTube</Label><Input id="youtube-video-url" type="url" placeholder="https://www.youtube.com/watch?v=VIDEO_ID" value={youtubeVideoUrlInput} onChange={(e) => setYoutubeVideoUrlInput(e.target.value)} className="mt-1"/></div>
-              <Button onClick={handleSaveYoutubeVideoUrl}><Save className="mr-2 h-4 w-4" /> Salvar URL</Button>
+              <div className="flex-grow"><Label htmlFor="video-url" className="font-semibold">URL do Vídeo (YouTube/Wistia)</Label><Input id="video-url" type="url" placeholder="https://www.youtube.com/watch?v=VIDEO_ID ou https://user.wistia.com/medias/VIDEO_ID" value={videoUrlInput} onChange={(e) => setVideoUrlInput(e.target.value)} className="mt-1"/></div>
+              <Button onClick={handleSaveVideoUrl}><Save className="mr-2 h-4 w-4" /> Salvar URL</Button>
             </div>
-            {currentYoutubeVideoUrl && <div><p className="text-sm text-muted-foreground mb-2">Prévia:</p><div className="aspect-video w-full max-w-md mx-auto"><iframe width="100%" height="100%" src={currentYoutubeVideoUrl} title="YouTube video player preview" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="rounded-md border"></iframe></div></div>}
+            {currentVideoUrl && 
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Prévia:</p>
+                <div className="aspect-video w-full max-w-md mx-auto">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={currentVideoUrl} 
+                    title="Video player preview" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowFullScreen 
+                    className="rounded-md border">
+                  </iframe>
+                </div>
+              </div>
+            }
           </CardContent>
         </Card>
         
@@ -434,4 +456,3 @@ export default function AdminPage() {
 }
 
     
-

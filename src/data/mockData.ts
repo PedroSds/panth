@@ -17,8 +17,8 @@ export const LOGO_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreLogoImageUrl';
 
 export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData';
 
-export const DEFAULT_YOUTUBE_VIDEO_URL = '';
-export const YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreYoutubeVideoUrl';
+export const DEFAULT_VIDEO_URL = '';
+export const VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreVideoUrl';
 
 
 export const customAccountServiceData: Account = {
