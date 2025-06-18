@@ -60,7 +60,7 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
                 "[&[data-state=open]>svg.lucide-chevron-down]:text-primary [&[data-state=closed]>svg.lucide-chevron-down]:text-primary/70"
               )}>
                 <div className="flex items-center gap-3">
-                  <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
+                  <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-accent flex-shrink-0" />
                   <span className="flex-grow">{item.question}</span>
                 </div>
               </AccordionTrigger>
@@ -76,3 +76,4 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
     </section>
   );
 }
+
