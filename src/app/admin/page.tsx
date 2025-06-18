@@ -36,7 +36,7 @@ export default function AdminPage() {
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   
-  const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
+  const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData.map(link => ({...link})));
 
   const { toast } = useToast();
 
@@ -104,10 +104,18 @@ export default function AdminPage() {
             const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                const initialDataForPlatform = initialSocialLinksData.find(p => p.key === configPlatform.key);
+
+                let finalCustomSvg = storedPlatform?.customSvg;
+
+                if ((finalCustomSvg === undefined || finalCustomSvg === '') && initialDataForPlatform?.customSvg && initialDataForPlatform.customSvg !== '') {
+                    finalCustomSvg = initialDataForPlatform.customSvg;
+                }
+
                 return {
                     ...configPlatform,
-                    url: storedPlatform?.url || '',
-                    customSvg: storedPlatform?.customSvg || '',
+                    url: storedPlatform?.url || initialDataForPlatform?.url || '',
+                    customSvg: finalCustomSvg || '', 
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -520,7 +528,6 @@ export default function AdminPage() {
                           size="sm"
                           onClick={() => {
                             handleSocialLinkChange(index, 'customSvg', '');
-                            // Clear the file input visually as well if possible (might need a ref or more complex state)
                             const fileInput = document.getElementById(`social-svg-upload-${platformLink.key}`) as HTMLInputElement;
                             if (fileInput) fileInput.value = "";
                             toast({title: "SVG Removido", description: `SVG personalizado para ${platformLink.name} foi removido. Salve para aplicar.`});
