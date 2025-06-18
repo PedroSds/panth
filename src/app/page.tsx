@@ -99,10 +99,10 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block "
-                 style={{ minHeight: '60px', maxHeight: '150px' }}
+            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block "
+                 style={{ minHeight: '40px', maxHeight: '120px' }}
             >
-              <path d="M0,20 Q720,70 1440,20 L1440,100 L0,100 Z" fill="currentColor"></path>
+              <path d="M0,0 C480,60 960,60 1440,0 L1440,80 L0,80 Z" fill="currentColor"></path>
             </svg>
           </div>
         </section>
@@ -127,8 +127,8 @@ export default function HomePage() {
         {/* Wave Divider between Accounts and FAQ */}
         {visibleAndUnsoldAccounts.length > 0 && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '60px', maxHeight: '150px' }}>
-              <path d="M0,20 Q720,70 1440,20 L1440,100 L0,100 Z" fill="currentColor"></path>
+            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
+              <path d="M0,0 C480,60 960,60 1440,0 L1440,80 L0,80 Z" fill="currentColor"></path>
             </svg>
           </div>
         )}
