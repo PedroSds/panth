@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom'; // Corrected import for useFormStatus
+import { useFormStatus } from 'react-dom';
 import { LogIn } from 'lucide-react';
 import React from 'react';
 
@@ -40,7 +40,6 @@ export default function LoginPage() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder="admin_user"
                 required
                 className="text-base"
               />
