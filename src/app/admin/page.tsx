@@ -415,7 +415,7 @@ export default function AdminPage() {
             onClick={handleLogout}
             className="hover:bg-primary hover:text-primary-foreground"
           >
-            <LogOut className="mr-2 h-4 w-4" /> Logout
+            <LogOut className="mr-2 h-4 w-4" /> Sair
           </Button>
         </div>
 
@@ -630,5 +630,7 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
