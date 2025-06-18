@@ -109,17 +109,15 @@ export default function HomePage() {
 
         <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
-                Contas e Serviços Disponíveis
-            </h2>
+            {/* Heading removed as per user request */}
             {visibleAndUnsoldAccounts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"> {/* Added pt-8 for spacing */}
                 {visibleAndUnsoldAccounts.map(account => (
                     <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
                 ))}
                 </div>
             ) : (
-                <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
+                <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
             )}
           </div>
         </section>
