@@ -43,7 +43,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
               alt="PanthStore Logo"
               style={{
                 height: '70px',
-                width: 'auto',
+                width: 'auto', // Alterado de 292px para auto
                 objectFit: 'contain',
                 display: 'block',
               }}
@@ -71,8 +71,8 @@ export function Navbar({ logoUrl }: NavbarProps) {
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Abrir menu de navegação">
-                  <Menu className="h-6 w-6" />
+                <Button variant="ghost" className="h-14 w-14 p-1" aria-label="Abrir menu de navegação">
+                  <Menu className="h-12 w-12" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-card">
