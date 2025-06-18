@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -19,6 +20,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -105,9 +107,11 @@ export default function AdminPage() {
             const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                const initialPlatform = initialSocialLinksData.find(p => p.key === configPlatform.key);
                 return {
                     ...configPlatform, 
-                    url: storedPlatform?.url || initialSocialLinksData.find(p => p.key === configPlatform.key)?.url || '',
+                    url: storedPlatform?.url || initialPlatform?.url || '',
+                    lucideIcon: configPlatform.lucideIcon || initialPlatform?.lucideIcon,
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -174,9 +178,6 @@ export default function AdminPage() {
           key,
           name, 
           placeholder,
-          // Storing lucideIcon name or a flag might be complex if icons are components.
-          // For simplicity, we'll rely on re-merging with socialPlatformConfig on load.
-          // If lucideIcon was a string identifier, it could be stored.
           url,
         }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
@@ -345,6 +346,8 @@ export default function AdminPage() {
     }
 
     if (allValid) {
+        // Logic to persist editableSocialLinks (e.g., to localStorage or backend)
+        // For now, just a success toast
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -423,140 +426,159 @@ export default function AdminPage() {
             )}
           </CardContent>
         </Card>
+        
+        <Accordion type="multiple" defaultValue={["social-links-section", "faq-section"]} className="w-full space-y-8">
+          <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
+            <Card className="m-0 shadow-none border-none rounded-none">
+              <AccordionTrigger className="w-full p-6 text-left hover:no-underline bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold flex items-center text-card-foreground"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais. Os ícones são pré-definidos.</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="bg-card rounded-b-lg">
+                <div className="p-6 space-y-6">
+                  {editableSocialLinks.map((platformLink, index) => {
+                    const LucideIcon = platformLink.lucideIcon;
+                    return (
+                      <Card key={platformLink.key} className="p-4">
+                        <CardHeader className="p-0 pb-3">
+                          <CardTitle className="text-lg flex items-center">
+                            {LucideIcon && <LucideIcon className="mr-2 h-5 w-5 text-primary" />}
+                            {platformLink.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 space-y-3">
+                          <div>
+                            <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold">URL para {platformLink.name}</Label>
+                            <Input
+                              id={`social-url-${platformLink.key}`}
+                              type="url"
+                              placeholder={platformLink.placeholder}
+                              value={platformLink.url}
+                              onChange={(e) => handleSocialLinkChange(index, e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSaveSocialLinks}>
+                      <Save className="mr-2 h-4 w-4" /> Salvar Configurações Sociais
+                    </Button>
+                  </div>
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
 
-        <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</CardTitle>
-            <CardDescription>Adicione os links para suas redes sociais. Os ícones são pré-definidos.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {editableSocialLinks.map((platformLink, index) => {
-              const LucideIcon = platformLink.lucideIcon;
-              return (
-                <Card key={platformLink.key} className="p-4">
-                  <CardHeader className="p-0 pb-3">
-                     <CardTitle className="text-lg flex items-center">
-                        {LucideIcon && <LucideIcon className="mr-2 h-5 w-5 text-primary" />}
-                        {platformLink.name}
-                     </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0 space-y-3">
-                    <div>
-                      <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold">URL para {platformLink.name}</Label>
-                      <Input
-                        id={`social-url-${platformLink.key}`}
-                        type="url"
-                        placeholder={platformLink.placeholder}
-                        value={platformLink.url}
-                        onChange={(e) => handleSocialLinkChange(index, e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-            <div className="flex justify-end pt-4">
-                <Button onClick={handleSaveSocialLinks}>
-                    <Save className="mr-2 h-4 w-4" /> Salvar Configurações Sociais
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
+          <Separator className="my-12" /> {/* This separator might be redundant due to accordion space-y or can be removed */}
+          
+          {/* Gerenciar Contas e Serviços - Kept outside Accordion for now as per limited scope */}
+          <Card className="mb-8 shadow-lg">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list-checks mr-2 h-5 w-5 text-primary"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
+                  Gerenciar Contas e Serviços
+                </CardTitle>
+                <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => {
+                  setIsAccountFormOpen(isOpen);
+                  if (!isOpen) setEditingAccount(null);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={openAddAccountForm} size="sm">
+                      <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
+                    </DialogHeader>
+                    <AdminAccountForm
+                      onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
+                      initialData={editingAccount}
+                      onClose={() => {
+                        setIsAccountFormOpen(false);
+                        setEditingAccount(null);
+                      }}
+                      isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <CardDescription>Adicione, edite ou remova contas e serviços disponíveis na loja.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminAccountList
+                accounts={sortedAccounts}
+                onEdit={openEditAccountForm}
+                onDelete={handleDeleteAccount}
+                onToggleVisibility={handleToggleVisibility}
+              />
+            </CardContent>
+          </Card>
 
+          {/* Separator before FAQ might also be adjusted if Accordion provides enough spacing */}
+          {/* <Separator className="my-12" /> */} 
 
-        <Separator className="my-12" />
-
-        <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-xl flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list-checks mr-2 h-5 w-5 text-primary"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
-                Gerenciar Contas e Serviços
-              </CardTitle>
-              <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => {
-                setIsAccountFormOpen(isOpen);
-                if (!isOpen) setEditingAccount(null);
-              }}>
-                <DialogTrigger asChild>
-                  <Button onClick={openAddAccountForm} size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
-                  </DialogHeader>
-                  <AdminAccountForm
-                    onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
-                    initialData={editingAccount}
-                    onClose={() => {
-                      setIsAccountFormOpen(false);
-                      setEditingAccount(null);
-                    }}
-                    isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
+          <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
+            <Card className="m-0 shadow-none border-none rounded-none">
+              <AccordionTrigger className="w-full p-6 text-left hover:no-underline bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold flex items-center text-card-foreground">
+                      <HelpCircleIcon className="mr-2 h-5 w-5 text-primary" />
+                      Gerenciar Perguntas Frequentes (FAQ)
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
+                  </div>
+                  <div onClick={(e) => e.stopPropagation()} className="pl-4">
+                    <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
+                      <DialogTrigger asChild>
+                        <Button onClick={openAddFaqForm} size="sm">
+                          <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle>
+                        </DialogHeader>
+                        <AdminFaqForm
+                          onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem}
+                          initialData={editingFaqItem}
+                          onClose={() => {
+                            setIsFaqFormOpen(false);
+                            setEditingFaqItem(null);
+                          }}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="bg-card rounded-b-lg">
+                <div className="p-6">
+                  <AdminFaqList
+                    faqItems={faqItems}
+                    onEdit={openEditFaqForm}
+                    onDelete={handleDeleteFaqItem}
                   />
-                </DialogContent>
-              </Dialog>
-            </div>
-            <CardDescription>Adicione, edite ou remova contas e serviços disponíveis na loja.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AdminAccountList
-              accounts={sortedAccounts}
-              onEdit={openEditAccountForm}
-              onDelete={handleDeleteAccount}
-              onToggleVisibility={handleToggleVisibility}
-            />
-          </CardContent>
-        </Card>
-
-        <Separator className="my-12" />
-
-        <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-xl flex items-center">
-                <HelpCircleIcon className="mr-2 h-5 w-5 text-primary" />
-                Gerenciar Perguntas Frequentes (FAQ)
-              </CardTitle>
-              <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => {
-                setIsFaqFormOpen(isOpen);
-                if (!isOpen) setEditingFaqItem(null);
-              }}>
-                <DialogTrigger asChild>
-                  <Button onClick={openAddFaqForm} size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle>
-                  </DialogHeader>
-                  <AdminFaqForm
-                    onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem}
-                    initialData={editingFaqItem}
-                    onClose={() => {
-                      setIsFaqFormOpen(false);
-                      setEditingFaqItem(null);
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-            <CardDescription>Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AdminFaqList
-              faqItems={faqItems}
-              onEdit={openEditFaqForm}
-              onDelete={handleDeleteFaqItem}
-            />
-          </CardContent>
-        </Card>
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+        </Accordion>
 
       </main>
       <Footer />
     </div>
   );
 }
+
+
+    
