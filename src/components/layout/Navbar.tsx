@@ -39,6 +39,14 @@ export function Navbar() {
               </li>
               <li>
                 <Link
+                  href="/#contact"
+                  className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                >
+                  Contato
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#faq"
                   className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
                 >

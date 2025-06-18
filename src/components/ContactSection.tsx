@@ -2,7 +2,6 @@
 "use client";
 
 import type { SocialLink } from '@/types';
-import { Share2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface ContactSectionProps {
@@ -28,14 +27,9 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
   }
 
   return (
-    <section id="contact" aria-labelledby="contact-heading" className="py-12 md:py-16 lg:py-20">
+    <section id="contact" className="py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center mb-10">
-          <Share2 className="h-8 w-8 text-accent mr-3" />
-          <h2 id="contact-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center text-primary">
-            Nossas Redes Sociais
-          </h2>
-        </div>
+        {/* O título e o ícone Share2 foram removidos daqui */}
         <div className={gridLayoutClasses}>
           {activeLinks.map((link) => {
             const LucideIconComponent = link.lucideIcon;
