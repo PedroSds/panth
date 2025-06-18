@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react'; // Changed import
 import { LogIn } from 'lucide-react';
 import React from 'react';
 
@@ -22,7 +22,7 @@ function SubmitButton() {
 
 export default function LoginPage() {
   const initialState: LoginFormState = { message: '', success: false };
-  const [state, formAction] = useFormState(loginAction, initialState);
+  const [state, formAction] = useActionState(loginAction, initialState); // Changed to useActionState
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
