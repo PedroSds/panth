@@ -2,35 +2,53 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import type { Account } from '@/types';
+import type { Account, FaqItem } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
+import { FaqSection } from '@/components/FaqSection';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // Load Accounts
     const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : fallbackAccountsData.map(acc => ({...acc})));
+        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : fallbackAccountsData.map(acc => ({ ...acc })));
       } catch (error) {
         console.error("Error parsing accounts from localStorage for homepage:", error);
-        setAccounts(fallbackAccountsData.map(acc => ({...acc})));
+        setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
       }
     } else {
-      setAccounts(fallbackAccountsData.map(acc => ({...acc})));
+      setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
     }
 
+    // Load FAQs
+    const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
+    if (storedFaqData) {
+      try {
+        const parsedFaqs = JSON.parse(storedFaqData) as FaqItem[];
+        setFaqItems(Array.isArray(parsedFaqs) ? parsedFaqs : [...fallbackFaqData]);
+      } catch (error) {
+        console.error("Error parsing FAQs from localStorage for homepage:", error);
+        setFaqItems([...fallbackFaqData]);
+      }
+    } else {
+      setFaqItems([...fallbackFaqData]);
+    }
+
+    // Load WhatsApp Number
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
 
@@ -50,7 +68,6 @@ export default function HomePage() {
   }
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
-
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -81,7 +98,14 @@ export default function HomePage() {
             <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
           )}
         </section>
-        
+
+        {faqItems.length > 0 && (
+          <>
+            <Separator className="my-12" />
+            <FaqSection faqItems={faqItems} />
+          </>
+        )}
+
       </main>
       <Footer />
     </div>

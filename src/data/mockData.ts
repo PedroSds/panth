@@ -1,13 +1,14 @@
 
-import type { Account } from '@/types';
+import type { Account, FaqItem, LucideIconName } from '@/types';
 
-export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000'; 
+export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
+export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
 
 export const customAccountServiceData: Account = {
   id: CUSTOM_ACCOUNT_SERVICE_ID,
   name: 'Crie sua Conta Personalizada (Serviço de Upar)',
-  price: 50, 
+  price: 50,
   details: [
     'Iremos upar uma conta do 0 ao 30 pra você',
     'Você escolhe o nome para login e o primeiro nickname',
@@ -87,4 +88,57 @@ export const accountsData: Account[] = [
     imageHint: 'rare skin',
     isVisible: true,
   }
+];
+
+export const initialFaqData: FaqItem[] = [
+  {
+    id: 'faq-1',
+    question: 'Quem somos?',
+    answer: 'Somos a PanthStore, sua loja especializada em contas de League of Legends. Oferecemos contas prontas e serviços de personalização para você começar a jogar no seu nível desejado com segurança e rapidez.',
+    icon: 'Users',
+  },
+  {
+    id: 'faq-2',
+    question: 'Qual o tempo de entrega?',
+    answer: 'Para contas prontas, a entrega dos dados é feita imediatamente após a confirmação do pagamento via WhatsApp. Para contas personalizadas (serviço de upar), o prazo é de até 3 dias úteis.',
+    icon: 'Clock',
+  },
+  {
+    id: 'faq-3',
+    question: 'Qual o horário de funcionamento?',
+    answer: 'Nosso atendimento online via WhatsApp funciona das 10:00 às 22:00, de Segunda a Sábado. Compras podem ser iniciadas a qualquer momento.',
+    icon: 'CalendarDays',
+  },
+  {
+    id: 'faq-4',
+    question: 'Qual é a garantia de vocês?',
+    answer: 'Oferecemos garantia total sobre as contas e serviços. Caso haja qualquer problema com o acesso ou características da conta que não correspondam ao anunciado, entre em contato conosco para suporte e resolução.',
+    icon: 'ShieldCheck',
+  },
+  {
+    id: 'faq-5',
+    question: 'Quais as formas de pagamento?',
+    answer: 'Aceitamos pagamentos via PIX, transferência bancária e PicPay. Todos os detalhes são combinados diretamente pelo WhatsApp para sua segurança e comodidade.',
+    icon: 'CircleDollarSign',
+  },
+];
+
+// List of icons for the FAQ admin form
+export const faqIconList: { value: LucideIconName; label: string }[] = [
+  { value: 'Users', label: 'Pessoas (Quem Somos)' },
+  { value: 'Clock', label: 'Relógio (Tempo)' },
+  { value: 'CalendarDays', label: 'Calendário (Horário)' },
+  { value: 'ShieldCheck', label: 'Escudo (Garantia)' },
+  { value: 'CircleDollarSign', label: 'Dinheiro (Pagamento)' },
+  { value: 'CreditCard', label: 'Cartão de Crédito' },
+  { value: 'Wallet', label: 'Carteira' },
+  { value: 'Truck', label: 'Caminhão (Entrega)' },
+  { value: 'HelpCircle', label: 'Interrogação (Ajuda)' },
+  { value: 'Info', label: 'Informação' },
+  { value: 'MessageSquare', label: 'Balão de Fala' },
+  { value: 'ShieldQuestion', label: 'Escudo com Interrogação' },
+  { value: 'BookOpen', label: 'Livro Aberto' },
+  { value: 'Tag', label: 'Etiqueta (Preço/Promoção)' },
+  { value: 'Star', label: 'Estrela (Destaque)' },
+  { value: 'Anchor', label: 'Âncora (Estabilidade/Confiança)' },
 ];

@@ -24,7 +24,7 @@ export interface Account {
   image: string;
   imageHint: string;
   isVisible: boolean;
-  isCustomService?: boolean; 
+  isCustomService?: boolean;
   categoryId?: string; // Added for categorizing accounts
 }
 
@@ -32,4 +32,29 @@ export interface CustomAccountFormData {
   accountLogin: string;
   nickname: string;
   description?: string;
+}
+
+export type LucideIconName =
+  | 'Star'
+  | 'Clock'
+  | 'CalendarDays'
+  | 'Anchor'
+  | 'Wallet'
+  | 'CreditCard'
+  | 'HelpCircle'
+  | 'Info'
+  | 'MessageSquare'
+  | 'ShieldQuestion'
+  | 'BookOpen'
+  | 'Tag'
+  | 'Users'
+  | 'Truck'
+  | 'ShieldCheck'
+  | 'CircleDollarSign';
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  icon: LucideIconName;
 }
