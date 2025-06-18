@@ -135,7 +135,7 @@ export default function HomePage() {
             <p className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-3xl mx-auto text-shadow-md">
               100% SEGURA DE BANIMENTOS
             </p>
-            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-10 py-6 text-lg font-semibold">
+            <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary-foreground px-10 py-6 text-lg font-semibold">
               <Link href="/#available-accounts">VER CONTAS DISPONÍVEIS</Link>
             </Button>
           </div>
