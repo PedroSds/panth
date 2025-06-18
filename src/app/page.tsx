@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem, SocialLink } from '@/types';
+import type { Account, FaqItem, SocialLink, FeedbackItem } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { 
@@ -19,9 +19,12 @@ import {
   DEFAULT_LOGO_IMAGE_URL,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY,
+  FEEDBACKS_LOCAL_STORAGE_KEY,
+  initialFeedbacksData as fallbackFeedbacksData
 } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
+import { FeedbackSection } from '@/components/FeedbackSection';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Button } from '@/components/ui/button';
@@ -33,6 +36,7 @@ const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
@@ -55,6 +59,20 @@ export default function HomePage() {
       setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
     }
 
+    // Load Feedbacks
+    const storedFeedbacksData = localStorage.getItem(FEEDBACKS_LOCAL_STORAGE_KEY);
+    if (storedFeedbacksData) {
+      try {
+        const parsedFeedbacks = JSON.parse(storedFeedbacksData) as FeedbackItem[];
+        setFeedbackItems(Array.isArray(parsedFeedbacks) ? parsedFeedbacks : fallbackFeedbacksData);
+      } catch (error) {
+        console.error("Error parsing feedbacks from localStorage for homepage:", error);
+        setFeedbackItems(fallbackFeedbacksData);
+      }
+    } else {
+      setFeedbackItems(fallbackFeedbacksData);
+    }
+
     // Load FAQs
     const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
     if (storedFaqData) {
@@ -69,33 +87,19 @@ export default function HomePage() {
       setFaqItems([...fallbackFaqData]);
     }
 
-    // Load WhatsApp Number
-    const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
-    setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
+    // Load WhatsApp Number, Logo, Banner, YouTube, Social Links
+    setWhatsAppNumber(localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY) || DEFAULT_WHATSAPP_PHONE_NUMBER);
+    setLogoImageUrl(localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_LOGO_IMAGE_URL);
+    setBannerImageUrl(localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_BANNER_IMAGE_URL);
+    setYoutubeVideoUrl(localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY) || DEFAULT_YOUTUBE_VIDEO_URL);
 
-    // Load Logo Image URL
-    const storedLogoImageUrl = localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY);
-    setLogoImageUrl(storedLogoImageUrl || DEFAULT_LOGO_IMAGE_URL);
-
-    // Load Banner Image URL
-    const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
-    setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
-
-    // Load YouTube Video URL
-    const storedYoutubeVideoUrl = localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY);
-    setYoutubeVideoUrl(storedYoutubeVideoUrl || DEFAULT_YOUTUBE_VIDEO_URL);
-
-    // Load Social Media Links
     const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
     if (storedSocialLinksData) {
         try {
             const parsedStoredLinks = JSON.parse(storedSocialLinksData) as Partial<SocialLink>[];
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedStoredLinks.find(p => p.key === configPlatform.key);
-                return {
-                    ...configPlatform,
-                    url: storedPlatform?.url || '', 
-                };
+                return { ...configPlatform, url: storedPlatform?.url || '' };
             });
             setSocialLinks(mergedLinks);
         } catch (error) {
@@ -113,9 +117,7 @@ export default function HomePage() {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar logoUrl={DEFAULT_LOGO_IMAGE_URL} />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <p>Carregando loja...</p>
-        </main>
+        <main className="flex-grow container mx-auto px-4 py-8"><p>Carregando loja...</p></main>
         <Footer />
       </div>
     );
@@ -123,12 +125,21 @@ export default function HomePage() {
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
   const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
-  const hasPrimaryContent = visibleAndUnsoldAccounts.length > 0 || (isMounted && youtubeVideoUrl);
+  
+  const showYouTubeSection = isMounted && youtubeVideoUrl;
+  const showFeedbackSection = feedbackItems.length > 0;
+  const showFaqSection = faqItems.length > 0;
+  const showContactSection = hasActiveSocialLinks;
+
+  // Determine if any content section (other than hero) will be displayed
+  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showYouTubeSection || showFeedbackSection || showFaqSection || showContactSection;
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar logoUrl={logoImageUrl} />
       <main className="flex-grow">
+        {/* Hero Section */}
         <section
           id="hero"
           aria-labelledby="hero-heading"
@@ -148,15 +159,16 @@ export default function HomePage() {
               <Link href="/#available-accounts">VER CONTAS DISPONÍVEIS</Link>
             </Button>
           </div>
-          <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block "
-                 style={{ minHeight: '40px', maxHeight: '120px' }}
-            >
-              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
-            </svg>
-          </div>
+          {hasAnyContentSection && (
+            <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
+              <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block " style={{ minHeight: '40px', maxHeight: '120px' }}>
+                <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
+              </svg>
+            </div>
+          )}
         </section>
 
+        {/* Available Accounts Section */}
         <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div id="available-accounts" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
@@ -166,12 +178,15 @@ export default function HomePage() {
                 ))}
                 </div>
             ) : (
-                <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
+                !showYouTubeSection && !showFeedbackSection && !showFaqSection && !showContactSection && ( // Only show if no other content follows
+                    <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
+                )
             )}
           </div>
         </section>
 
-        {isMounted && youtubeVideoUrl && (
+        {/* YouTube Video Section */}
+        {showYouTubeSection && (
           <section id="youtube-video" aria-labelledby="youtube-video-heading" className="py-12 md:py-16 lg:py-20 bg-muted/30">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-8">
@@ -183,56 +198,33 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="aspect-video w-full max-w-3xl mx-auto rounded-lg shadow-2xl overflow-hidden border border-border">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={youtubeVideoUrl}
-                  title="Vídeo do YouTube em destaque"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
+                <iframe width="100%" height="100%" src={youtubeVideoUrl!} title="Vídeo do YouTube em destaque" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
               </div>
             </div>
           </section>
         )}
         
-        {/* SVG Divider before FAQ section */}
-        {hasPrimaryContent && faqItems.length > 0 && (
-          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
-              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
-            </svg>
-          </div>
+        {/* Feedbacks Section */}
+        {showFeedbackSection && (
+           <FeedbackSection feedbackItems={feedbackItems} />
         )}
-
+        
         {/* FAQ Section */}
-        {faqItems.length > 0 && (
-          <section id="faq-container" className="py-12 md:py-16 lg:py-20">
+        {showFaqSection && (
+          <section id="faq-container" className="py-12 md:py-16 lg:py-20 bg-background">
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <FaqSection faqItems={faqItems} />
              </div>
           </section>
         )}
-
-        {/* SVG Divider before Contact section */}
-        {((faqItems.length > 0 && hasActiveSocialLinks) || // Case: FAQ was shown, and Contact will be shown
-          (faqItems.length === 0 && hasPrimaryContent && hasActiveSocialLinks) // Case: FAQ NOT shown, but primary content was, and Contact will be shown
-         ) && (
-          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
-              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
-            </svg>
-          </div>
-        )}
         
         {/* Contact Section */}
-        {hasActiveSocialLinks && (
+        {showContactSection && (
            <ContactSection socialLinks={socialLinks} />
         )}
 
-        {/* Fallback content if no main sections are visible */}
-        {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (!isMounted || !youtubeVideoUrl) && (
+        {/* Fallback content if no main sections are visible and no accounts shown above */}
+        {visibleAndUnsoldAccounts.length === 0 && !showYouTubeSection && !showFeedbackSection && !showFaqSection && !showContactSection && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
           </div>
@@ -242,5 +234,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    

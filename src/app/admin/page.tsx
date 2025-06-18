@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Account, FaqItem, SocialLink } from "@/types";
+import type { Account, FaqItem, SocialLink, FeedbackItem } from "@/types";
 import { 
   accountsData as initialAccountsData, 
   customAccountServiceData, 
@@ -17,17 +17,21 @@ import {
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_LOGO_IMAGE_URL,
   DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY,
+  FEEDBACKS_LOCAL_STORAGE_KEY,
+  initialFeedbacksData
 } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon, Star } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
 import { AdminFaqForm } from "@/components/admin/AdminFaqForm";
+import { AdminFeedbackList } from "@/components/admin/AdminFeedbackList";
+import { AdminFeedbackForm } from "@/components/admin/AdminFeedbackForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
@@ -46,17 +50,14 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
   if (!url || typeof url !== 'string') return null;
   let videoId = null;
   
-  // Standard URL: https://www.youtube.com/watch?v=VIDEO_ID
   let match = url.match(/[?&]v=([^&]+)/);
   if (match) {
     videoId = match[1];
   } else {
-    // Shortened URL: https://youtu.be/VIDEO_ID
     match = url.match(/youtu\.be\/([^?&]+)/);
     if (match) {
       videoId = match[1];
     } else {
-      // Embed URL: https://www.youtube.com/embed/VIDEO_ID
       match = url.match(/embed\/([^?&]+)/);
       if (match) {
         videoId = match[1]; 
@@ -65,7 +66,6 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
   }
 
   if (videoId) {
-    // Basic check for valid YouTube video ID characters and length
     if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
       return `https://www.youtube.com/embed/${videoId}`;
     }
@@ -77,11 +77,17 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  
   const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
   const [isFaqFormOpen, setIsFaqFormOpen] = useState(false);
+  const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
+
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [editingFaqItem, setEditingFaqItem] = useState<FaqItem | null>(null);
+  const [editingFeedbackItem, setEditingFeedbackItem] = useState<FeedbackItem | null>(null);
+  
   const [whatsAppNumberInput, setWhatsAppNumberInput] = useState('');
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   
@@ -143,32 +149,43 @@ export default function AdminPage() {
       setFaqItems([...initialFaqData]);
       toast({ title: "Erro ao carregar FAQs", description: "Não foi possível carregar os FAQs salvos.", variant: "destructive" });
     }
+
+    // Load Feedbacks
+    try {
+      const storedFeedbacksData = localStorage.getItem(FEEDBACKS_LOCAL_STORAGE_KEY);
+      if (storedFeedbacksData) {
+        const parsedFeedbacks = JSON.parse(storedFeedbacksData) as FeedbackItem[];
+        setFeedbackItems(Array.isArray(parsedFeedbacks) ? parsedFeedbacks : [...initialFeedbacksData]);
+      } else {
+        setFeedbackItems([...initialFeedbacksData]);
+      }
+    } catch (error) {
+      console.error("Error parsing Feedbacks from localStorage:", error);
+      setFeedbackItems([...initialFeedbacksData]);
+      toast({ title: "Erro ao carregar Feedbacks", description: "Não foi possível carregar os feedbacks salvos.", variant: "destructive" });
+    }
     
-    // Load WhatsApp Number
+    // Load WhatsApp Number, Logo, Banner, YouTube, Social Links
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
     setWhatsAppNumberInput(initialNumber);
 
-    // Load Logo Image URL
     const storedLogoImageUrl = localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY);
     const initialLogoUrl = storedLogoImageUrl || DEFAULT_LOGO_IMAGE_URL;
     setCurrentLogoImageUrl(initialLogoUrl);
     setLogoImageUrlInput(initialLogoUrl);
 
-    // Load Banner Image URL
     const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
     const initialBannerUrl = storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL;
     setCurrentBannerImageUrl(initialBannerUrl);
     setBannerImageUrlInput(initialBannerUrl);
 
-    // Load YouTube Video URL
     const storedYoutubeVideoUrl = localStorage.getItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY);
     const initialYoutubeUrl = storedYoutubeVideoUrl || DEFAULT_YOUTUBE_VIDEO_URL;
     setCurrentYoutubeVideoUrl(initialYoutubeUrl);
     setYoutubeVideoUrlInput(initialYoutubeUrl);
 
-    // Load Social Media Links
     try {
       const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
       if (storedSocialLinks) {
@@ -193,84 +210,20 @@ export default function AdminPage() {
   }, [toast]);
 
 
+  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, YouTube, Social Links, Feedbacks
+  useEffect(() => { if (isMounted) localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts)); }, [accounts, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems)); }, [faqItems, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(FEEDBACKS_LOCAL_STORAGE_KEY, JSON.stringify(feedbackItems)); }, [feedbackItems, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber); }, [currentWhatsAppNumber, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY, currentLogoImageUrl); }, [currentLogoImageUrl, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl); }, [currentBannerImageUrl, isMounted]);
+  useEffect(() => { if (isMounted) localStorage.setItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY, currentYoutubeVideoUrl); }, [currentYoutubeVideoUrl, isMounted]);
   useEffect(() => {
     if (isMounted) {
-      try {
-        localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts));
-      } catch (error) {
-        console.error("Error saving accounts to localStorage:", error);
-        toast({ title: "Erro ao salvar contas", description: "Não foi possível salvar as alterações das contas localmente.", variant: "destructive" });
-      }
+      const linksToStore = editableSocialLinks.map(({ key, url }) => ({ key, url }));
+      localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
     }
-  }, [accounts, isMounted, toast]);
-
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems));
-      } catch (error) {
-        console.error("Error saving FAQs to localStorage:", error);
-        toast({ title: "Erro ao salvar FAQs", description: "Não foi possível salvar as alterações do FAQ localmente.", variant: "destructive" });
-      }
-    }
-  }, [faqItems, isMounted, toast]);
-
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber);
-      } catch (error) {
-        console.error("Error saving WhatsApp number to localStorage:", error);
-        toast({ title: "Erro ao salvar WhatsApp", description: "Não foi possível salvar o número do WhatsApp localmente.", variant: "destructive" });
-      }
-    }
-  }, [currentWhatsAppNumber, isMounted, toast]);
-
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        localStorage.setItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY, currentLogoImageUrl);
-      } catch (error) {
-        console.error("Error saving Logo Image URL to localStorage:", error);
-        toast({ title: "Erro ao salvar URL do Logotipo", description: "Não foi possível salvar a URL da imagem do logotipo localmente.", variant: "destructive" });
-      }
-    }
-  }, [currentLogoImageUrl, isMounted, toast]);
-
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl);
-      } catch (error) {
-        console.error("Error saving Banner Image URL to localStorage:", error);
-        toast({ title: "Erro ao salvar URL do Banner", description: "Não foi possível salvar a URL da imagem do banner localmente.", variant: "destructive" });
-      }
-    }
-  }, [currentBannerImageUrl, isMounted, toast]);
-  
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        localStorage.setItem(YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY, currentYoutubeVideoUrl);
-      } catch (error) {
-        console.error("Error saving YouTube Video URL to localStorage:", error);
-        toast({ title: "Erro ao salvar URL do Vídeo", description: "Não foi possível salvar a URL do vídeo do YouTube localmente.", variant: "destructive" });
-      }
-    }
-  }, [currentYoutubeVideoUrl, isMounted, toast]);
-
-
-  useEffect(() => {
-    if (isMounted) {
-      try {
-        const linksToStore = editableSocialLinks.map(({ key, url }) => ({ key, url }));
-        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
-      } catch (error) {
-        console.error("Error saving social media links to localStorage:", error);
-        toast({ title: "Erro ao salvar links sociais", description: "Não foi possível salvar os links de redes sociais localmente.", variant: "destructive" });
-      }
-    }
-  }, [editableSocialLinks, isMounted, toast]);
+  }, [editableSocialLinks, isMounted]);
 
 
   if (!isMounted) {
@@ -297,83 +250,65 @@ export default function AdminPage() {
     toast({ title: "Sucesso!", description: "Nova conta adicionada." });
     setIsAccountFormOpen(false);
   };
-
   const handleUpdateAccount = (updatedAccountData: Account) => {
-    setAccounts((prevAccounts) =>
-      prevAccounts.map((acc) =>
-        acc.id === updatedAccountData.id ? { ...acc, ...updatedAccountData } : acc
-      )
-    );
+    setAccounts((prevAccounts) => prevAccounts.map((acc) => acc.id === updatedAccountData.id ? { ...acc, ...updatedAccountData } : acc));
     toast({ title: "Sucesso!", description: "Conta atualizada." });
-    setIsAccountFormOpen(false);
-    setEditingAccount(null);
+    setIsAccountFormOpen(false); setEditingAccount(null);
   };
-
   const handleDeleteAccount = (accountId: string) => {
     if (accountId === CUSTOM_ACCOUNT_SERVICE_ID) {
       toast({ title: "Ação não permitida", description: "O serviço de conta personalizada não pode ser excluído.", variant: "destructive" });
       return;
     }
     setAccounts((prevAccounts) => prevAccounts.filter((acc) => acc.id !== accountId));
-    toast({ title: "Conta Removida", description: `A conta com ID ${accountId} foi removida.`, variant: "destructive" });
+    toast({ title: "Conta Removida", variant: "destructive" });
   };
-
   const handleToggleVisibility = (accountId: string) => {
-    setAccounts((prevAccounts) =>
-      prevAccounts.map((acc) =>
-        acc.id === accountId ? { ...acc, isVisible: !acc.isVisible } : acc
-      )
-    );
-    toast({ title: "Visibilidade Alterada", description: "A visibilidade da conta/serviço foi atualizada." });
+    setAccounts((prevAccounts) => prevAccounts.map((acc) => acc.id === accountId ? { ...acc, isVisible: !acc.isVisible } : acc));
+    toast({ title: "Visibilidade Alterada" });
   };
-
-  const openEditAccountForm = (account: Account) => {
-    setEditingAccount({ ...account });
-    setIsAccountFormOpen(true);
-  };
-
-  const openAddAccountForm = () => {
-    setEditingAccount(null);
-    setIsAccountFormOpen(true);
-  }
+  const openEditAccountForm = (account: Account) => { setEditingAccount({ ...account }); setIsAccountFormOpen(true); };
+  const openAddAccountForm = () => { setEditingAccount(null); setIsAccountFormOpen(true); }
 
   // FAQ Handlers
   const handleAddFaqItem = (newFaqItemData: Omit<FaqItem, "id">) => {
-    const newFaqItem: FaqItem = {
-      ...newFaqItemData,
-      id: `faq-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    };
+    const newFaqItem: FaqItem = { ...newFaqItemData, id: `faq-${Date.now()}-${Math.random().toString(36).substring(2, 7)}` };
     setFaqItems((prevFaqs) => [newFaqItem, ...prevFaqs]);
     toast({ title: "Sucesso!", description: "Nova pergunta adicionada ao FAQ." });
     setIsFaqFormOpen(false);
   };
-
   const handleUpdateFaqItem = (updatedFaqItemData: FaqItem) => {
-    setFaqItems((prevFaqs) =>
-      prevFaqs.map((faq) =>
-        faq.id === updatedFaqItemData.id ? { ...faq, ...updatedFaqItemData } : faq
-      )
-    );
+    setFaqItems((prevFaqs) => prevFaqs.map((faq) => faq.id === updatedFaqItemData.id ? { ...faq, ...updatedFaqItemData } : faq));
     toast({ title: "Sucesso!", description: "Pergunta do FAQ atualizada." });
-    setIsFaqFormOpen(false);
-    setEditingFaqItem(null);
+    setIsFaqFormOpen(false); setEditingFaqItem(null);
   };
-
   const handleDeleteFaqItem = (faqId: string) => {
     setFaqItems((prevFaqs) => prevFaqs.filter((faq) => faq.id !== faqId));
-    toast({ title: "Pergunta Removida", description: `A pergunta com ID ${faqId} foi removida do FAQ.`, variant: "destructive" });
+    toast({ title: "Pergunta Removida", variant: "destructive" });
   };
+  const openEditFaqForm = (faqItem: FaqItem) => { setEditingFaqItem({ ...faqItem }); setIsFaqFormOpen(true); };
+  const openAddFaqForm = () => { setEditingFaqItem(null); setIsFaqFormOpen(true); };
 
-  const openEditFaqForm = (faqItem: FaqItem) => {
-    setEditingFaqItem({ ...faqItem });
-    setIsFaqFormOpen(true);
+  // Feedback Handlers
+  const handleAddFeedbackItem = (newFeedbackItemData: Omit<FeedbackItem, "id">) => {
+    const newFeedbackItem: FeedbackItem = { ...newFeedbackItemData, id: `fbk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}` };
+    setFeedbackItems((prev) => [newFeedbackItem, ...prev]);
+    toast({ title: "Sucesso!", description: "Novo feedback adicionado." });
+    setIsFeedbackFormOpen(false);
   };
-
-  const openAddFaqForm = () => {
-    setEditingFaqItem(null);
-    setIsFaqFormOpen(true);
+  const handleUpdateFeedbackItem = (updatedFeedbackItemData: FeedbackItem) => {
+    setFeedbackItems((prev) => prev.map((item) => item.id === updatedFeedbackItemData.id ? { ...item, ...updatedFeedbackItemData } : item));
+    toast({ title: "Sucesso!", description: "Feedback atualizado." });
+    setIsFeedbackFormOpen(false); setEditingFeedbackItem(null);
   };
+  const handleDeleteFeedbackItem = (feedbackId: string) => {
+    setFeedbackItems((prev) => prev.filter((item) => item.id !== feedbackId));
+    toast({ title: "Feedback Removido", variant: "destructive" });
+  };
+  const openEditFeedbackForm = (feedbackItem: FeedbackItem) => { setEditingFeedbackItem({ ...feedbackItem }); setIsFeedbackFormOpen(true); };
+  const openAddFeedbackForm = () => { setEditingFeedbackItem(null); setIsFeedbackFormOpen(true); };
 
+  // Other Save Handlers (WhatsApp, Logo, Banner, YouTube, Social Links)
   const handleSaveWhatsAppNumber = () => {
     if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
       setCurrentWhatsAppNumber(whatsAppNumberInput.trim());
@@ -382,75 +317,33 @@ export default function AdminPage() {
       toast({ title: "Erro", description: "Por favor, insira um número de WhatsApp válido (apenas dígitos).", variant: "destructive" });
     }
   };
-
   const handleSaveLogoImageUrl = () => {
-    try {
-      new URL(logoImageUrlInput.trim());
-      setCurrentLogoImageUrl(logoImageUrlInput.trim());
-      toast({ title: "Sucesso!", description: "URL da imagem do logotipo atualizada." });
-    } catch (error) {
-      toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do logotipo.", variant: "destructive" });
-    }
+    try { new URL(logoImageUrlInput.trim()); setCurrentLogoImageUrl(logoImageUrlInput.trim()); toast({ title: "Sucesso!", description: "URL da imagem do logotipo atualizada." });
+    } catch (error) { toast({ title: "Erro", description: "URL inválida para a imagem do logotipo.", variant: "destructive" }); }
   };
-
   const handleSaveBannerImageUrl = () => {
-    try {
-      new URL(bannerImageUrlInput.trim());
-      setCurrentBannerImageUrl(bannerImageUrlInput.trim());
-      toast({ title: "Sucesso!", description: "URL da imagem do banner atualizada." });
-    } catch (error) {
-      toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do banner.", variant: "destructive" });
-    }
+    try { new URL(bannerImageUrlInput.trim()); setCurrentBannerImageUrl(bannerImageUrlInput.trim()); toast({ title: "Sucesso!", description: "URL da imagem do banner atualizada." });
+    } catch (error) { toast({ title: "Erro", description: "URL inválida para a imagem do banner.", variant: "destructive" }); }
   };
-  
   const handleSaveYoutubeVideoUrl = () => {
     const trimmedUrl = youtubeVideoUrlInput.trim();
-    if (trimmedUrl === '') { // Allow clearing the URL
-      setCurrentYoutubeVideoUrl('');
-      toast({ title: "Sucesso!", description: "URL do vídeo do YouTube removida." });
-      return;
-    }
+    if (trimmedUrl === '') { setCurrentYoutubeVideoUrl(''); toast({ title: "Sucesso!", description: "URL do vídeo do YouTube removida." }); return; }
     const embedUrl = getYouTubeEmbedUrl(trimmedUrl);
-    if (embedUrl) {
-      setCurrentYoutubeVideoUrl(embedUrl);
-      toast({ title: "Sucesso!", description: "URL do vídeo do YouTube atualizada." });
-    } else {
-      toast({ title: "Erro de Validação", description: "Por favor, insira uma URL do YouTube válida (ex: youtube.com/watch?v=... ou youtu.be/... ou youtube.com/embed/...)", variant: "destructive" });
-    }
+    if (embedUrl) { setCurrentYoutubeVideoUrl(embedUrl); toast({ title: "Sucesso!", description: "URL do vídeo do YouTube atualizada." });
+    } else { toast({ title: "Erro de Validação", description: "URL do YouTube inválida.", variant: "destructive" });}
   };
-
-
-  const handleSocialLinkChange = (index: number, value: string) => {
-    setEditableSocialLinks(prevLinks =>
-      prevLinks.map((link, i) =>
-        i === index ? { ...link, url: value } : link
-      )
-    );
-  };
-
   const handleSaveSocialLinks = () => {
     let allValid = true;
     for (const link of editableSocialLinks) {
         if (link.url && link.url.trim() !== '') {
-            try {
-                new URL(link.url.trim());
-            } catch (error) {
-                allValid = false;
-                toast({ title: "Erro de Validação de URL", description: `URL inválida para ${link.name}: ${link.url}`, variant: "destructive"});
-                break; 
-            }
+            try { new URL(link.url.trim()); } catch (error) { allValid = false; toast({ title: "Erro de Validação de URL", description: `URL inválida para ${link.name}: ${link.url}`, variant: "destructive"}); break; }
         }
     }
-
-    if (allValid) {
-        toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
-    }
+    if (allValid) { toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." }); }
   };
 
   const sortedAccounts = [...accounts].sort((a, b) => {
-    if (a.id === CUSTOM_ACCOUNT_SERVICE_ID) return -1;
-    if (b.id === CUSTOM_ACCOUNT_SERVICE_ID) return 1;
-    return 0;
+    if (a.id === CUSTOM_ACCOUNT_SERVICE_ID) return -1; if (b.id === CUSTOM_ACCOUNT_SERVICE_ID) return 1; return 0;
   });
 
   return (
@@ -464,239 +357,107 @@ export default function AdminPage() {
         <Card className="mb-8 shadow-lg">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-xl flex items-center">
-                <ListChecks className="mr-2 h-5 w-5 text-primary"/>
-                Gerenciar Contas e Serviços
-              </CardTitle>
-              <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => {
-                setIsAccountFormOpen(isOpen);
-                if (!isOpen) setEditingAccount(null);
-              }}>
-                <DialogTrigger asChild>
-                  <Button onClick={openAddAccountForm} size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
-                  </Button>
-                </DialogTrigger>
+              <CardTitle className="text-xl flex items-center"><ListChecks className="mr-2 h-5 w-5 text-primary"/>Gerenciar Contas e Serviços</CardTitle>
+              <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => { setIsAccountFormOpen(isOpen); if (!isOpen) setEditingAccount(null); }}>
+                <DialogTrigger asChild><Button onClick={openAddAccountForm} size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta</Button></DialogTrigger>
                 <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
-                  </DialogHeader>
-                  <AdminAccountForm
-                    onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
-                    initialData={editingAccount}
-                    onClose={() => {
-                      setIsAccountFormOpen(false);
-                      setEditingAccount(null);
-                    }}
-                    isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
-                  />
+                  <DialogHeader><DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle></DialogHeader>
+                  <AdminAccountForm onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount} initialData={editingAccount} onClose={() => { setIsAccountFormOpen(false); setEditingAccount(null); }} isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID} />
                 </DialogContent>
               </Dialog>
             </div>
             <CardDescription>Adicione, edite ou remova contas e serviços disponíveis na loja.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <AdminAccountList
-              accounts={sortedAccounts}
-              onEdit={openEditAccountForm}
-              onDelete={handleDeleteAccount}
-              onToggleVisibility={handleToggleVisibility}
-            />
-          </CardContent>
+          <CardContent><AdminAccountList accounts={sortedAccounts} onEdit={openEditAccountForm} onDelete={handleDeleteAccount} onToggleVisibility={handleToggleVisibility}/></CardContent>
         </Card>
 
         <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp</CardTitle>
-            <CardDescription>Este número será usado para as solicitações de contas personalizadas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp</CardTitle><CardDescription>Use apenas dígitos (ex: 5511999998888).</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
-              <div className="flex-grow">
-                <Label htmlFor="whatsapp-number" className="font-semibold">Número do WhatsApp</Label>
-                <Input
-                  id="whatsapp-number"
-                  type="tel"
-                  placeholder="Ex: 5511999998888"
-                  value={whatsAppNumberInput}
-                  onChange={(e) => setWhatsAppNumberInput(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <Button onClick={handleSaveWhatsAppNumber}>
-                <Save className="mr-2 h-4 w-4" /> Salvar Número
-              </Button>
+              <div className="flex-grow"><Label htmlFor="whatsapp-number" className="font-semibold">Número do WhatsApp</Label><Input id="whatsapp-number" type="tel" placeholder="Ex: 5511999998888" value={whatsAppNumberInput} onChange={(e) => setWhatsAppNumberInput(e.target.value)} className="mt-1"/></div>
+              <Button onClick={handleSaveWhatsAppNumber}><Save className="mr-2 h-4 w-4" /> Salvar Número</Button>
             </div>
-            <p className="text-sm text-muted-foreground">Número atual para solicitações personalizadas: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
+            <p className="text-sm text-muted-foreground">Número atual: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
           </CardContent>
         </Card>
         
         <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Palette className="mr-2 h-5 w-5 text-primary" />Configurar Logotipo da Navbar</CardTitle>
-            <CardDescription>Esta imagem será usada como logotipo na barra de navegação. Use um link direto para a imagem (ex: Imgur).</CardDescription>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-xl flex items-center"><Palette className="mr-2 h-5 w-5 text-primary" />Configurar Logotipo da Navbar</CardTitle><CardDescription>Link direto para a imagem (ex: Imgur).</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
-              <div className="flex-grow">
-                <Label htmlFor="logo-image-url" className="font-semibold">URL da Imagem do Logotipo</Label>
-                <Input
-                  id="logo-image-url"
-                  type="url"
-                  placeholder="https://i.imgur.com/nomedaimagem.png"
-                  value={logoImageUrlInput}
-                  onChange={(e) => setLogoImageUrlInput(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <Button onClick={handleSaveLogoImageUrl}>
-                <Save className="mr-2 h-4 w-4" /> Salvar URL do Logotipo
-              </Button>
+              <div className="flex-grow"><Label htmlFor="logo-image-url" className="font-semibold">URL da Imagem do Logotipo</Label><Input id="logo-image-url" type="url" placeholder="https://i.imgur.com/nomedaimagem.png" value={logoImageUrlInput} onChange={(e) => setLogoImageUrlInput(e.target.value)} className="mt-1"/></div>
+              <Button onClick={handleSaveLogoImageUrl}><Save className="mr-2 h-4 w-4" /> Salvar URL</Button>
             </div>
-            {currentLogoImageUrl && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Prévia do logotipo atual:</p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={currentLogoImageUrl} 
-                  alt="Logo preview" 
-                  className="max-h-20 object-contain"
-                  data-ai-hint="store logo"
-                />
-              </div>
-            )}
+            {currentLogoImageUrl && <div><p className="text-sm text-muted-foreground mb-2">Prévia:</p><img src={currentLogoImageUrl} alt="Logo preview" className="max-h-20 object-contain" data-ai-hint="store logo"/></div>}
           </CardContent>
         </Card>
 
         <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center"><ImageIcon className="mr-2 h-5 w-5 text-primary" />Configurar Imagem do Banner Principal</CardTitle>
-            <CardDescription>Esta imagem será usada como fundo do banner na página inicial. Use um link direto para a imagem (ex: Imgur).</CardDescription>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-xl flex items-center"><ImageIcon className="mr-2 h-5 w-5 text-primary" />Configurar Imagem do Banner Principal</CardTitle><CardDescription>Link direto para a imagem (ex: Imgur).</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
-              <div className="flex-grow">
-                <Label htmlFor="banner-image-url" className="font-semibold">URL da Imagem do Banner</Label>
-                <Input
-                  id="banner-image-url"
-                  type="url"
-                  placeholder="https://i.imgur.com/nomedaimagem.png"
-                  value={bannerImageUrlInput}
-                  onChange={(e) => setBannerImageUrlInput(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <Button onClick={handleSaveBannerImageUrl}>
-                <Save className="mr-2 h-4 w-4" /> Salvar URL do Banner
-              </Button>
+              <div className="flex-grow"><Label htmlFor="banner-image-url" className="font-semibold">URL da Imagem do Banner</Label><Input id="banner-image-url" type="url" placeholder="https://i.imgur.com/nomedaimagem.png" value={bannerImageUrlInput} onChange={(e) => setBannerImageUrlInput(e.target.value)} className="mt-1"/></div>
+              <Button onClick={handleSaveBannerImageUrl}><Save className="mr-2 h-4 w-4" /> Salvar URL</Button>
             </div>
-            {currentBannerImageUrl && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Prévia da imagem atual do banner:</p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={currentBannerImageUrl} 
-                  alt="Banner preview" 
-                  className="rounded-md border max-h-48 object-contain"
-                  data-ai-hint="hero background"
-                />
-              </div>
-            )}
+            {currentBannerImageUrl && <div><p className="text-sm text-muted-foreground mb-2">Prévia:</p><img src={currentBannerImageUrl} alt="Banner preview" className="rounded-md border max-h-48 object-contain" data-ai-hint="hero background"/></div>}
           </CardContent>
         </Card>
 
         <Card className="mb-8 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center"><YoutubeIcon className="mr-2 h-5 w-5 text-primary" />Configurar Vídeo do YouTube</CardTitle>
-            <CardDescription>Insira a URL de um vídeo do YouTube para exibi-lo na página inicial. URLs de watch, shorts ou embed são aceitas.</CardDescription>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-xl flex items-center"><YoutubeIcon className="mr-2 h-5 w-5 text-primary" />Configurar Vídeo do YouTube</CardTitle><CardDescription>Insira a URL de um vídeo (watch, shorts ou embed).</CardDescription></CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
-              <div className="flex-grow">
-                <Label htmlFor="youtube-video-url" className="font-semibold">URL do Vídeo do YouTube</Label>
-                <Input
-                  id="youtube-video-url"
-                  type="url"
-                  placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
-                  value={youtubeVideoUrlInput}
-                  onChange={(e) => setYoutubeVideoUrlInput(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <Button onClick={handleSaveYoutubeVideoUrl}>
-                <Save className="mr-2 h-4 w-4" /> Salvar URL do Vídeo
-              </Button>
+              <div className="flex-grow"><Label htmlFor="youtube-video-url" className="font-semibold">URL do Vídeo do YouTube</Label><Input id="youtube-video-url" type="url" placeholder="https://www.youtube.com/watch?v=VIDEO_ID" value={youtubeVideoUrlInput} onChange={(e) => setYoutubeVideoUrlInput(e.target.value)} className="mt-1"/></div>
+              <Button onClick={handleSaveYoutubeVideoUrl}><Save className="mr-2 h-4 w-4" /> Salvar URL</Button>
             </div>
-            {currentYoutubeVideoUrl && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Prévia do vídeo atual:</p>
-                <div className="aspect-video w-full max-w-md mx-auto">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={currentYoutubeVideoUrl}
-                    title="YouTube video player preview"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="rounded-md border"
-                  ></iframe>
-                </div>
-              </div>
-            )}
+            {currentYoutubeVideoUrl && <div><p className="text-sm text-muted-foreground mb-2">Prévia:</p><div className="aspect-video w-full max-w-md mx-auto"><iframe width="100%" height="100%" src={currentYoutubeVideoUrl} title="YouTube video player preview" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="rounded-md border"></iframe></div></div>}
           </CardContent>
         </Card>
         
         <Accordion type="multiple" defaultValue={[]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
-                <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                    <AccordionPrimitive.Trigger
-                        className={cn(
-                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50"
-                        )}
-                    >
-                        <div className="flex items-center">
-                            <Share2 className="mr-3 h-5 w-5 text-primary" />
-                            <div>
-                                <h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3>
-                                <p className="text-sm text-muted-foreground mt-1">Adicione os links para suas redes sociais.</p>
-                            </div>
-                        </div>
-                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                    </AccordionPrimitive.Trigger>
-                </AccordionPrimitive.Header>
+              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
+                  <div className="flex items-center"><Share2 className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3><p className="text-sm text-muted-foreground mt-1">Adicione os links para suas redes sociais.</p></div></div>
+                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </AccordionPrimitive.Trigger>
+              </AccordionPrimitive.Header>
               <AccordionContent className="bg-card rounded-b-lg">
                 <div className="p-6 space-y-6">
-                    <div className="flex justify-end mb-4">
-                        <Button onClick={handleSaveSocialLinks} size="sm">
-                        <Save className="mr-2 h-4 w-4" /> Salvar Redes
-                        </Button>
-                    </div>
-                  {editableSocialLinks.map((platformLink, index) => {
-                    const IconComponent = platformLink.lucideIcon;
-                    return (
-                      <Card key={platformLink.key} className="p-4">
-                        <CardHeader className="p-0 pb-3">
-                          <CardTitle className="text-lg flex items-center">
-                            {IconComponent && <IconComponent className="mr-2 h-5 w-5 text-secondary" />}
-                            {platformLink.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                           <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold sr-only">URL para {platformLink.name}</Label>
-                            <Input
-                              id={`social-url-${platformLink.key}`}
-                              type="url"
-                              placeholder={platformLink.placeholder}
-                              value={platformLink.url}
-                              onChange={(e) => handleSocialLinkChange(index, e.target.value)}
-                              className="mt-1"
-                            />
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                  <div className="flex justify-end mb-4"><Button onClick={handleSaveSocialLinks} size="sm"><Save className="mr-2 h-4 w-4" /> Salvar Redes</Button></div>
+                  {editableSocialLinks.map((platformLink, index) => { const IconComponent = platformLink.lucideIcon; return (
+                    <Card key={platformLink.key} className="p-4">
+                      <CardHeader className="p-0 pb-3"><CardTitle className="text-lg flex items-center">{IconComponent && <IconComponent className="mr-2 h-5 w-5 text-secondary" />}{platformLink.name}</CardTitle></CardHeader>
+                      <CardContent className="p-0"><Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold sr-only">URL para {platformLink.name}</Label><Input id={`social-url-${platformLink.key}`} type="url" placeholder={platformLink.placeholder} value={platformLink.url} onChange={(e) => handleSocialLinkChange(index, e.target.value)} className="mt-1"/></CardContent>
+                    </Card>
+                  );})}
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+
+          <AccordionItem value="feedbacks-section" className="border-none overflow-hidden rounded-lg shadow-lg">
+            <Card className="m-0 shadow-none border-none rounded-none">
+              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
+                  <div className="flex items-center"><Star className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Gerenciar Feedbacks de Clientes</h3><p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova feedbacks exibidos na loja.</p></div></div>
+                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </AccordionPrimitive.Trigger>
+              </AccordionPrimitive.Header>
+              <AccordionContent className="bg-card rounded-b-lg">
+                <div className="p-6">
+                  <div className="flex justify-end mb-4">
+                    <Dialog open={isFeedbackFormOpen} onOpenChange={(isOpen) => { setIsFeedbackFormOpen(isOpen); if (!isOpen) setEditingFeedbackItem(null); }}>
+                      <DialogTrigger asChild><Button onClick={openAddFeedbackForm} size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Feedback</Button></DialogTrigger>
+                      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+                        <DialogHeader><DialogTitle>{editingFeedbackItem ? "Editar Feedback" : "Adicionar Novo Feedback"}</DialogTitle></DialogHeader>
+                        <AdminFeedbackForm onSubmitFeedback={editingFeedbackItem ? handleUpdateFeedbackItem : handleAddFeedbackItem} initialData={editingFeedbackItem} onClose={() => { setIsFeedbackFormOpen(false); setEditingFeedbackItem(null); }} />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <AdminFeedbackList feedbackItems={feedbackItems} onEdit={openEditFeedbackForm} onDelete={handleDeleteFeedbackItem} />
                 </div>
               </AccordionContent>
             </Card>
@@ -705,54 +466,27 @@ export default function AdminPage() {
           <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
              <Card className="m-0 shadow-none border-none rounded-none">
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                    <AccordionPrimitive.Trigger
-                        className={cn(
-                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50"
-                        )}
-                    >
-                        <div className="flex items-center">
-                            <HelpCircleIcon className="mr-3 h-5 w-5 text-primary" />
-                            <div>
-                                <h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3>
-                                <p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
-                            </div>
-                        </div>
-                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                    </AccordionPrimitive.Trigger>
+                  <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
+                    <div className="flex items-center"><HelpCircleIcon className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3><p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova perguntas e respostas.</p></div></div>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                  </AccordionPrimitive.Trigger>
                 </AccordionPrimitive.Header>
                 <AccordionContent className="bg-card rounded-b-lg">
                   <div className="p-6">
                     <div className="flex justify-end mb-4">
-                        <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
-                        <DialogTrigger asChild>
-                            <Button onClick={openAddFaqForm} size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
-                            </Button>
-                        </DialogTrigger>
+                      <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
+                        <DialogTrigger asChild><Button onClick={openAddFaqForm} size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta</Button></DialogTrigger>
                         <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                            <DialogHeader>
-                            <DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle>
-                            </DialogHeader>
-                            <AdminFaqForm
-                            onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem}
-                            initialData={editingFaqItem}
-                            onClose={() => {
-                                setIsFaqFormOpen(false);
-                                setEditingFaqItem(null);
-                            }}
-                            />
+                          <DialogHeader><DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle></DialogHeader>
+                          <AdminFaqForm onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem} initialData={editingFaqItem} onClose={() => { setIsFaqFormOpen(false); setEditingFaqItem(null); }} />
                         </DialogContent>
-                        </Dialog>
+                      </Dialog>
                     </div>
-                    <AdminFaqList
-                        faqItems={faqItems}
-                        onEdit={openEditFaqForm}
-                        onDelete={handleDeleteFaqItem}
-                    />
-                    </div>
+                    <AdminFaqList faqItems={faqItems} onEdit={openEditFaqForm} onDelete={handleDeleteFaqItem} />
+                  </div>
                 </AccordionContent>
             </Card>
-        </AccordionItem>
+          </AccordionItem>
         </Accordion>
 
       </main>
