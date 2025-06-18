@@ -16,6 +16,17 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
     return null;
   }
 
+  const count = activeLinks.length;
+  let gridLayoutClasses = "";
+
+  if (count === 1) {
+    gridLayoutClasses = "grid grid-cols-1 gap-4 max-w-sm mx-auto";
+  } else if (count === 2) {
+    gridLayoutClasses = "grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto";
+  } else { // 3 or more
+    gridLayoutClasses = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto";
+  }
+
   return (
     <section id="contact" aria-labelledby="contact-heading" className="py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,7 +36,7 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
             Nossas Redes Sociais
           </h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div className={gridLayoutClasses}>
           {activeLinks.map((link) => {
             const LucideIconComponent = link.lucideIcon;
             return (
