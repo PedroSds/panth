@@ -405,9 +405,6 @@ export default function AdminPage() {
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Painel de Administração</h1>
-          <Button onClick={resetToMockData} variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" /> Resetar Dados
-          </Button>
         </div>
 
         <Card className="mb-8 shadow-lg">
