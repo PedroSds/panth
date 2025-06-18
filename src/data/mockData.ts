@@ -1,6 +1,6 @@
 
 import type { Account, FaqItem, LucideIconName, SocialMediaKey, SocialMediaLinks, SocialLink } from '@/types';
-import { Instagram, Twitter, Youtube, Send, Smartphone } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send } from 'lucide-react'; // Removed Smartphone
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
@@ -157,10 +157,11 @@ export const initialSocialMediaLinks: SocialMediaLinks = {
 };
 
 export const socialPlatformConfig: SocialLink[] = [
-  { key: 'discord', name: 'Discord', url: '', placeholder: 'https://discord.gg/seu-servidor' }, // Removed icon: GenericDiscordIcon
-  { key: 'whatsapp', name: 'WhatsApp', url: '', placeholder: 'https://wa.me/5511999998888', icon: Smartphone },
+  { key: 'discord', name: 'Discord', url: '', placeholder: 'https://discord.gg/seu-servidor' }, // Icon handled in ContactSection
+  { key: 'whatsapp', name: 'WhatsApp', url: '', placeholder: 'https://wa.me/5511999998888' }, // Icon handled in ContactSection
   { key: 'instagram', name: 'Instagram', url: '', placeholder: 'https://instagram.com/seuusuario', icon: Instagram },
   { key: 'twitter', name: 'Twitter (X)', url: '', placeholder: 'https://twitter.com/seuusuario', icon: Twitter },
   { key: 'youtube', name: 'Youtube', url: '', placeholder: 'https://youtube.com/seu-canal', icon: Youtube },
   { key: 'telegram', name: 'Telegram', url: '', placeholder: 'https://t.me/seuusuario', icon: Send },
 ];
+
