@@ -150,7 +150,7 @@ export default function HomePage() {
         </section>
 
         {/* Available Accounts Section */}
-         <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
+        <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div id="available-accounts" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
@@ -174,7 +174,7 @@ export default function HomePage() {
                 <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
                   <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
                   <h2 id="video-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
-                    Veja como comprar com segurança
+                    Veja como comprar com segurança:
                   </h2>
                 </div>
               </div>
