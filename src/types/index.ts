@@ -1,3 +1,4 @@
+
 import type { LucideIcon as LucideIconType } from 'lucide-react'; // Renamed to avoid conflict
 import type { SVGProps, ComponentType } from 'react';
 
@@ -71,9 +72,10 @@ export interface SocialPlatformConfigEntry {
   key: SocialMediaKey;
   name: string;
   placeholder: string;
-  lucideIcon?: LucideOrCustomIcon;
+  lucideIcon: LucideOrCustomIcon;
 }
 
 export interface SocialLink extends SocialPlatformConfigEntry {
   url: string;
 }
+

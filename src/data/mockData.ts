@@ -1,8 +1,9 @@
 
 import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
-import { Instagram, Twitter, Youtube, Send, MessageCircle as DefaultDiscordIcon, Phone } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send, Phone } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
+
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
@@ -164,3 +165,4 @@ export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(pla
     url: '',
   };
 });
+

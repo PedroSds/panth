@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown } from "lucide-react";
-import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { DiscordIcon } from "@/components/icons/DiscordIcon";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -23,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -106,28 +105,12 @@ export default function AdminPage() {
     try {
         const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
         if (storedSocialLinks) {
-            const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
+            const parsedLinks = JSON.parse(storedSocialLinks) as Array<Pick<SocialLink, 'key' | 'url'>>;
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
-                const initialPlatform = initialSocialLinksData.find(p => p.key === configPlatform.key);
-                
-                // Ensure lucideIcon is correctly assigned from initial data if not in stored
-                let lucideIconToUse = configPlatform.lucideIcon; // Default to config
-                if (initialPlatform && !lucideIconToUse) { // If config doesn't have one, but initial mock does
-                    lucideIconToUse = initialPlatform.lucideIcon;
-                }
-                 // If stored data has an empty customSvg, but initialSocialLinksData has a default customSvg for this platform, use it.
-                let customSvgToUse = storedPlatform?.customSvg;
-                if ((!customSvgToUse || customSvgToUse.trim() === "") && initialPlatform?.customSvg && initialPlatform.customSvg.trim() !== "") {
-                    customSvgToUse = initialPlatform.customSvg;
-                }
-
-
                 return {
                     ...configPlatform, 
-                    url: storedPlatform?.url || initialPlatform?.url || '',
-                    lucideIcon: lucideIconToUse,
-                    customSvg: customSvgToUse || '',
+                    url: storedPlatform?.url || initialSocialLinksData.find(initLink => initLink.key === configPlatform.key)?.url || '',
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -190,13 +173,11 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        const linksToStore = editableSocialLinks.map(({ key, name, placeholder, lucideIcon, customSvg, url }) => ({
+        const linksToStore = editableSocialLinks.map(({ key, name, placeholder, url }) => ({
           key,
           name, 
           placeholder,
           url,
-          customSvg, 
-          // lucideIcon is a component, don't store it directly. It's resolved from config at load time.
         }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
       } catch (error) {
@@ -341,46 +322,13 @@ export default function AdminPage() {
     }
   };
 
-  const handleSocialLinkChange = (index: number, field: 'url' | 'customSvg', value: string) => {
+  const handleSocialLinkChange = (index: number, value: string) => {
     setEditableSocialLinks(prevLinks =>
       prevLinks.map((link, i) =>
-        i === index ? { ...link, [field]: value } : link
+        i === index ? { ...link, url: value } : link
       )
     );
   };
-  
-  const handleSvgFileUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type !== "image/svg+xml") {
-        toast({ title: "Erro de Upload", description: "Por favor, selecione um arquivo SVG (.svg).", variant: "destructive" });
-        event.target.value = ""; // Reset file input
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const svgContent = e.target?.result as string;
-        if (svgContent && svgContent.trim().startsWith("<svg") && svgContent.trim().endsWith("</svg>")) {
-          handleSocialLinkChange(index, 'customSvg', svgContent);
-          toast({ title: "SVG Carregado", description: `Ícone SVG para ${editableSocialLinks[index].name} atualizado.` });
-        } else {
-          toast({ title: "Erro de Validação de SVG", description: "O conteúdo do arquivo não parece ser um SVG válido.", variant: "destructive" });
-        }
-        event.target.value = ""; // Reset file input for subsequent uploads
-      };
-      reader.onerror = () => {
-        toast({ title: "Erro de Leitura", description: "Não foi possível ler o arquivo SVG.", variant: "destructive" });
-        event.target.value = ""; // Reset file input
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const handleRemoveCustomSvg = (index: number) => {
-    handleSocialLinkChange(index, 'customSvg', '');
-    toast({ title: "SVG Removido", description: `Ícone SVG personalizado para ${editableSocialLinks[index].name} removido. Usando ícone padrão se disponível.` });
-  };
-
 
   const handleSaveSocialLinks = () => {
     let allValid = true;
@@ -397,6 +345,12 @@ export default function AdminPage() {
     }
 
     if (allValid) {
+        // Logic to trigger useEffect for saving to localStorage happens automatically
+        // when editableSocialLinks state is updated by handleSocialLinkChange.
+        // This explicit call to setEditableSocialLinks might be redundant if only saving.
+        // However, if there's a desire to force a re-save or if other logic depended on this,
+        // it can be kept. For simple URL validation and saving, it's implicitly handled.
+        setEditableSocialLinks([...editableSocialLinks]); 
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -487,11 +441,10 @@ export default function AdminPage() {
                 >
                   <div>
                     <h3 className="text-xl font-semibold flex items-center text-card-foreground"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</h3>
-                    <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais. Ícones podem ser personalizados via upload de SVG.</p>
+                    <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais.</p>
                   </div>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </AccordionPrimitive.Trigger>
-                {/* Botão de salvar redes sociais fica fora do trigger, mas dentro do cabeçalho visual */}
                 <div className="pl-4" onClick={(e) => e.stopPropagation()}>
                   <Button onClick={handleSaveSocialLinks} size="sm">
                     <Save className="mr-2 h-4 w-4" /> Salvar Redes
@@ -501,9 +454,7 @@ export default function AdminPage() {
               <AccordionContent className="bg-card rounded-b-lg">
                 <div className="p-6 space-y-6">
                   {editableSocialLinks.map((platformLink, index) => {
-                    const IconComponent = platformLink.customSvg 
-                      ? () => <div className="w-5 h-5 mr-2 text-primary" dangerouslySetInnerHTML={{ __html: platformLink.customSvg! }} />
-                      : platformLink.lucideIcon;
+                    const IconComponent = platformLink.lucideIcon;
                     return (
                       <Card key={platformLink.key} className="p-4">
                         <CardHeader className="p-0 pb-3">
@@ -520,31 +471,9 @@ export default function AdminPage() {
                               type="url"
                               placeholder={platformLink.placeholder}
                               value={platformLink.url}
-                              onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                              onChange={(e) => handleSocialLinkChange(index, e.target.value)}
                               className="mt-1"
                             />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor={`social-svg-${platformLink.key}`} className="font-semibold">Ícone SVG Personalizado (Opcional)</Label>
-                            <Input
-                              id={`social-svg-${platformLink.key}`}
-                              type="file"
-                              accept=".svg"
-                              onChange={(e) => handleSvgFileUpload(index, e)}
-                              className="mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                            />
-                            {platformLink.customSvg && (
-                              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <span className="truncate max-w-[200px] italic">SVG personalizado carregado.</span>
-                                <Button variant="link" size="sm" className="p-0 h-auto text-destructive hover:text-destructive/80" onClick={() => handleRemoveCustomSvg(index)}>
-                                  Remover SVG
-                                </Button>
-                              </div>
-                            )}
-                            <p className="text-xs text-muted-foreground">
-                              Faça upload de um arquivo .svg para usar um ícone personalizado. Caso contrário, o ícone padrão será usado.
-                              SVG deve usar `currentColor` para `fill` ou `stroke` para herdar cores.
-                            </p>
                           </div>
                         </CardContent>
                       </Card>
@@ -602,56 +531,56 @@ export default function AdminPage() {
           </Card>
 
           <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
-            <Card className="m-0 shadow-none border-none rounded-none">
-              <AccordionPrimitive.Header className="flex items-center justify-between w-full p-6 text-left bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                  <AccordionPrimitive.Trigger
-                    className={cn(
-                      "flex flex-1 items-center justify-between font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
-                    )}
-                  >
-                    <div>
-                      <h3 className="text-xl font-semibold flex items-center text-card-foreground">
-                        <HelpCircleIcon className="mr-2 h-5 w-5 text-primary" />
-                        Gerenciar Perguntas Frequentes (FAQ)
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1.5">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
+             <Card className="m-0 shadow-none border-none rounded-none">
+                <AccordionPrimitive.Header className="flex items-center justify-between w-full p-6 text-left bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                    <AccordionPrimitive.Trigger
+                        className={cn(
+                        "flex flex-1 items-center justify-between font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
+                        )}
+                    >
+                        <div>
+                        <h3 className="text-xl font-semibold flex items-center text-card-foreground">
+                            <HelpCircleIcon className="mr-2 h-5 w-5 text-primary" />
+                            Gerenciar Perguntas Frequentes (FAQ)
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1.5">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
+                        </div>
+                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                    </AccordionPrimitive.Trigger>
+                    <div className="pl-4" onClick={(e) => e.stopPropagation()}>
+                        <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
+                        <DialogTrigger asChild>
+                            <Button onClick={openAddFaqForm} size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+                            <DialogHeader>
+                            <DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle>
+                            </DialogHeader>
+                            <AdminFaqForm
+                            onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem}
+                            initialData={editingFaqItem}
+                            onClose={() => {
+                                setIsFaqFormOpen(false);
+                                setEditingFaqItem(null);
+                            }}
+                            />
+                        </DialogContent>
+                        </Dialog>
                     </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                  </AccordionPrimitive.Trigger>
-                  <div className="pl-4" onClick={(e) => e.stopPropagation()}>
-                    <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
-                      <DialogTrigger asChild>
-                        <Button onClick={openAddFaqForm} size="sm">
-                          <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pergunta
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>{editingFaqItem ? "Editar Pergunta do FAQ" : "Adicionar Nova Pergunta ao FAQ"}</DialogTitle>
-                        </DialogHeader>
-                        <AdminFaqForm
-                          onSubmitFaq={editingFaqItem ? handleUpdateFaqItem : handleAddFaqItem}
-                          initialData={editingFaqItem}
-                          onClose={() => {
-                            setIsFaqFormOpen(false);
-                            setEditingFaqItem(null);
-                          }}
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-              </AccordionPrimitive.Header>
-              <AccordionContent className="bg-card rounded-b-lg">
-                <div className="p-6">
-                  <AdminFaqList
-                    faqItems={faqItems}
-                    onEdit={openEditFaqForm}
-                    onDelete={handleDeleteFaqItem}
-                  />
-                </div>
-              </AccordionContent>
+                </AccordionPrimitive.Header>
+                <AccordionContent className="bg-card rounded-b-lg">
+                    <div className="p-6">
+                    <AdminFaqList
+                        faqItems={faqItems}
+                        onEdit={openEditFaqForm}
+                        onDelete={handleDeleteFaqItem}
+                    />
+                    </div>
+                </AccordionContent>
             </Card>
-          </AccordionItem>
+        </AccordionItem>
         </Accordion>
 
       </main>
@@ -659,3 +588,4 @@ export default function AdminPage() {
     </div>
   );
 }
+
