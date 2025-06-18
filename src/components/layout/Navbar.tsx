@@ -11,6 +11,7 @@ import {
   SheetContent,
   SheetClose,
   SheetTrigger,
+  SheetTitle, // Added SheetTitle import
 } from "@/components/ui/sheet";
 
 interface NavbarProps {
@@ -30,8 +31,8 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-20 px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between h-20">
           {/* Logotipo */}
           <Link
             href="/#page-top"
@@ -76,6 +77,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-card">
+                <SheetTitle className="sr-only">Menu de Navegação</SheetTitle> {/* Added visually hidden title */}
                 <nav className="flex flex-col space-y-5 pt-8 text-lg">
                   {navLinks.map((link) => (
                     <SheetClose asChild key={link.href}>
