@@ -23,8 +23,8 @@ export function Navbar({ logoUrl }: NavbarProps) {
               src={effectiveLogoUrl}
               alt="PanthStore Logo"
               style={{
-                width: '292px',
                 height: '70px',
+                width: 'auto',
                 objectFit: 'contain',
                 display: 'block',
               }}
