@@ -6,7 +6,7 @@ export function Navbar() {
     <header className="bg-card shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link href="/#page-top" className="flex items-center text-primary hover:opacity-80 transition-opacity">
+          <Link href="/#page-top" className="flex items-center text-primary hover:opacity-80 transition-opacity -ml-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://i.imgur.com/4RDlzjM.png"
