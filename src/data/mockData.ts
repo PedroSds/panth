@@ -1,7 +1,8 @@
 
 import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
-import { Instagram, Twitter, Youtube, Send, MessageCircle } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send, MessageCircle as DefaultDiscordIcon, Phone } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
+import { DiscordIcon } from '@/components/icons/DiscordIcon';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
@@ -149,7 +150,7 @@ export const faqIconList: { value: LucideIconName; label: string }[] = [
 ];
 
 export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
-  { key: 'discord', name: 'Discord', placeholder: 'https://discord.gg/seu-servidor', lucideIcon: MessageCircle },
+  { key: 'discord', name: 'Discord', placeholder: 'https://discord.gg/seu-servidor', lucideIcon: DiscordIcon },
   { key: 'whatsapp', name: 'WhatsApp', placeholder: 'https://wa.me/5511999998888', lucideIcon: WhatsAppIcon },
   { key: 'instagram', name: 'Instagram', placeholder: 'https://instagram.com/seuusuario', lucideIcon: Instagram },
   { key: 'twitter', name: 'Twitter (X)', placeholder: 'https://twitter.com/seuusuario', lucideIcon: Twitter },
