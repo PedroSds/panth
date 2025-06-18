@@ -9,19 +9,10 @@ export const metadata: Metadata = {
   description: 'Encontre sua conta perfeita de League of Legends!',
 };
 
-// Note for debugging: The "params are being enumerated" error typically arises
-// in Server Components when `params` or `searchParams` (which are not plain objects)
-// are iterated (e.g., using Object.keys(), spreading {...params})
-// without being properly handled. If these objects need to be read, use React.use(),
-// or convert them to plain objects if passing to Client Components.
 export default function RootLayout({
   children,
-  params, // Explicitly destructure, even if not directly used here.
-  searchParams, // Explicitly destructure, even if not directly used here.
 }: Readonly<{
   children: React.ReactNode;
-  params: { [key: string]: string | string[] | undefined };
-  searchParams: { [key: string]: string | string[] | undefined };
 }>) {
   return (
     <html lang="pt-BR">
