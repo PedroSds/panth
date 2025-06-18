@@ -24,7 +24,7 @@ export function Navbar() {
               <li>
                 <Link
                   href="/#hero"
-                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                  className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
                 >
                   Início
                 </Link>
@@ -32,7 +32,7 @@ export function Navbar() {
               <li>
                 <Link
                   href="/#available-accounts"
-                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                  className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
                 >
                   Contas
                 </Link>
@@ -40,7 +40,7 @@ export function Navbar() {
               <li>
                 <Link
                   href="/#faq"
-                  className="text-sm font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
+                  className="text-base font-medium text-foreground hover:text-primary hover:underline underline-offset-4 active:text-accent active:font-semibold transition-all duration-200 ease-in-out"
                 >
                   FAQ
                 </Link>
