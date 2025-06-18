@@ -58,7 +58,7 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
           return (
             <AccordionItem value={item.id} key={item.id} className="bg-card rounded-lg shadow-md overflow-hidden border border-border">
               <AccordionTrigger className={cn(
-                "p-4 sm:p-6 hover:no-underline text-left font-semibold text-primary hover:bg-muted/50 transition-colors w-full",
+                "p-4 sm:p-6 hover:no-underline text-left font-semibold text-primary transition-colors w-full",
                 "[&[data-state=open]>svg.lucide-chevron-down]:text-primary [&[data-state=closed]>svg.lucide-chevron-down]:text-primary/70"
               )}>
                 <div className="flex items-center gap-3">
