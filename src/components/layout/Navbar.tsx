@@ -12,8 +12,8 @@ export function Navbar() {
               src="https://i.imgur.com/4RDlzjM.png"
               alt="PanthStore Logo"
               style={{
-                width: '266px', 
-                height: '64px', 
+                width: '266px',
+                height: '64px',
                 objectFit: 'contain',
                 display: 'block',
               }}
@@ -21,7 +21,21 @@ export function Navbar() {
           </Link>
           <nav>
             <ul className="flex items-center space-x-4 sm:space-x-6">
-              {/* Link removido */}
+              <li>
+                <Link href="/#hero" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Início
+                </Link>
+              </li>
+              <li>
+                <Link href="/#available-accounts" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Contas
+                </Link>
+              </li>
+              <li>
+                <Link href="/#faq" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>
