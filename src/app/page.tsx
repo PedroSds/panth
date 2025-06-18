@@ -123,6 +123,7 @@ export default function HomePage() {
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
   const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
+  const hasPrimaryContent = visibleAndUnsoldAccounts.length > 0 || (isMounted && youtubeVideoUrl);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -196,20 +197,8 @@ export default function HomePage() {
           </section>
         )}
         
-        {(visibleAndUnsoldAccounts.length > 0 || faqItems.length > 0 || (isMounted && youtubeVideoUrl)) && hasActiveSocialLinks && (
-          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
-            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
-              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
-            </svg>
-          </div>
-        )}
-        
-        {hasActiveSocialLinks && (
-           <ContactSection socialLinks={socialLinks} />
-        )}
-
-
-        {hasActiveSocialLinks && faqItems.length > 0 && (
+        {/* SVG Divider before FAQ section */}
+        {hasPrimaryContent && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
               <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
@@ -217,6 +206,7 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* FAQ Section */}
         {faqItems.length > 0 && (
           <section id="faq-container" className="py-12 md:py-16 lg:py-20">
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -225,6 +215,23 @@ export default function HomePage() {
           </section>
         )}
 
+        {/* SVG Divider before Contact section */}
+        {((faqItems.length > 0 && hasActiveSocialLinks) || // Case: FAQ was shown, and Contact will be shown
+          (faqItems.length === 0 && hasPrimaryContent && hasActiveSocialLinks) // Case: FAQ NOT shown, but primary content was, and Contact will be shown
+         ) && (
+          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
+            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
+              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
+            </svg>
+          </div>
+        )}
+        
+        {/* Contact Section */}
+        {hasActiveSocialLinks && (
+           <ContactSection socialLinks={socialLinks} />
+        )}
+
+        {/* Fallback content if no main sections are visible */}
         {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (!isMounted || !youtubeVideoUrl) && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
@@ -235,3 +242,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
