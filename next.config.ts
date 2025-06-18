@@ -3,8 +3,6 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'export',
-  trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -12,7 +10,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    unoptimized: true, // Add this line to disable image optimization
+    // unoptimized: true, // Removed for Netlify SSR builds
     remotePatterns: [
       {
         protocol: 'https',

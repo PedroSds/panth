@@ -1,3 +1,13 @@
+# Settings for deploying Next.js sites on Netlify.
+# Read more: https://docs.netlify.com/integrations/frameworks/next-js/overview/
+
 [build]
-  command = "npm run build && npm run export"
-  publish = "out"
+  # Command to build the Next.js site.
+  command = "npm run build"
+  # Directory (relative to the root of your repo) that contains the deploy-ready assets.
+  # The Next.js Runtime automatically detects this, but explicitly setting it to .next is common.
+  publish = ".next"
+
+# The Netlify Next.js plugin handles features like SSR, ISR, Image Optimization, etc.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
