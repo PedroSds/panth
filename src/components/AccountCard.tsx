@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare, Send } from 'lucide-react';
+import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare } from 'lucide-react';
 import type { Account } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -68,7 +68,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 aria-label="Personalizar minha conta"
               >
-                <Wrench className="mr-2 h-5 w-5" />
+                <Wrench className="h-5 w-5" />
                 Personalizar Minha Conta
               </Button>
             </DialogTrigger>
@@ -89,13 +89,14 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
           account.automaticDeliveryLink && account.automaticDeliveryLink.trim() !== '' ? (
             <Button
               asChild
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              variant="success"
+              className="w-full"
               aria-label={`Comprar ${account.name} com entrega automática`}
             >
               <a href={account.automaticDeliveryLink} target="_blank" rel="noopener noreferrer">
-                <Send className="mr-2 h-5 w-5" />
+                <ShoppingCart className="h-5 w-5" />
                 Entrega Automática
-                <ExternalLink className="ml-2 h-4 w-4" />
+                <ExternalLink className="h-4 w-4" />
               </a>
             </Button>
           ) : (
