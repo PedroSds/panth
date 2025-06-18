@@ -9,18 +9,18 @@
   }
   :root {
     --background: 0 0% 96%; /* Very light gray / Off-white */
-    --foreground: 7 25% 20%; /* Dark brown text, derived from new primary */
+    --foreground: 7 45% 15%; /* Dark brown text, New Primary */
     --card: 0 0% 100%; /* White */
-    --card-foreground: 7 25% 20%;
+    --card-foreground: 7 45% 15%; /* Dark brown text, New Primary */
     --popover: 0 0% 100%;
-    --popover-foreground: 7 25% 20%;
-    --primary: 221 83% 53%; /* Saturated Blue #4287f5 */
+    --popover-foreground: 7 45% 15%; /* Dark brown text, New Primary */
+    --primary: 7 45% 15%; /* New Primary: #341815 */
     --primary-foreground: 0 0% 100%; /* White text on primary */
-    --secondary: 0 0% 90%; /* Lighter gray for secondary elements */
-    --secondary-foreground: 7 25% 20%; /* Dark brown text on secondary */
+    --secondary: 33 59% 40%; /* New Secondary: #B47930 */
+    --secondary-foreground: 0 0% 0%; /* Black text on secondary for contrast */
     --muted: 0 0% 85%; /* Muted gray */
     --muted-foreground: 7 20% 45%;
-    --accent: 20 90% 61%; /* Vivid Orange #f57c42 */
+    --accent: 20 90% 61%; /* Vivid Orange */
     --accent-foreground: 0 0% 100%; /* White text on accent */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -28,7 +28,7 @@
     --success-foreground: 0 0% 100%; /* White text on success */
     --border: 0 0% 87%;
     --input: 0 0% 92%;
-    --ring: 221 83% 53%; /* Primary color for rings */
+    --ring: 7 45% 15%; /* New Primary color for rings */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -46,17 +46,17 @@
   }
 
   .dark {
-    --background: 222 47% 11%; /* Dark Blue-Gray */
+    --background: 7 20% 10%; /* Dark brown, derived from new primary */
     --foreground: 0 0% 95%; /* Light text for dark mode */
-    --card: 222 47% 14%; /* Slightly lighter Dark Blue-Gray for cards */
+    --card: 7 20% 13%; /* Slightly lighter Dark brown for cards */
     --card-foreground: 0 0% 95%;
-    --popover: 222 47% 11%;
+    --popover: 7 20% 10%; /* Dark brown */
     --popover-foreground: 0 0% 95%;
-    --primary: 221 83% 63%; /* Lighter Saturated Blue for dark mode primary */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 47% 18%; /* Darker Blue-Gray for secondary */
-    --secondary-foreground: 0 0% 95%;
-    --muted: 222 47% 16%;
+    --primary: 7 45% 35%; /* Lighter version of new primary for dark mode */
+    --primary-foreground: 0 0% 100%; /* White */
+    --secondary: 33 59% 55%; /* Lighter version of new secondary for dark mode */
+    --secondary-foreground: 0 0% 0%; /* Black text for contrast */
+    --muted: 7 20% 18%; /* Darker muted brown */
     --muted-foreground: 0 0% 63.9%;
     --accent: 20 90% 66%; /* Lighter Vivid Orange for dark mode accent */
     --accent-foreground: 0 0% 100%;
@@ -64,9 +64,9 @@
     --destructive-foreground: 0 0% 98%;
     --success: 145 55% 52%; /* Lighter Green for dark mode success */
     --success-foreground: 0 0% 100%; /* White text on success */
-    --border: 222 47% 25%;
-    --input: 222 47% 18%;
-    --ring: 20 90% 66%; /* Accent color for rings in dark mode */
+    --border: 7 25% 25%; /* Dark brown border */
+    --input: 7 20% 18%; /* Dark brown input */
+    --ring: 7 45% 35%; /* New dark mode primary for rings */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
