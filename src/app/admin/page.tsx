@@ -510,6 +510,7 @@ export default function AdminPage() {
                   src={currentLogoImageUrl} 
                   alt="Logo preview" 
                   className="max-h-20 object-contain"
+                  data-ai-hint="store logo"
                 />
               </div>
             )}
@@ -585,7 +586,7 @@ export default function AdminPage() {
                       <Card key={platformLink.key} className="p-4">
                         <CardHeader className="p-0 pb-3">
                           <CardTitle className="text-lg flex items-center">
-                            {IconComponent && <IconComponent className="mr-2 h-5 w-5 text-primary" />}
+                            {IconComponent && <IconComponent className="mr-2 h-5 w-5 text-secondary" />}
                             {platformLink.name}
                           </CardTitle>
                         </CardHeader>

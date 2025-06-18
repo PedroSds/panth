@@ -38,13 +38,14 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
             alt={`Imagem da conta ${account.name}`}
             layout="fill"
             objectFit="cover"
+            data-ai-hint="game account"
           />
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 flex-grow">
         <CardTitle className={`text-2xl font-bold text-primary ${subTitle ? 'mb-1' : 'mb-2'}`}>{mainName}</CardTitle>
         {subTitle && (
-          <p className="text-sm font-medium text-accent mb-2">{subTitle}</p>
+          <p className="text-sm font-medium text-secondary mb-2">{subTitle}</p>
         )}
         
         <CardDescription className="text-2xl font-bold text-primary mb-3">
@@ -54,7 +55,7 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
         <ul className="space-y-1 text-sm text-primary mb-4">
           {account.details.map((detail, index) => (
             <li key={index} className="flex items-center">
-              <BadgeCheck className="h-4 w-4 mr-2 text-accent flex-shrink-0" />
+              <BadgeCheck className="h-4 w-4 mr-2 text-secondary flex-shrink-0" />
               {detail}
             </li>
           ))}

@@ -36,7 +36,7 @@ export function AdminFaqItem({ faqItem, onEdit, onDelete }: AdminFaqItemProps) {
   return (
     <TableRow>
       <TableCell className="font-medium w-[50px]">
-        <IconComponent className="h-5 w-5 text-primary" />
+        <IconComponent className="h-5 w-5 text-secondary" />
       </TableCell>
       <TableCell className="font-medium">{faqItem.question}</TableCell>
       <TableCell className="text-sm text-muted-foreground truncate max-w-xs">{faqItem.answer}</TableCell>

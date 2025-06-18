@@ -46,7 +46,7 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
     <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20">
       <div className="text-center mb-8">
         <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
-          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-accent mb-2 sm:mb-0 sm:mr-3" />
+          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
           <h2 id="faq-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
             Perguntas Frequentes (FAQ)
           </h2>
@@ -62,7 +62,7 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
                 "[&[data-state=open]>svg.lucide-chevron-down]:text-primary [&[data-state=closed]>svg.lucide-chevron-down]:text-primary/70"
               )}>
                 <div className="flex items-center gap-3">
-                  <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-accent flex-shrink-0" />
+                  <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-secondary flex-shrink-0" />
                   <span className="flex-grow">{item.question}</span>
                 </div>
               </AccordionTrigger>

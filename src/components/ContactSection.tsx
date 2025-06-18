@@ -42,7 +42,7 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
                 aria-label={`Visite nosso ${link.name}`}
               >
                 {LucideIconComponent && (
-                  <LucideIconComponent className="h-6 w-6 text-accent" />
+                  <LucideIconComponent className="h-6 w-6 text-secondary" />
                 )}
                 <span className="text-lg font-semibold text-primary">{link.name}</span>
               </Link>
