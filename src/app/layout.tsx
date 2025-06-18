@@ -9,11 +9,17 @@ export const metadata: Metadata = {
   description: 'Encontre sua conta perfeita de League of Legends!',
 };
 
+interface RootLayoutProps {
+  children: React.ReactNode;
+  params: { readonly [key: string]: string | string[] };
+  searchParams: { readonly [key: string]: string | string[] | undefined };
+}
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+  params, // Explicitly destructure params, even if not directly used
+  searchParams, // Explicitly destructure searchParams, even if not directly used
+}: RootLayoutProps) {
   return (
     <html lang="pt-BR">
       <head>
