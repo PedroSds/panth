@@ -11,8 +11,8 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-center h-20 px-4 sm:px-6 lg:px-8 space-x-16"> {/* Changed space-x-8 to space-x-16 */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center h-20 space-x-32"> {/* Changed space-x-16 to space-x-32 */}
           {/* Logotipo */}
           <Link
             href="/#page-top"
