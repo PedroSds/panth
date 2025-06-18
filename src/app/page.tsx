@@ -122,11 +122,12 @@ export default function HomePage() {
   const getSectionStyle = (sectionKey: SectionIdentifier): React.CSSProperties => {
     const style = currentSectionStyles[sectionKey];
     const cssProps: React.CSSProperties = {};
-    if (style?.bgImageUrl) {
+    if (style?.bgImageUrl && style.bgImageUrl.trim() !== '') {
       cssProps.backgroundImage = `url(${style.bgImageUrl})`;
       cssProps.backgroundSize = 'cover';
       cssProps.backgroundPosition = 'center';
-    } else if (style?.bgColor) {
+      cssProps.backgroundRepeat = 'no-repeat';
+    } else if (style?.bgColor && style.bgColor.trim() !== '') {
       cssProps.backgroundColor = style.bgColor;
     }
     return cssProps;
@@ -175,7 +176,7 @@ export default function HomePage() {
               100% SEGURA DE BANIMENTOS
             </p>
             <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary-foreground px-10 py-6 text-lg font-semibold">
-              <Link href="/#available-accounts">VER CONTAS DISPONÍVEIS</Link>
+              <Link href="/#available-accounts-content">VER CONTAS DISPONÍVEIS</Link>
             </Button>
           </div>
           {hasAnyContentSection && (
@@ -193,7 +194,7 @@ export default function HomePage() {
           className="py-12 md:py-16 lg:py-20"
           style={getSectionStyle('accounts')}
         >
-          <div id="available-accounts" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+          <div id="available-accounts-content" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
                 {visibleAndUnsoldAccounts.map(account => (
@@ -213,7 +214,7 @@ export default function HomePage() {
           <section 
             id="video-player" 
             aria-labelledby="video-heading" 
-            className="py-12 md:py-16 lg:py-20 bg-background"
+            className="py-12 md:py-16 lg:py-20"
             style={getSectionStyle('video')}
           >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -245,7 +246,7 @@ export default function HomePage() {
         {showFaqSection && (
           <section 
             id="faq-container" 
-            className="py-12 md:py-16 lg:py-20 bg-background"
+            className="py-12 md:py-16 lg:py-20"
             style={getSectionStyle('faq')}
           >
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -276,3 +277,6 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+    
