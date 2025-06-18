@@ -11,12 +11,12 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
-      <div className="container mx-auto"> {/* Padding horizontal removido daqui */}
-        <div className="flex items-center justify-between h-20">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
           {/* Logotipo */}
           <Link
             href="/#page-top"
-            className="pl-4 sm:pl-6 lg:pl-8 flex items-center text-primary hover:opacity-80 transition-opacity" // Padding esquerdo adicionado aqui
+            className="flex items-center text-primary hover:opacity-80 transition-opacity -ml-6" // Applied -1.5rem negative margin
             aria-label="Voltar para o início da página PanthStore"
           >
             <img
@@ -33,7 +33,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
           </Link>
 
           {/* Navegação */}
-          <nav className="pr-4 sm:pr-6 lg:pr-8 flex items-center"> {/* Padding direito adicionado aqui */}
+          <nav className="flex items-center">
             <ul className="flex items-center space-x-4 sm:space-x-6">
               <li>
                 <Link
