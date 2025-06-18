@@ -19,7 +19,7 @@ export function Navbar() {
               }}
             />
           </Link>
-          <nav>
+          <nav className="flex items-center"> {/* Adicionado flex items-center aqui */}
             <ul className="flex items-center space-x-4 sm:space-x-6">
               <li>
                 <Link
