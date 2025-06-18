@@ -2,12 +2,12 @@
 "use client";
 
 import type { Account, FaqItem } from "@/types";
-import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY } from "@/data/mockData";
+import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -33,59 +33,69 @@ export default function AdminPage() {
   const [editingFaqItem, setEditingFaqItem] = useState<FaqItem | null>(null);
   const [whatsAppNumberInput, setWhatsAppNumberInput] = useState('');
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
+  const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
+  const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   const { toast } = useToast();
 
   useEffect(() => {
     // Load Accounts
-    const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
-    if (storedAccountsData) {
-      try {
+    try {
+      const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
+      if (storedAccountsData) {
         let parsedAccounts = JSON.parse(storedAccountsData) as Account[];
         const customServiceIndex = parsedAccounts.findIndex(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID);
 
         if (customServiceIndex > -1) {
           const storedCustomService = parsedAccounts[customServiceIndex];
           parsedAccounts[customServiceIndex] = {
-            ...customAccountServiceData, // Start with defaults
-            ...storedCustomService,     // Override with stored editable fields
-            id: CUSTOM_ACCOUNT_SERVICE_ID, // Ensure correct ID
-            isCustomService: true,         // Ensure it's marked as custom service
-            isSold: customAccountServiceData.isSold, // Reset isSold to its default
+            ...customAccountServiceData, 
+            ...storedCustomService,     
+            id: CUSTOM_ACCOUNT_SERVICE_ID, 
+            isCustomService: true,         
+            isSold: customAccountServiceData.isSold, 
           };
         } else {
           parsedAccounts.unshift({ ...customAccountServiceData });
         }
         setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : initialAccountsData.map(acc => ({ ...acc })));
-      } catch (error) {
-        console.error("Error parsing accounts from localStorage:", error);
+      } else {
         setAccounts(initialAccountsData.map(acc => ({ ...acc })));
       }
-    } else {
+    } catch (error) {
+      console.error("Error parsing accounts from localStorage:", error);
       setAccounts(initialAccountsData.map(acc => ({ ...acc })));
+      toast({ title: "Erro ao carregar contas", description: "Não foi possível carregar as contas salvas.", variant: "destructive" });
     }
 
     // Load FAQs
-    const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
-    if (storedFaqData) {
-      try {
+    try {
+      const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
+      if (storedFaqData) {
         const parsedFaqs = JSON.parse(storedFaqData) as FaqItem[];
         setFaqItems(Array.isArray(parsedFaqs) ? parsedFaqs : [...initialFaqData]);
-      } catch (error) {
-        console.error("Error parsing FAQs from localStorage:", error);
+      } else {
         setFaqItems([...initialFaqData]);
       }
-    } else {
+    } catch (error) {
+      console.error("Error parsing FAQs from localStorage:", error);
       setFaqItems([...initialFaqData]);
+      toast({ title: "Erro ao carregar FAQs", description: "Não foi possível carregar os FAQs salvos.", variant: "destructive" });
     }
-
+    
     // Load WhatsApp Number
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
     setWhatsAppNumberInput(initialNumber);
 
+    // Load Banner Image URL
+    const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
+    const initialBannerUrl = storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL;
+    setCurrentBannerImageUrl(initialBannerUrl);
+    setBannerImageUrlInput(initialBannerUrl);
+
     setIsMounted(true);
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (isMounted) {
@@ -119,6 +129,17 @@ export default function AdminPage() {
       }
     }
   }, [currentWhatsAppNumber, isMounted, toast]);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl);
+      } catch (error) {
+        console.error("Error saving Banner Image URL to localStorage:", error);
+        toast({ title: "Erro ao salvar URL do Banner", description: "Não foi possível salvar a URL da imagem do banner localmente.", variant: "destructive" });
+      }
+    }
+  }, [currentBannerImageUrl, isMounted, toast]);
 
 
   if (!isMounted) {
@@ -230,6 +251,8 @@ export default function AdminPage() {
     setFaqItems([...initialFaqData]);
     setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
+    setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
+    setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
 
@@ -239,6 +262,17 @@ export default function AdminPage() {
       toast({ title: "Sucesso!", description: "Número do WhatsApp atualizado." });
     } else {
       toast({ title: "Erro", description: "Por favor, insira um número de WhatsApp válido (apenas dígitos).", variant: "destructive" });
+    }
+  };
+
+  const handleSaveBannerImageUrl = () => {
+    try {
+      // Basic URL validation (can be improved)
+      new URL(bannerImageUrlInput.trim());
+      setCurrentBannerImageUrl(bannerImageUrlInput.trim());
+      toast({ title: "Sucesso!", description: "URL da imagem do banner atualizada." });
+    } catch (error) {
+      toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do banner.", variant: "destructive" });
     }
   };
 
@@ -282,6 +316,38 @@ export default function AdminPage() {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">Número atual: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center"><ImageIcon className="mr-2 h-5 w-5 text-primary" />Configurar Imagem do Banner Principal</CardTitle>
+            <CardDescription>Esta imagem será usada como fundo do banner na página inicial. Use um link direto para a imagem (ex: Imgur).</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-end gap-4">
+              <div className="flex-grow">
+                <Label htmlFor="banner-image-url" className="font-semibold">URL da Imagem do Banner</Label>
+                <Input
+                  id="banner-image-url"
+                  type="url"
+                  placeholder="https://i.imgur.com/nomedaimagem.png"
+                  value={bannerImageUrlInput}
+                  onChange={(e) => setBannerImageUrlInput(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <Button onClick={handleSaveBannerImageUrl}>
+                <Save className="mr-2 h-4 w-4" /> Salvar URL do Banner
+              </Button>
+            </div>
+            {currentBannerImageUrl && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Prévia da imagem atual do banner:</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={currentBannerImageUrl} alt="Banner preview" className="rounded-md border max-h-48 object-contain" />
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -2,13 +2,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import type { Account, FaqItem } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY } from '@/data/mockData';
 import { Separator } from '@/components/ui/separator';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
+import { Button } from '@/components/ui/button';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
 const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
@@ -17,6 +19,7 @@ export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
+  const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -52,6 +55,10 @@ export default function HomePage() {
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
 
+    // Load Banner Image URL
+    const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
+    setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
+
     setIsMounted(true);
   }, []);
 
@@ -72,40 +79,66 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <section id="hero" aria-labelledby="hero-heading" className="mb-12 text-center">
-          <h1 id="hero-heading" className="text-3xl sm:text-4xl lg:text-5xl font-headline font-bold text-primary mb-4">
-            PanthStore
-          </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Encontre sua conta de League of Legends perfeita! Navegue por nossas contas disponíveis ou peça uma conta personalizada.
-          </p>
+      <main className="flex-grow"> {/* Removed container and padding for full-width hero */}
+        <section
+          id="hero"
+          aria-labelledby="hero-heading"
+          className="relative text-white bg-cover bg-center"
+          style={{ backgroundImage: `url(${isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL})` }}
+          data-ai-hint="game hero background"
+        >
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/60"></div>
+        
+          {/* Content container */}
+          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-32 lg:pb-40">
+            <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
+              COMPRE SUA SMURF DE LEAGUE OF LEGENDS
+            </h1>
+            <p className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-3xl mx-auto text-shadow-md">
+              100% SEGURA DE BANIMENTOS
+            </p>
+            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-10 py-6 text-lg font-semibold">
+              <Link href="/#available-accounts">Ver Contas Disponíveis</Link>
+            </Button>
+          </div>
+
+          {/* Curved bottom shape SVG */}
+          <div className="absolute bottom-0 left-0 w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}> {/* fill is currentColor, text-background sets it */}
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-auto block " 
+                 style={{ minHeight: '60px', maxHeight: '150px' }} // Control responsiveness of curve height
+            >
+              <path d="M0,70 C200,110 350,20 720,50 S1000,100 1440,70 L1440,100 L0,100 Z" fill="currentColor"></path>
+            </svg>
+          </div>
         </section>
-
-        <Separator className="my-12" />
-
-        <section id="available-accounts" aria-labelledby="available-accounts-heading" className="mb-12">
-          <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
-            Contas e Serviços Disponíveis
-          </h2>
-          {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleAndUnsoldAccounts.map(account => (
-                <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
-          )}
-        </section>
-
-        {faqItems.length > 0 && (
-          <>
+        
+        {/* Content below the hero needs its own container for padding */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Separator className="my-12" />
-            <FaqSection faqItems={faqItems} />
-          </>
-        )}
 
+            <section id="available-accounts" aria-labelledby="available-accounts-heading" className="mb-12">
+            <h2 id="available-accounts-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center mb-8 text-foreground">
+                Contas e Serviços Disponíveis
+            </h2>
+            {visibleAndUnsoldAccounts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleAndUnsoldAccounts.map(account => (
+                    <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
+                ))}
+                </div>
+            ) : (
+                <p className="text-center text-muted-foreground">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
+            )}
+            </section>
+
+            {faqItems.length > 0 && (
+            <>
+                <Separator className="my-12" />
+                <FaqSection faqItems={faqItems} />
+            </>
+            )}
+        </div>
       </main>
       <Footer />
     </div>

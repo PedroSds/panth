@@ -4,6 +4,9 @@ import type { Account, FaqItem, LucideIconName } from '@/types';
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
+export const DEFAULT_BANNER_IMAGE_URL = 'https://placehold.co/1920x600.png'; // Default banner image
+export const BANNER_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreBannerImageUrl';
+
 
 export const customAccountServiceData: Account = {
   id: CUSTOM_ACCOUNT_SERVICE_ID,
