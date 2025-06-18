@@ -18,6 +18,20 @@ interface AdminAccountItemProps {
 export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility }: AdminAccountItemProps) {
   const isCustomService = account.id === CUSTOM_ACCOUNT_SERVICE_ID;
 
+  let badgeVariant: "default" | "destructive" | "secondary" | "outline" | "success" = "default";
+  let badgeText = "";
+
+  if (isCustomService) {
+    badgeVariant = "default";
+    badgeText = "Serviço";
+  } else if (account.isSold) {
+    badgeVariant = "success";
+    badgeText = "Sim";
+  } else {
+    badgeVariant = "default";
+    badgeText = "Não";
+  }
+
   return (
     <TableRow>
       <TableCell className="font-medium flex items-center">
@@ -26,8 +40,8 @@ export function AdminAccountItem({ account, onEdit, onDelete, onToggleVisibility
       </TableCell>
       <TableCell>{account.price.toFixed(2)}</TableCell>
       <TableCell>
-        <Badge variant="default">
-            {isCustomService ? "Serviço" : (account.isSold ? "Sim" : "Não")}
+        <Badge variant={badgeVariant}>
+            {badgeText}
         </Badge>
       </TableCell>
       <TableCell>
