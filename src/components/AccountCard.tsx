@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { BadgeCheck, ShoppingCart, ExternalLink, Wrench, MessageSquare } from 'lucide-react';
+import { BadgeCheck, ShoppingCart, Wrench, MessageSquare } from 'lucide-react';
 import type { Account } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -92,12 +92,11 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
               asChild
               variant="success"
               className="w-full"
-              aria-label={`Comprar ${account.name} com entrega automática`}
+              aria-label={`Comprar ${account.name}`}
             >
               <a href={account.automaticDeliveryLink} target="_blank" rel="noopener noreferrer">
                 <ShoppingCart className="h-5 w-5" />
-                Entrega Automática
-                <ExternalLink className="h-4 w-4" />
+                Comprar Conta
               </a>
             </Button>
           ) : (
