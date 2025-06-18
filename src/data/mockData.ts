@@ -1,6 +1,6 @@
 
 import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
-import { Instagram, Twitter, Youtube, Send, Phone } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
 
@@ -152,7 +152,7 @@ export const faqIconList: { value: LucideIconName; label: string }[] = [
 
 export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
   { key: 'discord', name: 'Discord', placeholder: 'https://discord.gg/seu-servidor', lucideIcon: DiscordIcon },
-  { key: 'whatsapp', name: 'WhatsApp', placeholder: 'https://wa.me/5511999998888', lucideIcon: WhatsAppIcon },
+  { key: 'whatsapp', name: 'WHATSAPP', placeholder: 'https://wa.me/5511999998888', lucideIcon: WhatsAppIcon },
   { key: 'instagram', name: 'Instagram', placeholder: 'https://instagram.com/seuusuario', lucideIcon: Instagram },
   { key: 'twitter', name: 'Twitter (X)', placeholder: 'https://twitter.com/seuusuario', lucideIcon: Twitter },
   { key: 'youtube', name: 'Youtube', placeholder: 'https://youtube.com/seu-canal', lucideIcon: Youtube },
