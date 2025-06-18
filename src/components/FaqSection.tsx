@@ -44,11 +44,13 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
 
   return (
     <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20">
-      <div className="flex items-center justify-center mb-8">
-        <HelpCircle className="h-8 w-8 text-accent mr-3" />
-        <h2 id="faq-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-center text-primary">
-          Perguntas Frequentes (FAQ)
-        </h2>
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center">
+          <HelpCircle className="h-6 w-6 sm:h-8 sm:w-8 text-accent mr-2 sm:mr-3" />
+          <h2 id="faq-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
+            Perguntas Frequentes (FAQ)
+          </h2>
+        </div>
       </div>
       <Accordion type="multiple" className="w-full max-w-3xl mx-auto space-y-3">
         {faqItems.map((item) => {
@@ -76,3 +78,4 @@ export function FaqSection({ faqItems }: FaqSectionProps) {
     </section>
   );
 }
+
