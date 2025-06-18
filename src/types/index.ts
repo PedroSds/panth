@@ -53,7 +53,8 @@ export type LucideIconName =
   | 'Users'
   | 'Truck'
   | 'ShieldCheck'
-  | 'CircleDollarSign';
+  | 'CircleDollarSign'
+  | 'Brush'; // Added Brush
 
 export interface FaqItem {
   id: string;
@@ -79,4 +80,17 @@ export interface SocialLink extends SocialPlatformConfigEntry {
   url: string;
 }
 
-    
+// Types for Section Background Customization
+export type SectionIdentifier = 'accounts' | 'video' | 'faq' | 'contact';
+
+export interface SectionBackgroundStyle {
+  bgColor?: string;      // Hex color, e.g., "#RRGGBB"
+  bgImageUrl?: string;   // URL for background image
+}
+
+export type PageSectionStyles = Record<SectionIdentifier, SectionBackgroundStyle | undefined>;
+
+export interface SectionConfig {
+  key: SectionIdentifier;
+  label: string;
+}

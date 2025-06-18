@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem, SocialLink } from '@/types';
+import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { 
@@ -19,7 +19,10 @@ import {
   DEFAULT_LOGO_IMAGE_URL,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_VIDEO_URL,
-  VIDEO_URL_LOCAL_STORAGE_KEY
+  VIDEO_URL_LOCAL_STORAGE_KEY,
+  SECTION_STYLES_LOCAL_STORAGE_KEY,
+  initialSectionStyles,
+  sectionConfig
 } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
@@ -38,6 +41,7 @@ export default function HomePage() {
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   const [videoUrl, setVideoUrl] = useState(DEFAULT_VIDEO_URL);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
+  const [currentSectionStyles, setCurrentSectionStyles] = useState<PageSectionStyles>(initialSectionStyles);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -92,8 +96,42 @@ export default function HomePage() {
         setSocialLinks(initialSocialLinksData.map(link => ({...link})));
     }
 
+    // Load Section Styles
+    const storedSectionStylesData = localStorage.getItem(SECTION_STYLES_LOCAL_STORAGE_KEY);
+    if (storedSectionStylesData) {
+      try {
+        const parsedStyles = JSON.parse(storedSectionStylesData) as PageSectionStyles;
+        const validatedStyles: PageSectionStyles = { ...initialSectionStyles };
+         for (const config of sectionConfig) {
+          if (parsedStyles[config.key]) {
+            validatedStyles[config.key] = parsedStyles[config.key];
+          }
+        }
+        setCurrentSectionStyles(validatedStyles);
+      } catch (error) {
+        console.error("Error parsing section styles from localStorage for homepage:", error);
+        setCurrentSectionStyles(initialSectionStyles);
+      }
+    } else {
+      setCurrentSectionStyles(initialSectionStyles);
+    }
+
     setIsMounted(true);
   }, []);
+
+  const getSectionStyle = (sectionKey: SectionIdentifier): React.CSSProperties => {
+    const style = currentSectionStyles[sectionKey];
+    const cssProps: React.CSSProperties = {};
+    if (style?.bgImageUrl) {
+      cssProps.backgroundImage = `url(${style.bgImageUrl})`;
+      cssProps.backgroundSize = 'cover';
+      cssProps.backgroundPosition = 'center';
+    } else if (style?.bgColor) {
+      cssProps.backgroundColor = style.bgColor;
+    }
+    return cssProps;
+  };
+
 
   if (!isMounted) {
     return (
@@ -150,7 +188,11 @@ export default function HomePage() {
         </section>
 
         {/* Available Accounts Section */}
-        <section aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
+        <section 
+          aria-labelledby="available-accounts-heading" 
+          className="py-12 md:py-16 lg:py-20"
+          style={getSectionStyle('accounts')}
+        >
           <div id="available-accounts" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
             {visibleAndUnsoldAccounts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
@@ -168,7 +210,12 @@ export default function HomePage() {
 
         {/* Video Section */}
         {showVideoSection && (
-          <section id="video-player" aria-labelledby="video-heading" className="py-12 md:py-16 lg:py-20 bg-background">
+          <section 
+            id="video-player" 
+            aria-labelledby="video-heading" 
+            className="py-12 md:py-16 lg:py-20 bg-background"
+            style={getSectionStyle('video')}
+          >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-8">
                 <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
@@ -196,7 +243,11 @@ export default function HomePage() {
         
         {/* FAQ Section */}
         {showFaqSection && (
-          <section id="faq-container" className="py-12 md:py-16 lg:py-20 bg-background">
+          <section 
+            id="faq-container" 
+            className="py-12 md:py-16 lg:py-20 bg-background"
+            style={getSectionStyle('faq')}
+          >
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <FaqSection faqItems={faqItems} />
              </div>
@@ -205,7 +256,13 @@ export default function HomePage() {
         
         {/* Contact Section */}
         {showContactSection && (
-           <ContactSection socialLinks={socialLinks} />
+           <section 
+            id="contact-outer-wrapper" 
+            className="pt-4 pb-12 md:pt-6 md:pb-16 lg:pt-8 lg:pb-20"
+            style={getSectionStyle('contact')}
+           >
+             <ContactSection socialLinks={socialLinks} />
+           </section>
         )}
 
         {/* Fallback content if no main sections are visible and no accounts shown above */}

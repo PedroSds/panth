@@ -1,5 +1,5 @@
 
-import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
+import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink, PageSectionStyles, SectionConfig } from '@/types';
 import { Instagram, Twitter, Youtube, Send, Star } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
@@ -19,6 +19,22 @@ export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData';
 
 export const DEFAULT_VIDEO_URL = '';
 export const VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreVideoUrl';
+
+export const SECTION_STYLES_LOCAL_STORAGE_KEY = 'panthStoreSectionStyles';
+
+export const initialSectionStyles: PageSectionStyles = {
+  accounts: undefined,
+  video: undefined,
+  faq: undefined,
+  contact: undefined,
+};
+
+export const sectionConfig: SectionConfig[] = [
+  { key: 'accounts', label: 'Contas Disponíveis' },
+  { key: 'video', label: 'Vídeo em Destaque' },
+  { key: 'faq', label: 'Perguntas Frequentes (FAQ)' },
+  { key: 'contact', label: 'Entre em Contato' },
+];
 
 
 export const customAccountServiceData: Account = {
@@ -156,6 +172,7 @@ export const faqIconList: { value: LucideIconName; label: string }[] = [
   { value: 'Tag', label: 'Etiqueta (Preço/Promoção)' },
   { value: 'Star', label: 'Estrela (Destaque/Feedback)' },
   { value: 'Anchor', label: 'Âncora (Estabilidade/Confiança)' },
+  { value: 'Brush', label: 'Pincel (Estilo)'},
 ];
 
 export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
@@ -173,5 +190,3 @@ export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(pla
     url: '', // Initially empty, will be loaded from localStorage or kept empty
   };
 });
-
-    

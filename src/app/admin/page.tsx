@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Account, FaqItem, SocialLink } from "@/types";
+import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig } from "@/types";
 import { 
   accountsData as initialAccountsData, 
   customAccountServiceData, 
@@ -17,13 +17,16 @@ import {
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_LOGO_IMAGE_URL,
   DEFAULT_VIDEO_URL,
-  VIDEO_URL_LOCAL_STORAGE_KEY
+  VIDEO_URL_LOCAL_STORAGE_KEY,
+  SECTION_STYLES_LOCAL_STORAGE_KEY,
+  initialSectionStyles,
+  sectionConfig
 } from "@/data/mockData";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film, Brush, Trash2Icon } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -46,7 +49,6 @@ const getVideoEmbedUrl = (url: string): string | null => {
   if (!url || typeof url !== 'string') return null;
   let videoId = null;
 
-  // Try YouTube: matches v=VIDEO_ID, youtu.be/VIDEO_ID, embed/VIDEO_ID
   const youtubeRegexes = [
     /[?&]v=([^&]+)/,
     /youtu\.be\/([^?&]+)/,
@@ -56,18 +58,17 @@ const getVideoEmbedUrl = (url: string): string | null => {
     const match = url.match(regex);
     if (match && match[1]) {
       videoId = match[1];
-      if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) { // Standard YouTube ID
+      if (/^[a-zA-Z0-9_-]{11}$/.test(videoId)) { 
         return `https://www.youtube.com/embed/${videoId}`;
       }
       videoId = null; 
     }
   }
 
-  // Try Wistia: matches wistia.com/medias/VIDEO_ID
   const wistiaMatch = url.match(/wistia\.com\/medias\/([^?&/\s]+)/);
   if (wistiaMatch && wistiaMatch[1]) {
     videoId = wistiaMatch[1];
-    if (/^[a-z0-9]+$/.test(videoId)) { // Wistia ID (alphanumeric)
+    if (/^[a-z0-9]+$/.test(videoId)) { 
       return `https://fast.wistia.net/embed/iframe/${videoId}`;
     }
   }
@@ -100,6 +101,11 @@ export default function AdminPage() {
   const [currentVideoUrl, setCurrentVideoUrl] = useState(DEFAULT_VIDEO_URL);
   
   const [editableSocialLinks, setEditableSocialLinks] = useState<SocialLink[]>(initialSocialLinksData.map(link => ({...link})));
+
+  const [sectionCustomStyles, setSectionCustomStyles] = useState<PageSectionStyles>(initialSectionStyles);
+  // Temporary state for section style inputs, to avoid updating main state on every keystroke
+  const [tempSectionStyles, setTempSectionStyles] = useState<PageSectionStyles>(initialSectionStyles);
+
 
   const { toast } = useToast();
 
@@ -191,10 +197,37 @@ export default function AdminPage() {
       setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
       toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
     }
-  }, []);
+
+    // Load Section Styles
+    try {
+      const storedSectionStyles = localStorage.getItem(SECTION_STYLES_LOCAL_STORAGE_KEY);
+      if (storedSectionStyles) {
+        const parsedStyles = JSON.parse(storedSectionStyles) as PageSectionStyles;
+        // Ensure all keys from sectionConfig are present
+        const validatedStyles: PageSectionStyles = { ...initialSectionStyles };
+        for (const config of sectionConfig) {
+          if (parsedStyles[config.key]) {
+            validatedStyles[config.key] = parsedStyles[config.key];
+          }
+        }
+        setSectionCustomStyles(validatedStyles);
+        setTempSectionStyles(JSON.parse(JSON.stringify(validatedStyles))); // Deep copy for temp state
+      } else {
+        setSectionCustomStyles(initialSectionStyles);
+        setTempSectionStyles(JSON.parse(JSON.stringify(initialSectionStyles)));
+      }
+    } catch (error) {
+      console.error("Error parsing section styles from localStorage:", error);
+      setSectionCustomStyles(initialSectionStyles);
+      setTempSectionStyles(JSON.parse(JSON.stringify(initialSectionStyles)));
+      toast({ title: "Erro ao carregar estilos de seção", description: "Configurações de estilo personalizadas não puderam ser carregadas.", variant: "destructive" });
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Ensure this runs only once on mount
 
 
-  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, Video, Social Links
+  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, Video, Social Links, Section Styles
   useEffect(() => { if (isMounted) localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts)); }, [accounts, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems)); }, [faqItems, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber); }, [currentWhatsAppNumber, isMounted]);
@@ -207,6 +240,11 @@ export default function AdminPage() {
       localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
     }
   }, [editableSocialLinks, isMounted]);
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem(SECTION_STYLES_LOCAL_STORAGE_KEY, JSON.stringify(sectionCustomStyles));
+    }
+  }, [sectionCustomStyles, isMounted]);
 
 
   if (!isMounted) {
@@ -308,8 +346,67 @@ export default function AdminPage() {
             try { new URL(link.url.trim()); } catch (error) { allValid = false; toast({ title: "Erro de Validação de URL", description: `URL inválida para ${link.name}: ${link.url}`, variant: "destructive"}); break; }
         }
     }
-    if (allValid) { toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." }); }
+    if (allValid) { 
+      setSectionCustomStyles(prev => ({ ...prev })); // This forces update which triggers localStorage save
+      toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
+    }
   };
+
+  const handleSectionStyleInputChange = (sectionKey: SectionIdentifier, field: keyof SectionBackgroundStyle, value: string) => {
+    setTempSectionStyles(prev => ({
+      ...prev,
+      [sectionKey]: {
+        ...(prev[sectionKey] || {}),
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveSectionStyle = (sectionKey: SectionIdentifier) => {
+    const currentStyle = tempSectionStyles[sectionKey];
+    if (currentStyle?.bgColor && currentStyle?.bgImageUrl) {
+      toast({
+        title: "Erro de Validação",
+        description: `Para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}", forneça uma cor OU uma URL de imagem, não ambos.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    // Validate hex color if present
+    if (currentStyle?.bgColor && !/^#([0-9A-Fa-f]{3,4}){1,2}$/.test(currentStyle.bgColor)) {
+        toast({ title: "Erro de Validação", description: `Cor hexadecimal inválida para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}". Use formato #RRGGBB ou #RGB.`, variant: "destructive" });
+        return;
+    }
+    // Validate URL if present
+    if (currentStyle?.bgImageUrl) {
+        try {
+            new URL(currentStyle.bgImageUrl);
+        } catch (error) {
+            toast({ title: "Erro de Validação", description: `URL da imagem de fundo inválida para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}".`, variant: "destructive" });
+            return;
+        }
+    }
+
+    setSectionCustomStyles(prev => ({
+      ...prev,
+      [sectionKey]: currentStyle && (currentStyle.bgColor || currentStyle.bgImageUrl) ? { ...currentStyle } : undefined
+    }));
+    toast({ title: "Sucesso!", description: `Estilo da seção "${sectionConfig.find(s => s.key === sectionKey)?.label}" salvo.` });
+  };
+
+  const handleResetSectionStyle = (sectionKey: SectionIdentifier) => {
+    setTempSectionStyles(prev => ({
+      ...prev,
+      [sectionKey]: {} // Reset temp state
+    }));
+    setSectionCustomStyles(prev => {
+      const updatedStyles = { ...prev };
+      delete updatedStyles[sectionKey]; // Remove the key to signify default
+      return updatedStyles;
+    });
+    toast({ title: "Estilo Resetado", description: `Estilo da seção "${sectionConfig.find(s => s.key === sectionKey)?.label}" resetado para o padrão.` });
+  };
+
 
   const sortedAccounts = [...accounts].sort((a, b) => {
     if (a.id === CUSTOM_ACCOUNT_SERVICE_ID) return -1; if (b.id === CUSTOM_ACCOUNT_SERVICE_ID) return 1; return 0;
@@ -401,6 +498,63 @@ export default function AdminPage() {
         </Card>
         
         <Accordion type="multiple" defaultValue={[]} className="w-full space-y-8">
+          <AccordionItem value="section-styles-section" className="border-none overflow-hidden rounded-lg shadow-lg">
+            <Card className="m-0 shadow-none border-none rounded-none">
+              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
+                  <div className="flex items-center"><Brush className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Estilização das Seções</h3><p className="text-sm text-muted-foreground mt-1">Personalize o fundo de seções da página inicial.</p></div></div>
+                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                </AccordionPrimitive.Trigger>
+              </AccordionPrimitive.Header>
+              <AccordionContent className="bg-card rounded-b-lg">
+                <div className="p-6 space-y-6">
+                  {sectionConfig.map((config) => (
+                    <Card key={config.key} className="p-4 shadow-sm">
+                      <CardHeader className="p-0 pb-3">
+                        <CardTitle className="text-lg">{config.label}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0 space-y-4">
+                        <div>
+                          <Label htmlFor={`section-bgcolor-${config.key}`} className="font-semibold">Cor de Fundo (Hexadecimal)</Label>
+                          <Input 
+                            id={`section-bgcolor-${config.key}`} 
+                            type="text" 
+                            placeholder="#RRGGBB ou #RGB" 
+                            value={tempSectionStyles[config.key]?.bgColor || ''}
+                            onChange={(e) => handleSectionStyleInputChange(config.key, 'bgColor', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`section-bgimage-${config.key}`} className="font-semibold">URL da Imagem de Fundo</Label>
+                          <Input 
+                            id={`section-bgimage-${config.key}`} 
+                            type="url" 
+                            placeholder="https://exemplo.com/imagem.png" 
+                            value={tempSectionStyles[config.key]?.bgImageUrl || ''}
+                            onChange={(e) => handleSectionStyleInputChange(config.key, 'bgImageUrl', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                         { (tempSectionStyles[config.key]?.bgImageUrl && tempSectionStyles[config.key]?.bgColor) &&
+                            <p className="text-xs text-destructive">Forneça uma cor OU uma URL de imagem, não ambos.</p>
+                         }
+                        <div className="flex justify-end space-x-2 pt-2">
+                          <Button variant="outline" size="sm" onClick={() => handleResetSectionStyle(config.key)}>
+                            <Trash2Icon className="mr-2 h-4 w-4" /> Resetar
+                          </Button>
+                          <Button size="sm" onClick={() => handleSaveSectionStyle(config.key)}>
+                            <Save className="mr-2 h-4 w-4" /> Salvar Estilo
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
               <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
@@ -454,5 +608,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
