@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -108,9 +108,11 @@ export default function AdminPage() {
             const parsedLinks = JSON.parse(storedSocialLinks) as Array<Pick<SocialLink, 'key' | 'url'>>;
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                const defaultPlatformData = initialSocialLinksData.find(initLink => initLink.key === configPlatform.key) || configPlatform;
                 return {
                     ...configPlatform, 
-                    url: storedPlatform?.url || initialSocialLinksData.find(initLink => initLink.key === configPlatform.key)?.url || '',
+                    url: storedPlatform?.url || defaultPlatformData.url || '',
+                    lucideIcon: defaultPlatformData.lucideIcon,
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -173,10 +175,8 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        const linksToStore = editableSocialLinks.map(({ key, name, placeholder, url }) => ({
+        const linksToStore = editableSocialLinks.map(({ key, url }) => ({ // Only store key and url
           key,
-          name, 
-          placeholder,
           url,
         }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
@@ -345,11 +345,6 @@ export default function AdminPage() {
     }
 
     if (allValid) {
-        // Logic to trigger useEffect for saving to localStorage happens automatically
-        // when editableSocialLinks state is updated by handleSocialLinkChange.
-        // This explicit call to setEditableSocialLinks might be redundant if only saving.
-        // However, if there's a desire to force a re-save or if other logic depended on this,
-        // it can be kept. For simple URL validation and saving, it's implicitly handled.
         setEditableSocialLinks([...editableSocialLinks]); 
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
@@ -371,6 +366,50 @@ export default function AdminPage() {
             <RefreshCw className="mr-2 h-4 w-4" /> Resetar Dados
           </Button>
         </div>
+
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-xl flex items-center">
+                <ListChecks className="mr-2 h-5 w-5 text-primary"/>
+                Gerenciar Contas e Serviços
+              </CardTitle>
+              <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => {
+                setIsAccountFormOpen(isOpen);
+                if (!isOpen) setEditingAccount(null);
+              }}>
+                <DialogTrigger asChild>
+                  <Button onClick={openAddAccountForm} size="sm">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
+                  </DialogHeader>
+                  <AdminAccountForm
+                    onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
+                    initialData={editingAccount}
+                    onClose={() => {
+                      setIsAccountFormOpen(false);
+                      setEditingAccount(null);
+                    }}
+                    isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+            <CardDescription>Adicione, edite ou remova contas e serviços disponíveis na loja.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AdminAccountList
+              accounts={sortedAccounts}
+              onEdit={openEditAccountForm}
+              onDelete={handleDeleteAccount}
+              onToggleVisibility={handleToggleVisibility}
+            />
+          </CardContent>
+        </Card>
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
@@ -483,53 +522,7 @@ export default function AdminPage() {
               </AccordionContent>
             </Card>
           </AccordionItem>
-
-          <Separator className="my-12" />
           
-          <Card className="mb-8 shadow-lg">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-xl flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list-checks mr-2 h-5 w-5 text-primary"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
-                  Gerenciar Contas e Serviços
-                </CardTitle>
-                <Dialog open={isAccountFormOpen} onOpenChange={(isOpen) => {
-                  setIsAccountFormOpen(isOpen);
-                  if (!isOpen) setEditingAccount(null);
-                }}>
-                  <DialogTrigger asChild>
-                    <Button onClick={openAddAccountForm} size="sm">
-                      <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Nova Conta
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{editingAccount ? "Editar Conta/Serviço" : "Adicionar Nova Conta"}</DialogTitle>
-                    </DialogHeader>
-                    <AdminAccountForm
-                      onSubmitAccount={editingAccount ? handleUpdateAccount : handleAddAccount}
-                      initialData={editingAccount}
-                      onClose={() => {
-                        setIsAccountFormOpen(false);
-                        setEditingAccount(null);
-                      }}
-                      isEditingCustomService={editingAccount?.id === CUSTOM_ACCOUNT_SERVICE_ID}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <CardDescription>Adicione, edite ou remova contas e serviços disponíveis na loja.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AdminAccountList
-                accounts={sortedAccounts}
-                onEdit={openEditAccountForm}
-                onDelete={handleDeleteAccount}
-                onToggleVisibility={handleToggleVisibility}
-              />
-            </CardContent>
-          </Card>
-
           <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
              <Card className="m-0 shadow-none border-none rounded-none">
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full p-6 text-left bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
@@ -547,7 +540,7 @@ export default function AdminPage() {
                         </div>
                         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                     </AccordionPrimitive.Trigger>
-                    <div className="pl-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="pl-4" onClick={(e) => e.stopPropagation()}> {/* Fix: onClick stopPropagation */}
                         <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
                         <DialogTrigger asChild>
                             <Button onClick={openAddFaqForm} size="sm">
