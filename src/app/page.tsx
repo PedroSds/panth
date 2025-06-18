@@ -102,7 +102,7 @@ export default function HomePage() {
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block "
                  style={{ minHeight: '40px', maxHeight: '120px' }}
             >
-              <path d="M0,0 C480,60 960,60 1440,0 L1440,80 L0,80 Z" fill="currentColor"></path>
+              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
             </svg>
           </div>
         </section>
@@ -128,7 +128,7 @@ export default function HomePage() {
         {visibleAndUnsoldAccounts.length > 0 && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
-              <path d="M0,0 C480,60 960,60 1440,0 L1440,80 L0,80 Z" fill="currentColor"></path>
+              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
             </svg>
           </div>
         )}
