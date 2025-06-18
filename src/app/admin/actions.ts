@@ -23,7 +23,7 @@ export async function loginAction(
 
   if (!adminUsername || !adminPassword || !authSecretValue) {
     console.error('Authentication environment variables are not set.');
-    return { message: 'Server configuration error.', success: false };
+    return { message: 'Erro de configuração do servidor.', success: false };
   }
 
   if (username === adminUsername && password === adminPassword) {
@@ -38,9 +38,9 @@ export async function loginAction(
     // Redirect might not immediately stop execution here,
     // but a success state is good practice if redirect was conditional.
     // However, since redirect() throws an error, this part is technically unreachable.
-    // return { message: 'Login successful!', success: true }; 
+    // return { message: 'Login bem-sucedido!', success: true }; 
   } else {
-    return { message: 'Invalid username or password.', success: false };
+    return { message: 'Usuário ou senha inválidos.', success: false };
   }
 }
 

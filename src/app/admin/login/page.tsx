@@ -16,7 +16,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Logging in...' : <> <LogIn className="mr-2 h-4 w-4" /> Login </>}
+      {pending ? 'Entrando...' : <> <LogIn className="mr-2 h-4 w-4" /> Entrar </>}
     </Button>
   );
 }
@@ -29,13 +29,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm shadow-xl">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
-          <CardDescription>Enter your credentials to access the admin panel.</CardDescription>
+          <CardTitle className="text-2xl font-bold">Login do Administrador</CardTitle>
+          <CardDescription>Insira suas credenciais para acessar o painel de administração.</CardDescription>
         </CardHeader>
         <form action={formAction}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Usuário</Label>
               <Input
                 id="username"
                 name="username"
@@ -45,7 +45,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
                 name="password"
