@@ -554,7 +554,7 @@ export default function AdminPage() {
           </CardContent>
         </Card>
         
-        <Accordion type="multiple" defaultValue={["social-links-section", "faq-section"]} className="w-full space-y-8">
+        <Accordion type="multiple" defaultValue={[]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
