@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig } from "@/types";
+import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier, SectionBackgroundStyle, SectionConfig, FeedbackItem } from "@/types";
 import { 
   accountsData as initialAccountsData, 
   customAccountServiceData, 
@@ -20,13 +20,15 @@ import {
   VIDEO_URL_LOCAL_STORAGE_KEY,
   SECTION_STYLES_LOCAL_STORAGE_KEY,
   initialSectionStyles,
-  sectionConfig
+  sectionConfig,
+  FEEDBACKS_LOCAL_STORAGE_KEY,
+  initialFeedbacksData
 } from "@/data/mockData";
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film, Brush, Trash2Icon } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Film, Brush, Trash2Icon, StarIcon } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -65,10 +67,10 @@ const getVideoEmbedUrl = (url: string): string | null => {
     }
   }
 
-  const wistiaMatch = url.match(/wistia\.com\/medias\/([^?&/\s]+)/);
+  const wistiaMatch = url.match(/(?:wistia\.com\/medias\/|wi\.st\/)\/?([a-z0-9]+)/);
   if (wistiaMatch && wistiaMatch[1]) {
     videoId = wistiaMatch[1];
-    if (/^[a-z0-9]+$/.test(videoId)) { 
+    if (/^[a-z0-9]+$/.test(videoId)) {
       return `https://fast.wistia.net/embed/iframe/${videoId}`;
     }
   }
@@ -364,7 +366,7 @@ export default function AdminPage() {
 
   const handleSaveSectionStyle = (sectionKey: SectionIdentifier) => {
     const currentStyle = tempSectionStyles[sectionKey];
-    if (currentStyle?.bgColor && currentStyle?.bgImageUrl) {
+    if (currentStyle?.bgColor && currentStyle.bgColor.trim() !== '' && currentStyle?.bgImageUrl && currentStyle.bgImageUrl.trim() !== '') {
       toast({
         title: "Erro de Validação",
         description: `Para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}", forneça uma cor OU uma URL de imagem, não ambos.`,
@@ -373,12 +375,12 @@ export default function AdminPage() {
       return;
     }
     // Validate hex color if present
-    if (currentStyle?.bgColor && !/^#([0-9A-Fa-f]{3,4}){1,2}$/.test(currentStyle.bgColor)) {
+    if (currentStyle?.bgColor && currentStyle.bgColor.trim() !== '' && !/^#([0-9A-Fa-f]{3,4}){1,2}$/.test(currentStyle.bgColor)) {
         toast({ title: "Erro de Validação", description: `Cor hexadecimal inválida para a seção "${sectionConfig.find(s => s.key === sectionKey)?.label}". Use formato #RRGGBB ou #RGB.`, variant: "destructive" });
         return;
     }
     // Validate URL if present
-    if (currentStyle?.bgImageUrl) {
+    if (currentStyle?.bgImageUrl && currentStyle.bgImageUrl.trim() !== '') {
         try {
             new URL(currentStyle.bgImageUrl);
         } catch (error) {
@@ -389,7 +391,7 @@ export default function AdminPage() {
 
     setSectionCustomStyles(prev => ({
       ...prev,
-      [sectionKey]: currentStyle && (currentStyle.bgColor || currentStyle.bgImageUrl) ? { ...currentStyle } : undefined
+      [sectionKey]: currentStyle && ((currentStyle.bgColor && currentStyle.bgColor.trim() !== '') || (currentStyle.bgImageUrl && currentStyle.bgImageUrl.trim() !== '')) ? { ...currentStyle } : undefined
     }));
     toast({ title: "Sucesso!", description: `Estilo da seção "${sectionConfig.find(s => s.key === sectionKey)?.label}" salvo.` });
   };
@@ -486,7 +488,6 @@ export default function AdminPage() {
                     height="100%" 
                     src={currentVideoUrl} 
                     title="Video player preview" 
-                    frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                     allowFullScreen 
                     className="rounded-md border">
@@ -502,7 +503,15 @@ export default function AdminPage() {
             <Card className="m-0 shadow-none border-none rounded-none">
               <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                 <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                  <div className="flex items-center"><Brush className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Estilização das Seções</h3><p className="text-sm text-muted-foreground mt-1">Personalize o fundo de seções da página inicial.</p></div></div>
+                  <div className="flex flex-1 flex-col text-left">
+                    <div className="flex items-center">
+                      <Brush className="mr-3 h-5 w-5 text-primary" />
+                      <h3 className="text-xl font-semibold text-card-foreground">Estilização das Seções</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 pl-8">
+                      Personalize o fundo de seções da página inicial.
+                    </p>
+                  </div>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </AccordionPrimitive.Trigger>
               </AccordionPrimitive.Header>
@@ -536,7 +545,7 @@ export default function AdminPage() {
                             className="mt-1"
                           />
                         </div>
-                         { (tempSectionStyles[config.key]?.bgImageUrl && tempSectionStyles[config.key]?.bgColor) &&
+                         { (tempSectionStyles[config.key]?.bgImageUrl && tempSectionStyles[config.key]?.bgImageUrl.trim() !== '' && tempSectionStyles[config.key]?.bgColor && tempSectionStyles[config.key]?.bgColor.trim() !== '') &&
                             <p className="text-xs text-destructive">Forneça uma cor OU uma URL de imagem, não ambos.</p>
                          }
                         <div className="flex justify-end space-x-2 pt-2">
@@ -559,7 +568,15 @@ export default function AdminPage() {
             <Card className="m-0 shadow-none border-none rounded-none">
               <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                 <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                  <div className="flex items-center"><Share2 className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3><p className="text-sm text-muted-foreground mt-1">Adicione os links para suas redes sociais.</p></div></div>
+                  <div className="flex flex-1 flex-col text-left">
+                    <div className="flex items-center">
+                      <Share2 className="mr-3 h-5 w-5 text-primary" />
+                      <h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 pl-8">
+                      Adicione os links para suas redes sociais.
+                    </p>
+                  </div>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </AccordionPrimitive.Trigger>
               </AccordionPrimitive.Header>
@@ -581,7 +598,15 @@ export default function AdminPage() {
              <Card className="m-0 shadow-none border-none rounded-none">
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                   <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                    <div className="flex items-center"><HelpCircleIcon className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3><p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova perguntas e respostas.</p></div></div>
+                    <div className="flex flex-1 flex-col text-left">
+                        <div className="flex items-center">
+                          <HelpCircleIcon className="mr-3 h-5 w-5 text-primary" />
+                          <h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1 pl-8">
+                          Adicione, edite ou remova perguntas e respostas.
+                        </p>
+                    </div>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                   </AccordionPrimitive.Trigger>
                 </AccordionPrimitive.Header>
