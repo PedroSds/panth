@@ -17,11 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -104,20 +104,27 @@ export default function AdminPage() {
     // Load Social Media Links
     try {
         const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
+        const configWithIcons = socialPlatformConfig.map(config => {
+          let icon = config.lucideIcon; // Default Lucide icon
+          // If a custom SVG component is needed, assign it here
+          if (config.key === 'whatsapp') icon = WhatsAppIcon;
+          if (config.key === 'discord') icon = DiscordIcon;
+          return { ...config, lucideIcon: icon };
+        });
+
         if (storedSocialLinks) {
             const parsedLinks = JSON.parse(storedSocialLinks) as Array<Pick<SocialLink, 'key' | 'url'>>;
-            const mergedLinks = socialPlatformConfig.map(configPlatform => {
+            const mergedLinks = configWithIcons.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
                 const defaultPlatformData = initialSocialLinksData.find(initLink => initLink.key === configPlatform.key) || configPlatform;
                 return {
                     ...configPlatform, 
                     url: storedPlatform?.url || defaultPlatformData.url || '',
-                    lucideIcon: defaultPlatformData.lucideIcon,
                 };
             });
             setEditableSocialLinks(mergedLinks);
         } else {
-            setEditableSocialLinks(initialSocialLinksData.map(link => ({...link})));
+            setEditableSocialLinks(configWithIcons.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''})));
         }
     } catch (error) {
         console.error("Error parsing social media links from localStorage:", error);
@@ -175,7 +182,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        const linksToStore = editableSocialLinks.map(({ key, url }) => ({ // Only store key and url
+        const linksToStore = editableSocialLinks.map(({ key, url }) => ({
           key,
           url,
         }));
@@ -299,7 +306,14 @@ export default function AdminPage() {
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
     setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
-    setEditableSocialLinks(initialSocialLinksData.map(link => ({...link}))); 
+    
+    const configWithIcons = socialPlatformConfig.map(config => {
+      let icon = config.lucideIcon;
+      if (config.key === 'whatsapp') icon = WhatsAppIcon;
+      if (config.key === 'discord') icon = DiscordIcon;
+      return { ...config, lucideIcon: icon };
+    });
+    setEditableSocialLinks(configWithIcons.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || '' }))); 
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
 
@@ -345,6 +359,7 @@ export default function AdminPage() {
     }
 
     if (allValid) {
+        // Trigger useEffect to save to localStorage by creating a new array reference
         setEditableSocialLinks([...editableSocialLinks]); 
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
@@ -413,7 +428,9 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
+            <CardTitle className="text-xl flex items-center">
+              <WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)
+            </CardTitle>
             <CardDescription>Este número será usado para os links de compra/solicitação de contas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -472,10 +489,10 @@ export default function AdminPage() {
         <Accordion type="multiple" defaultValue={["social-links-section", "faq-section"]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
-            <AccordionPrimitive.Header className="flex items-center justify-between w-full p-6 text-left bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+            <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                 <AccordionPrimitive.Trigger
                   className={cn(
-                    "flex flex-1 items-center justify-between font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
+                    "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
                   )}
                 >
                   <div>
@@ -484,7 +501,7 @@ export default function AdminPage() {
                   </div>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                 </AccordionPrimitive.Trigger>
-                <div className="pl-4" onClick={(e) => e.stopPropagation()}>
+                <div className="pr-6 py-6 pl-4" onClick={(e) => e.stopPropagation()}>
                   <Button onClick={handleSaveSocialLinks} size="sm">
                     <Save className="mr-2 h-4 w-4" /> Salvar Redes
                   </Button>
@@ -502,9 +519,8 @@ export default function AdminPage() {
                             {platformLink.name}
                           </CardTitle>
                         </CardHeader>
-                        <CardContent className="p-0 space-y-3">
-                          <div>
-                            <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold">URL para {platformLink.name}</Label>
+                        <CardContent className="p-0">
+                           <Label htmlFor={`social-url-${platformLink.key}`} className="font-semibold sr-only">URL para {platformLink.name}</Label>
                             <Input
                               id={`social-url-${platformLink.key}`}
                               type="url"
@@ -513,7 +529,6 @@ export default function AdminPage() {
                               onChange={(e) => handleSocialLinkChange(index, e.target.value)}
                               className="mt-1"
                             />
-                          </div>
                         </CardContent>
                       </Card>
                     );
@@ -525,10 +540,10 @@ export default function AdminPage() {
           
           <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
              <Card className="m-0 shadow-none border-none rounded-none">
-                <AccordionPrimitive.Header className="flex items-center justify-between w-full p-6 text-left bg-card hover:bg-muted/50 data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                     <AccordionPrimitive.Trigger
                         className={cn(
-                        "flex flex-1 items-center justify-between font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
+                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
                         )}
                     >
                         <div>
@@ -540,7 +555,7 @@ export default function AdminPage() {
                         </div>
                         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                     </AccordionPrimitive.Trigger>
-                    <div className="pl-4" onClick={(e) => e.stopPropagation()}> {/* Fix: onClick stopPropagation */}
+                    <div className="pr-6 py-6 pl-4" onClick={(e) => e.stopPropagation()}>
                         <Dialog open={isFaqFormOpen} onOpenChange={(isOpen) => { setIsFaqFormOpen(isOpen); if (!isOpen) setEditingFaqItem(null); }}>
                         <DialogTrigger asChild>
                             <Button onClick={openAddFaqForm} size="sm">
