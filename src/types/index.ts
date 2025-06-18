@@ -1,4 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon as LucideIconType } from 'lucide-react'; // Renamed to avoid conflict
+import type { SVGProps, ComponentType } from 'react';
 
 export type CategoryIconName =
   | 'Swords'
@@ -13,7 +14,7 @@ export interface Category {
   name: string;
   description: string;
   icon: CategoryIconName;
-  categoryId?: string; 
+  categoryId?: string;
 }
 
 export interface Account {
@@ -26,7 +27,7 @@ export interface Account {
   imageHint: string;
   isVisible: boolean;
   isCustomService?: boolean;
-  categoryId?: string; 
+  categoryId?: string;
 }
 
 export interface CustomAccountFormData {
@@ -62,13 +63,17 @@ export interface FaqItem {
 
 export type SocialMediaKey = 'discord' | 'whatsapp' | 'instagram' | 'twitter' | 'youtube' | 'telegram';
 
+// Type for either a LucideIcon or a custom SVG component that accepts SVGProps
+export type LucideOrCustomIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+
 export interface SocialPlatformConfigEntry {
   key: SocialMediaKey;
   name: string;
-  placeholder: string; 
-  lucideIcon?: LucideIcon; 
+  placeholder: string;
+  lucideIcon?: LucideOrCustomIcon;
 }
 
 export interface SocialLink extends SocialPlatformConfigEntry {
-  url: string;         
+  url: string;
 }

@@ -7,7 +7,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -102,14 +103,11 @@ export default function AdminPage() {
         const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
         if (storedSocialLinks) {
             const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
-            // Merge stored links with the base configuration to ensure all platforms are present
-            // and new platforms from config are added if not in localStorage.
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
-                const initialDataForPlatform = initialSocialLinksData.find(p => p.key === configPlatform.key);
                 return {
-                    ...configPlatform, // key, name, placeholder, lucideIcon from config
-                    url: storedPlatform?.url || initialDataForPlatform?.url || '', // Use stored URL or default empty
+                    ...configPlatform, 
+                    url: storedPlatform?.url || initialSocialLinksData.find(p => p.key === configPlatform.key)?.url || '',
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -172,12 +170,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-         // Only store the parts of SocialLink that are truly dynamic (like URL)
         const linksToStore = editableSocialLinks.map(({ key, name, placeholder, lucideIcon, url }) => ({
           key,
-          name, // Keep name for potential display consistency if config changes, though generally derived from config
-          placeholder, // Same as name
-          lucideIcon: lucideIcon ? 'lucideIconExists' : undefined, // Don't store the component, just an indicator if needed, or derive from config
+          name, 
+          placeholder,
+          // Storing lucideIcon name or a flag might be complex if icons are components.
+          // For simplicity, we'll rely on re-merging with socialPlatformConfig on load.
+          // If lucideIcon was a string identifier, it could be stored.
           url,
         }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
@@ -369,7 +368,7 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Phone className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
+            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
             <CardDescription>Este número será usado para os links de compra/solicitação de contas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
