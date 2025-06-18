@@ -62,20 +62,13 @@ export interface FaqItem {
 
 export type SocialMediaKey = 'discord' | 'whatsapp' | 'instagram' | 'twitter' | 'youtube' | 'telegram';
 
-// This defines the configuration for each platform (name, placeholder, default icon)
 export interface SocialPlatformConfigEntry {
   key: SocialMediaKey;
   name: string;
-  placeholder: string; // For the URL input in admin
-  lucideIcon?: LucideIcon; // Fallback Lucide icon component
+  placeholder: string; 
+  lucideIcon?: LucideIcon; 
 }
 
-// This defines the actual data stored and used, including user-provided URL and SVG
 export interface SocialLink extends SocialPlatformConfigEntry {
-  url: string;         // User-defined URL, initially empty
-  customSvg?: string;   // User-uploaded SVG string, initially empty or undefined
+  url: string;         
 }
-
-// This type is no longer a simple Record, it's an array of SocialLink objects.
-// The old SocialMediaLinks type can be removed or considered deprecated.
-// For clarity, we won't reuse SocialMediaLinks for the array type.

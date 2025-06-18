@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2, UploadCloud, Trash2 as RemoveIcon } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -102,20 +102,14 @@ export default function AdminPage() {
         const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
         if (storedSocialLinks) {
             const parsedLinks = JSON.parse(storedSocialLinks) as SocialLink[];
+            // Merge stored links with the base configuration to ensure all platforms are present
+            // and new platforms from config are added if not in localStorage.
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
                 const initialDataForPlatform = initialSocialLinksData.find(p => p.key === configPlatform.key);
-
-                let finalCustomSvg = storedPlatform?.customSvg;
-
-                if ((finalCustomSvg === undefined || finalCustomSvg === '') && initialDataForPlatform?.customSvg && initialDataForPlatform.customSvg !== '') {
-                    finalCustomSvg = initialDataForPlatform.customSvg;
-                }
-
                 return {
-                    ...configPlatform,
-                    url: storedPlatform?.url || initialDataForPlatform?.url || '',
-                    customSvg: finalCustomSvg || '', 
+                    ...configPlatform, // key, name, placeholder, lucideIcon from config
+                    url: storedPlatform?.url || initialDataForPlatform?.url || '', // Use stored URL or default empty
                 };
             });
             setEditableSocialLinks(mergedLinks);
@@ -178,7 +172,15 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(editableSocialLinks));
+         // Only store the parts of SocialLink that are truly dynamic (like URL)
+        const linksToStore = editableSocialLinks.map(({ key, name, placeholder, lucideIcon, url }) => ({
+          key,
+          name, // Keep name for potential display consistency if config changes, though generally derived from config
+          placeholder, // Same as name
+          lucideIcon: lucideIcon ? 'lucideIconExists' : undefined, // Don't store the component, just an indicator if needed, or derive from config
+          url,
+        }));
+        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
       } catch (error) {
         console.error("Error saving social media links to localStorage:", error);
         toast({ title: "Erro ao salvar links sociais", description: "Não foi possível salvar os links de redes sociais localmente.", variant: "destructive" });
@@ -321,56 +323,13 @@ export default function AdminPage() {
     }
   };
 
-  const handleSocialLinkChange = (index: number, field: 'url' | 'customSvg', value: string) => {
+  const handleSocialLinkChange = (index: number, value: string) => {
     setEditableSocialLinks(prevLinks =>
       prevLinks.map((link, i) =>
-        i === index ? { ...link, [field]: value } : link
+        i === index ? { ...link, url: value } : link
       )
     );
   };
-
-  const handleSvgFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const file = event.target.files?.[0];
-    const platformName = editableSocialLinks[index]?.name || 'esta plataforma';
-
-    if (file) {
-      if (file.type !== "image/svg+xml") {
-        toast({
-          title: "Tipo de Arquivo Inválido",
-          description: `Por favor, selecione um arquivo .svg para ${platformName}.`,
-          variant: "destructive",
-        });
-        event.target.value = ""; // Clear the file input
-        return;
-      }
-      try {
-        const svgContent = await file.text();
-        if (!svgContent.trim().startsWith('<svg') || !svgContent.trim().endsWith('</svg>')) {
-          toast({ 
-            title: "Conteúdo SVG Inválido", 
-            description: `O arquivo para ${platformName} não parece ser um SVG válido. Verifique o conteúdo.`, 
-            variant: "destructive"
-          });
-          event.target.value = ""; // Clear the file input
-          return;
-        }
-        handleSocialLinkChange(index, 'customSvg', svgContent);
-        toast({ title: "SVG Carregado", description: `Ícone SVG para ${platformName} carregado com sucesso.` });
-      } catch (error) {
-        console.error("Error reading SVG file:", error);
-        toast({
-          title: "Erro ao Ler Arquivo",
-          description: `Não foi possível ler o arquivo SVG para ${platformName}.`,
-          variant: "destructive",
-        });
-        event.target.value = ""; // Clear the file input
-      }
-    }
-  };
-
 
   const handleSaveSocialLinks = () => {
     let allValid = true;
@@ -384,21 +343,9 @@ export default function AdminPage() {
                 break; 
             }
         }
-        // SVG content validation now primarily happens during upload.
-        // We can keep a lighter check here or remove if upload validation is robust enough.
-        if (link.customSvg && link.customSvg.trim() !== '') {
-            const svgTrimmed = link.customSvg.trim();
-            if (!svgTrimmed.startsWith('<svg') || !svgTrimmed.endsWith('</svg>')) {
-                allValid = false;
-                // This toast might be redundant if upload validation catches it, but good as a safeguard
-                toast({ title: "Erro de Validação de SVG", description: `Conteúdo SVG armazenado para ${link.name} parece inválido. Tente reenviar.`, variant: "destructive"});
-                break;
-            }
-        }
     }
 
     if (allValid) {
-        // The state is already updated by handleSocialLinkChange or handleSvgFileUpload, useEffect will save it.
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -480,21 +427,17 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links e Ícones de Redes Sociais</CardTitle>
-            <CardDescription>Adicione os links para suas redes sociais. Para ícones personalizados, faça upload de um arquivo SVG. SVGs devem usar `currentColor` para herdar a cor do tema.</CardDescription>
+            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</CardTitle>
+            <CardDescription>Adicione os links para suas redes sociais. Os ícones são pré-definidos.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {editableSocialLinks.map((platformLink, index) => {
-              const FallbackIcon = platformLink.lucideIcon;
+              const LucideIcon = platformLink.lucideIcon;
               return (
                 <Card key={platformLink.key} className="p-4">
                   <CardHeader className="p-0 pb-3">
                      <CardTitle className="text-lg flex items-center">
-                        {platformLink.customSvg && platformLink.customSvg.trim() !== '' ? (
-                           <span className="h-6 w-6 mr-2 inline-block text-accent [&_svg]:h-full [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: platformLink.customSvg }} title="Prévia do SVG Customizado"/>
-                        ) : FallbackIcon ? (
-                           <FallbackIcon className="mr-2 h-5 w-5 text-primary" />
-                        ) : null}
+                        {LucideIcon && <LucideIcon className="mr-2 h-5 w-5 text-primary" />}
                         {platformLink.name}
                      </CardTitle>
                   </CardHeader>
@@ -506,39 +449,9 @@ export default function AdminPage() {
                         type="url"
                         placeholder={platformLink.placeholder}
                         value={platformLink.url}
-                        onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                        onChange={(e) => handleSocialLinkChange(index, e.target.value)}
                         className="mt-1"
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`social-svg-upload-${platformLink.key}`} className="font-semibold flex items-center">
-                        <UploadCloud className="mr-2 h-4 w-4 text-muted-foreground" />
-                        Ícone SVG Personalizado (Opcional)
-                      </Label>
-                      <Input
-                        id={`social-svg-upload-${platformLink.key}`}
-                        type="file"
-                        accept=".svg,image/svg+xml"
-                        onChange={(e) => handleSvgFileUpload(e, index)}
-                        className="mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                      />
-                       {platformLink.customSvg && platformLink.customSvg.trim() !== '' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            handleSocialLinkChange(index, 'customSvg', '');
-                            const fileInput = document.getElementById(`social-svg-upload-${platformLink.key}`) as HTMLInputElement;
-                            if (fileInput) fileInput.value = "";
-                            toast({title: "SVG Removido", description: `SVG personalizado para ${platformLink.name} foi removido. Salve para aplicar.`});
-                          }}
-                          className="mt-1"
-                        >
-                          <RemoveIcon className="mr-2 h-4 w-4" />
-                          Remover SVG Atual
-                        </Button>
-                      )}
-                       <p className="text-xs text-muted-foreground mt-1">Se nenhum SVG for enviado, um ícone padrão (se disponível) será usado. Certifique-se que seu SVG use `fill="currentColor"` ou `stroke="currentColor"` para herdar a cor do tema.</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -648,6 +561,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-
-    

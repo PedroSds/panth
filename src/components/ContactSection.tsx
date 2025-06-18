@@ -37,14 +37,9 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
                 className="bg-card p-4 rounded-lg shadow-md hover:bg-muted transition-colors flex items-center justify-center space-x-3 border border-border"
                 aria-label={`Visite nosso ${link.name}`}
               >
-                {link.customSvg && link.customSvg.trim() !== '' ? (
-                  <span
-                    className="h-6 w-6 inline-block text-accent [&_svg]:h-full [&_svg]:w-full"
-                    dangerouslySetInnerHTML={{ __html: link.customSvg }}
-                  />
-                ) : LucideIconComponent ? (
+                {LucideIconComponent && (
                   <LucideIconComponent className="h-6 w-6 text-accent" />
-                ) : null}
+                )}
                 <span className="text-lg font-medium text-primary">{link.name}</span>
               </Link>
             );

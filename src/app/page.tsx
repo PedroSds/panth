@@ -64,14 +64,13 @@ export default function HomePage() {
     const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
     if (storedSocialLinksData) {
         try {
-            const parsedLinks = JSON.parse(storedSocialLinksData) as SocialLink[];
-             // Merge with config to ensure all platforms are present and have defaults
+            const parsedStoredLinks = JSON.parse(storedSocialLinksData) as Partial<SocialLink>[];
+            // Merge with config to ensure all platforms are present and have defaults from config
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
-                const storedPlatform = parsedLinks.find(p => p.key === configPlatform.key);
+                const storedPlatform = parsedStoredLinks.find(p => p.key === configPlatform.key);
                 return {
                     ...configPlatform, // key, name, placeholder, lucideIcon from config
-                    url: storedPlatform?.url || '',
-                    customSvg: storedPlatform?.customSvg || '',
+                    url: storedPlatform?.url || '', // Use stored URL or default empty
                 };
             });
             setSocialLinks(mergedLinks);
