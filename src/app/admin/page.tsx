@@ -456,8 +456,8 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
-            <CardDescription>Este número será usado para os links de compra/solicitação de contas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
+            <CardTitle className="text-xl flex items-center"><WhatsAppIcon className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp</CardTitle>
+            <CardDescription>Este número será usado para as solicitações de contas personalizadas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
@@ -476,7 +476,7 @@ export default function AdminPage() {
                 <Save className="mr-2 h-4 w-4" /> Salvar Número
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">Número atual para compras: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
+            <p className="text-sm text-muted-foreground">Número atual para solicitações personalizadas: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
           </CardContent>
         </Card>
         
