@@ -1,13 +1,13 @@
 
 "use client";
 
-import type { Account, FaqItem } from "@/types";
-import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL } from "@/data/mockData";
-import React, { useState, useEffect } from "react";
+import type { Account, FaqItem, SocialMediaLinks, SocialLink } from "@/types";
+import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialMediaLinks, socialPlatformConfig } from "@/data/mockData";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, Phone, HelpCircleIcon, Image as ImageIcon, Share2 } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -35,6 +35,9 @@ export default function AdminPage() {
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLinks>(initialSocialMediaLinks);
+  const [socialLinksInput, setSocialLinksInput] = useState<SocialMediaLinks>(initialSocialMediaLinks);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -94,6 +97,25 @@ export default function AdminPage() {
     setCurrentBannerImageUrl(initialBannerUrl);
     setBannerImageUrlInput(initialBannerUrl);
 
+    // Load Social Media Links
+    try {
+        const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
+        if (storedSocialLinks) {
+            const parsedLinks = JSON.parse(storedSocialLinks) as SocialMediaLinks;
+            setSocialLinks(parsedLinks);
+            setSocialLinksInput(parsedLinks);
+        } else {
+            setSocialLinks(initialSocialMediaLinks);
+            setSocialLinksInput(initialSocialMediaLinks);
+        }
+    } catch (error) {
+        console.error("Error parsing social media links from localStorage:", error);
+        setSocialLinks(initialSocialMediaLinks);
+        setSocialLinksInput(initialSocialMediaLinks);
+        toast({ title: "Erro ao carregar links sociais", description: "Não foi possível carregar os links de redes sociais salvos.", variant: "destructive" });
+    }
+
+
     setIsMounted(true);
   }, [toast]);
 
@@ -140,6 +162,17 @@ export default function AdminPage() {
       }
     }
   }, [currentBannerImageUrl, isMounted, toast]);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(socialLinks));
+      } catch (error) {
+        console.error("Error saving social media links to localStorage:", error);
+        toast({ title: "Erro ao salvar links sociais", description: "Não foi possível salvar os links de redes sociais localmente.", variant: "destructive" });
+      }
+    }
+  }, [socialLinks, isMounted, toast]);
 
 
   if (!isMounted) {
@@ -253,6 +286,8 @@ export default function AdminPage() {
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
     setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
+    setSocialLinks(initialSocialMediaLinks);
+    setSocialLinksInput(initialSocialMediaLinks);
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
 
@@ -267,12 +302,37 @@ export default function AdminPage() {
 
   const handleSaveBannerImageUrl = () => {
     try {
-      // Basic URL validation (can be improved)
       new URL(bannerImageUrlInput.trim());
       setCurrentBannerImageUrl(bannerImageUrlInput.trim());
       toast({ title: "Sucesso!", description: "URL da imagem do banner atualizada." });
     } catch (error) {
       toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do banner.", variant: "destructive" });
+    }
+  };
+
+  const handleSocialLinkInputChange = (key: keyof SocialMediaLinks, value: string) => {
+    setSocialLinksInput(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSocialLinks = () => {
+    // Basic validation: check if URLs are valid (optional, can be improved)
+    let allValid = true;
+    for (const key in socialLinksInput) {
+        const url = socialLinksInput[key as keyof SocialMediaLinks];
+        if (url.trim() !== '') {
+            try {
+                new URL(url.trim());
+            } catch (error) {
+                allValid = false;
+                toast({ title: "Erro de Validação", description: `URL inválida para ${key}: ${url}`, variant: "destructive"});
+                break; 
+            }
+        }
+    }
+
+    if (allValid) {
+        setSocialLinks(socialLinksInput);
+        toast({ title: "Sucesso!", description: "Links de redes sociais atualizados." });
     }
   };
 
@@ -295,8 +355,8 @@ export default function AdminPage() {
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center"><Phone className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp</CardTitle>
-            <CardDescription>Este número será usado para os links de compra/solicitação. Use apenas dígitos (ex: 5511999998888).</CardDescription>
+            <CardTitle className="text-xl flex items-center"><Phone className="mr-2 h-5 w-5 text-primary" />Configurar Número do WhatsApp (Compras)</CardTitle>
+            <CardDescription>Este número será usado para os links de compra/solicitação de contas. Use apenas dígitos (ex: 5511999998888).</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-end gap-4">
@@ -315,7 +375,7 @@ export default function AdminPage() {
                 <Save className="mr-2 h-4 w-4" /> Salvar Número
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">Número atual: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
+            <p className="text-sm text-muted-foreground">Número atual para compras: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
           </CardContent>
         </Card>
 
@@ -350,6 +410,39 @@ export default function AdminPage() {
             )}
           </CardContent>
         </Card>
+
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</CardTitle>
+            <CardDescription>Adicione os links para suas redes sociais. Apenas links preenchidos aparecerão na seção de contatos da loja.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {socialPlatformConfig.map((platform) => {
+              const IconComponent = platform.icon;
+              return (
+                <div key={platform.key} className="space-y-2">
+                  <Label htmlFor={`social-${platform.key}`} className="font-semibold flex items-center">
+                    {IconComponent && <IconComponent className="mr-2 h-5 w-5 text-primary" />}
+                    {platform.name}
+                  </Label>
+                  <Input
+                    id={`social-${platform.key}`}
+                    type="url"
+                    placeholder={platform.placeholder}
+                    value={socialLinksInput[platform.key]}
+                    onChange={(e) => handleSocialLinkInputChange(platform.key, e.target.value)}
+                  />
+                </div>
+              );
+            })}
+            <div className="flex justify-end">
+                <Button onClick={handleSaveSocialLinks}>
+                    <Save className="mr-2 h-4 w-4" /> Salvar Links Sociais
+                </Button>
+            </div>
+          </CardContent>
+        </Card>
+
 
         <Separator className="my-12" />
 

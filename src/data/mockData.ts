@@ -1,11 +1,13 @@
 
-import type { Account, FaqItem, LucideIconName } from '@/types';
+import type { Account, FaqItem, LucideIconName, SocialMediaKey, SocialMediaLinks, SocialLink } from '@/types';
+import { Instagram, Twitter, Youtube, Send, Smartphone } from 'lucide-react';
 
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
-export const DEFAULT_BANNER_IMAGE_URL = 'https://placehold.co/1920x600.png'; // Default banner image
+export const DEFAULT_BANNER_IMAGE_URL = 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png'; // Default banner image
 export const BANNER_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreBannerImageUrl';
+export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialMediaLinks';
 
 
 export const customAccountServiceData: Account = {
@@ -126,7 +128,6 @@ export const initialFaqData: FaqItem[] = [
   },
 ];
 
-// List of icons for the FAQ admin form
 export const faqIconList: { value: LucideIconName; label: string }[] = [
   { value: 'Users', label: 'Pessoas (Quem Somos)' },
   { value: 'Clock', label: 'Relógio (Tempo)' },
@@ -144,4 +145,22 @@ export const faqIconList: { value: LucideIconName; label: string }[] = [
   { value: 'Tag', label: 'Etiqueta (Preço/Promoção)' },
   { value: 'Star', label: 'Estrela (Destaque)' },
   { value: 'Anchor', label: 'Âncora (Estabilidade/Confiança)' },
+];
+
+export const initialSocialMediaLinks: SocialMediaLinks = {
+  discord: '',
+  whatsapp: '',
+  instagram: '',
+  twitter: '',
+  youtube: '',
+  telegram: '',
+};
+
+export const socialPlatformConfig: SocialLink[] = [
+  { key: 'discord', name: 'Discord', url: '', placeholder: 'https://discord.gg/seu-servidor' }, // Removed icon: GenericDiscordIcon
+  { key: 'whatsapp', name: 'WhatsApp', url: '', placeholder: 'https://wa.me/5511999998888', icon: Smartphone },
+  { key: 'instagram', name: 'Instagram', url: '', placeholder: 'https://instagram.com/seuusuario', icon: Instagram },
+  { key: 'twitter', name: 'Twitter (X)', url: '', placeholder: 'https://twitter.com/seuusuario', icon: Twitter },
+  { key: 'youtube', name: 'Youtube', url: '', placeholder: 'https://youtube.com/seu-canal', icon: Youtube },
+  { key: 'telegram', name: 'Telegram', url: '', placeholder: 'https://t.me/seuusuario', icon: Send },
 ];

@@ -58,3 +58,15 @@ export interface FaqItem {
   answer: string;
   icon: LucideIconName;
 }
+
+export type SocialMediaKey = 'discord' | 'whatsapp' | 'instagram' | 'twitter' | 'youtube' | 'telegram';
+
+export interface SocialLink {
+  key: SocialMediaKey;
+  name: string;
+  url: string;
+  placeholder: string;
+  icon?: React.ComponentType<{ className?: string }>; // Lucide icons or custom
+}
+
+export type SocialMediaLinks = Record<SocialMediaKey, string>;

@@ -3,12 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem } from '@/types';
+import type { Account, FaqItem, SocialMediaLinks } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY } from '@/data/mockData';
+import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialMediaLinks, socialPlatformConfig } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
+import { ContactSection } from '@/components/ContactSection';
 import { Button } from '@/components/ui/button';
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -19,6 +20,7 @@ export default function HomePage() {
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLinks>(initialSocialMediaLinks);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -58,6 +60,20 @@ export default function HomePage() {
     const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
     setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
 
+    // Load Social Media Links
+    const storedSocialLinks = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
+    if (storedSocialLinks) {
+        try {
+            const parsedLinks = JSON.parse(storedSocialLinks) as SocialMediaLinks;
+            setSocialLinks(parsedLinks);
+        } catch (error) {
+            console.error("Error parsing social media links from localStorage for homepage:", error);
+            setSocialLinks(initialSocialMediaLinks);
+        }
+    } else {
+        setSocialLinks(initialSocialMediaLinks);
+    }
+
     setIsMounted(true);
   }, []);
 
@@ -74,6 +90,7 @@ export default function HomePage() {
   }
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
+  const hasActiveSocialLinks = socialPlatformConfig.some(p => socialLinks[p.key] && socialLinks[p.key].trim() !== '');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -109,9 +126,8 @@ export default function HomePage() {
 
         <section id="available-accounts" aria-labelledby="available-accounts-heading" className="py-12 md:py-16 lg:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Heading removed as per user request */}
             {visibleAndUnsoldAccounts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"> {/* Added pt-8 for spacing */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
                 {visibleAndUnsoldAccounts.map(account => (
                     <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
                 ))}
@@ -122,8 +138,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Wave Divider between Accounts and FAQ */}
-        {visibleAndUnsoldAccounts.length > 0 && faqItems.length > 0 && (
+        {/* Wave Divider between Accounts and Contacts */}
+        {(visibleAndUnsoldAccounts.length > 0 || faqItems.length > 0) && hasActiveSocialLinks && (
+          <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
+            <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
+              <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
+            </svg>
+          </div>
+        )}
+        
+        {hasActiveSocialLinks && (
+           <ContactSection socialLinks={socialLinks} socialPlatforms={socialPlatformConfig} />
+        )}
+
+
+        {/* Wave Divider between Contacts and FAQ */}
+        {hasActiveSocialLinks && faqItems.length > 0 && (
           <div className="w-full text-background overflow-hidden leading-[0px]" style={{ transform: 'translateY(1px)'}}>
             <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block" style={{ minHeight: '40px', maxHeight: '120px' }}>
               <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
@@ -139,8 +169,8 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Fallback message if both accounts and FAQ are empty and were not rendered above */}
-        {visibleAndUnsoldAccounts.length === 0 && faqItems.length === 0 && (
+        {/* Fallback message if all content sections are empty */}
+        {visibleAndUnsoldAccounts.length === 0 && !hasActiveSocialLinks && faqItems.length === 0 && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
           </div>
@@ -150,5 +180,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
