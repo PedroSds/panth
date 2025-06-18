@@ -8,8 +8,13 @@ import { DiscordIcon } from '@/components/icons/DiscordIcon';
 export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
+
 export const DEFAULT_BANNER_IMAGE_URL = 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png';
 export const BANNER_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreBannerImageUrl';
+
+export const DEFAULT_LOGO_IMAGE_URL = 'https://i.imgur.com/4RDlzjM.png';
+export const LOGO_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreLogoImageUrl';
+
 export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData';
 
 
@@ -162,8 +167,6 @@ export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
 export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(platform => {
   return {
     ...platform,
-    url: '',
+    url: '', // Initially empty, will be loaded from localStorage or kept empty
   };
 });
-
-

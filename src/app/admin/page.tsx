@@ -2,12 +2,26 @@
 "use client";
 
 import type { Account, FaqItem, SocialLink } from "@/types";
-import { accountsData as initialAccountsData, customAccountServiceData, DEFAULT_WHATSAPP_PHONE_NUMBER, CUSTOM_ACCOUNT_SERVICE_ID, initialFaqData, FAQ_LOCAL_STORAGE_KEY, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, socialPlatformConfig, initialSocialLinksData } from "@/data/mockData";
+import { 
+  accountsData as initialAccountsData, 
+  customAccountServiceData, 
+  DEFAULT_WHATSAPP_PHONE_NUMBER, 
+  CUSTOM_ACCOUNT_SERVICE_ID, 
+  initialFaqData, 
+  FAQ_LOCAL_STORAGE_KEY, 
+  BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, 
+  DEFAULT_BANNER_IMAGE_URL, 
+  SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, 
+  socialPlatformConfig, 
+  initialSocialLinksData,
+  LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
+  DEFAULT_LOGO_IMAGE_URL
+} from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, MessageCircle, Phone } from "lucide-react";
+import { PlusCircle, RefreshCw, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
@@ -21,7 +35,6 @@ import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/acco
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -37,6 +50,10 @@ export default function AdminPage() {
   const [editingFaqItem, setEditingFaqItem] = useState<FaqItem | null>(null);
   const [whatsAppNumberInput, setWhatsAppNumberInput] = useState('');
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
+  
+  const [logoImageUrlInput, setLogoImageUrlInput] = useState('');
+  const [currentLogoImageUrl, setCurrentLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
+  
   const [bannerImageUrlInput, setBannerImageUrlInput] = useState('');
   const [currentBannerImageUrl, setCurrentBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   
@@ -95,6 +112,12 @@ export default function AdminPage() {
     const initialNumber = storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER;
     setCurrentWhatsAppNumber(initialNumber);
     setWhatsAppNumberInput(initialNumber);
+
+    // Load Logo Image URL
+    const storedLogoImageUrl = localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY);
+    const initialLogoUrl = storedLogoImageUrl || DEFAULT_LOGO_IMAGE_URL;
+    setCurrentLogoImageUrl(initialLogoUrl);
+    setLogoImageUrlInput(initialLogoUrl);
 
     // Load Banner Image URL
     const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
@@ -163,6 +186,17 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
+        localStorage.setItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY, currentLogoImageUrl);
+      } catch (error) {
+        console.error("Error saving Logo Image URL to localStorage:", error);
+        toast({ title: "Erro ao salvar URL do Logotipo", description: "Não foi possível salvar a URL da imagem do logotipo localmente.", variant: "destructive" });
+      }
+    }
+  }, [currentLogoImageUrl, isMounted, toast]);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
         localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl);
       } catch (error) {
         console.error("Error saving Banner Image URL to localStorage:", error);
@@ -174,11 +208,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (isMounted) {
       try {
-        const linksToStore = editableSocialLinks.map(({ key, url, name, placeholder, lucideIcon }) => ({
-          key,
-          url,
-          // We don't need to store name, placeholder, lucideIcon as they come from config
-        }));
+        const linksToStore = editableSocialLinks.map(({ key, url }) => ({ key, url }));
         localStorage.setItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, JSON.stringify(linksToStore));
       } catch (error) {
         console.error("Error saving social media links to localStorage:", error);
@@ -191,7 +221,7 @@ export default function AdminPage() {
   if (!isMounted) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Navbar />
+        <Navbar logoUrl={DEFAULT_LOGO_IMAGE_URL} />
         <main className="flex-grow container mx-auto px-4 py-8">
           <p>Carregando painel de administração...</p>
         </main>
@@ -297,9 +327,10 @@ export default function AdminPage() {
     setFaqItems([...initialFaqData]);
     setCurrentWhatsAppNumber(DEFAULT_WHATSAPP_PHONE_NUMBER);
     setWhatsAppNumberInput(DEFAULT_WHATSAPP_PHONE_NUMBER);
+    setCurrentLogoImageUrl(DEFAULT_LOGO_IMAGE_URL);
+    setLogoImageUrlInput(DEFAULT_LOGO_IMAGE_URL);
     setCurrentBannerImageUrl(DEFAULT_BANNER_IMAGE_URL);
     setBannerImageUrlInput(DEFAULT_BANNER_IMAGE_URL);
-    
     setEditableSocialLinks(socialPlatformConfig.map(link => ({...link, url: initialSocialLinksData.find(il => il.key === link.key)?.url || ''}))); 
     toast({ title: "Dados Resetados", description: "Os dados foram resetados para os valores iniciais." });
   }
@@ -310,6 +341,16 @@ export default function AdminPage() {
       toast({ title: "Sucesso!", description: "Número do WhatsApp atualizado." });
     } else {
       toast({ title: "Erro", description: "Por favor, insira um número de WhatsApp válido (apenas dígitos).", variant: "destructive" });
+    }
+  };
+
+  const handleSaveLogoImageUrl = () => {
+    try {
+      new URL(logoImageUrlInput.trim());
+      setCurrentLogoImageUrl(logoImageUrlInput.trim());
+      toast({ title: "Sucesso!", description: "URL da imagem do logotipo atualizada." });
+    } catch (error) {
+      toast({ title: "Erro", description: "Por favor, insira uma URL válida para a imagem do logotipo.", variant: "destructive" });
     }
   };
 
@@ -346,7 +387,8 @@ export default function AdminPage() {
     }
 
     if (allValid) {
-        setEditableSocialLinks([...editableSocialLinks]); 
+        // No need to call setEditableSocialLinks if it's already up-to-date by handleSocialLinkChange
+        // localStorage will be updated by its useEffect trigger
         toast({ title: "Sucesso!", description: "Configurações de redes sociais salvas." });
     }
   };
@@ -359,7 +401,7 @@ export default function AdminPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Navbar />
+      <Navbar logoUrl={currentLogoImageUrl} />
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Painel de Administração</h1>
@@ -437,6 +479,43 @@ export default function AdminPage() {
             <p className="text-sm text-muted-foreground">Número atual para compras: <span className="font-semibold text-foreground">{currentWhatsAppNumber || "Não configurado"}</span></p>
           </CardContent>
         </Card>
+        
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center"><Palette className="mr-2 h-5 w-5 text-primary" />Configurar Logotipo da Navbar</CardTitle>
+            <CardDescription>Esta imagem será usada como logotipo na barra de navegação. Use um link direto para a imagem (ex: Imgur).</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-end gap-4">
+              <div className="flex-grow">
+                <Label htmlFor="logo-image-url" className="font-semibold">URL da Imagem do Logotipo</Label>
+                <Input
+                  id="logo-image-url"
+                  type="url"
+                  placeholder="https://i.imgur.com/nomedaimagem.png"
+                  value={logoImageUrlInput}
+                  onChange={(e) => setLogoImageUrlInput(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <Button onClick={handleSaveLogoImageUrl}>
+                <Save className="mr-2 h-4 w-4" /> Salvar URL do Logotipo
+              </Button>
+            </div>
+            {currentLogoImageUrl && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Prévia do logotipo atual:</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={currentLogoImageUrl} 
+                  alt="Logo preview" 
+                  className="rounded-md border max-h-20 object-contain bg-muted p-2"
+                  data-ai-hint="store logo"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card className="mb-8 shadow-lg">
           <CardHeader>
@@ -464,7 +543,12 @@ export default function AdminPage() {
               <div>
                 <p className="text-sm text-muted-foreground mb-2">Prévia da imagem atual do banner:</p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentBannerImageUrl} alt="Banner preview" className="rounded-md border max-h-48 object-contain" />
+                <img 
+                  src={currentBannerImageUrl} 
+                  alt="Banner preview" 
+                  className="rounded-md border max-h-48 object-contain"
+                  data-ai-hint="hero background"
+                />
               </div>
             )}
           </CardContent>
@@ -473,26 +557,29 @@ export default function AdminPage() {
         <Accordion type="multiple" defaultValue={["social-links-section", "faq-section"]} className="w-full space-y-8">
           <AccordionItem value="social-links-section" className="border-none overflow-hidden rounded-lg shadow-lg">
             <Card className="m-0 shadow-none border-none rounded-none">
-              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                  <AccordionPrimitive.Trigger
-                    className={cn(
-                      "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
-                    )}
-                  >
-                    <div>
-                      <h3 className="text-xl font-semibold flex items-center text-card-foreground"><Share2 className="mr-2 h-5 w-5 text-primary" />Configurar Links de Redes Sociais</h3>
-                      <p className="text-sm text-muted-foreground mt-1.5">Adicione os links para suas redes sociais.</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                  </AccordionPrimitive.Trigger>
-              </AccordionPrimitive.Header>
+                <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
+                    <AccordionPrimitive.Trigger
+                        className={cn(
+                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50"
+                        )}
+                    >
+                        <div className="flex items-center">
+                            <Share2 className="mr-3 h-5 w-5 text-primary" />
+                            <div>
+                                <h3 className="text-xl font-semibold text-card-foreground">Configurar Links de Redes Sociais</h3>
+                                <p className="text-sm text-muted-foreground mt-1">Adicione os links para suas redes sociais.</p>
+                            </div>
+                        </div>
+                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                    </AccordionPrimitive.Trigger>
+                </AccordionPrimitive.Header>
               <AccordionContent className="bg-card rounded-b-lg">
                 <div className="p-6 space-y-6">
-                  <div className="flex justify-end mb-4">
-                    <Button onClick={handleSaveSocialLinks} size="sm">
-                      <Save className="mr-2 h-4 w-4" /> Salvar Redes
-                    </Button>
-                  </div>
+                    <div className="flex justify-end mb-4">
+                        <Button onClick={handleSaveSocialLinks} size="sm">
+                        <Save className="mr-2 h-4 w-4" /> Salvar Redes
+                        </Button>
+                    </div>
                   {editableSocialLinks.map((platformLink, index) => {
                     const IconComponent = platformLink.lucideIcon;
                     return (
@@ -527,15 +614,15 @@ export default function AdminPage() {
                 <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
                     <AccordionPrimitive.Trigger
                         className={cn(
-                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:bg-muted/50 hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70"
+                        "flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50"
                         )}
                     >
-                        <div>
-                        <h3 className="text-xl font-semibold flex items-center text-card-foreground">
-                            <HelpCircleIcon className="mr-2 h-5 w-5 text-primary" />
-                            Gerenciar Perguntas Frequentes (FAQ)
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1.5">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
+                        <div className="flex items-center">
+                            <HelpCircleIcon className="mr-3 h-5 w-5 text-primary" />
+                            <div>
+                                <h3 className="text-xl font-semibold text-card-foreground">Gerenciar Perguntas Frequentes (FAQ)</h3>
+                                <p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova perguntas e respostas da seção FAQ da loja.</p>
+                            </div>
                         </div>
                         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
                     </AccordionPrimitive.Trigger>
@@ -580,4 +667,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

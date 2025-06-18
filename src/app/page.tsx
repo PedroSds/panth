@@ -6,7 +6,19 @@ import Link from 'next/link';
 import type { Account, FaqItem, SocialLink } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { accountsData as fallbackAccountsData, DEFAULT_WHATSAPP_PHONE_NUMBER, initialFaqData as fallbackFaqData, FAQ_LOCAL_STORAGE_KEY, DEFAULT_BANNER_IMAGE_URL, BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, initialSocialLinksData, socialPlatformConfig } from '@/data/mockData';
+import { 
+  accountsData as fallbackAccountsData, 
+  DEFAULT_WHATSAPP_PHONE_NUMBER, 
+  initialFaqData as fallbackFaqData, 
+  FAQ_LOCAL_STORAGE_KEY, 
+  DEFAULT_BANNER_IMAGE_URL, 
+  BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, 
+  SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, 
+  initialSocialLinksData, 
+  socialPlatformConfig,
+  DEFAULT_LOGO_IMAGE_URL,
+  LOGO_IMAGE_URL_LOCAL_STORAGE_KEY
+} from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
@@ -19,6 +31,7 @@ export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
+  const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
   const [isMounted, setIsMounted] = useState(false);
@@ -56,6 +69,10 @@ export default function HomePage() {
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
     setWhatsAppNumber(storedWhatsAppNumber || DEFAULT_WHATSAPP_PHONE_NUMBER);
 
+    // Load Logo Image URL
+    const storedLogoImageUrl = localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY);
+    setLogoImageUrl(storedLogoImageUrl || DEFAULT_LOGO_IMAGE_URL);
+
     // Load Banner Image URL
     const storedBannerImageUrl = localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY);
     setBannerImageUrl(storedBannerImageUrl || DEFAULT_BANNER_IMAGE_URL);
@@ -65,12 +82,11 @@ export default function HomePage() {
     if (storedSocialLinksData) {
         try {
             const parsedStoredLinks = JSON.parse(storedSocialLinksData) as Partial<SocialLink>[];
-            // Merge with config to ensure all platforms are present and have defaults from config
             const mergedLinks = socialPlatformConfig.map(configPlatform => {
                 const storedPlatform = parsedStoredLinks.find(p => p.key === configPlatform.key);
                 return {
-                    ...configPlatform, // key, name, placeholder, lucideIcon from config
-                    url: storedPlatform?.url || '', // Use stored URL or default empty
+                    ...configPlatform,
+                    url: storedPlatform?.url || '', 
                 };
             });
             setSocialLinks(mergedLinks);
@@ -88,7 +104,7 @@ export default function HomePage() {
   if (!isMounted) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Navbar />
+        <Navbar logoUrl={DEFAULT_LOGO_IMAGE_URL} />
         <main className="flex-grow container mx-auto px-4 py-8">
           <p>Carregando loja...</p>
         </main>
@@ -102,7 +118,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Navbar />
+      <Navbar logoUrl={logoImageUrl} />
       <main className="flex-grow">
         <section
           id="hero"
@@ -168,7 +184,7 @@ export default function HomePage() {
         )}
 
         {faqItems.length > 0 && (
-          <section id="faq-container" className="py-12 md:py-16 lg:py-20"> {/* Container for FaqSection */}
+          <section id="faq-container" className="py-12 md:py-16 lg:py-20">
              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <FaqSection faqItems={faqItems} />
              </div>

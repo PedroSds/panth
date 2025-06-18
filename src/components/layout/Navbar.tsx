@@ -1,7 +1,14 @@
 
 import Link from 'next/link';
+import { DEFAULT_LOGO_IMAGE_URL } from '@/data/mockData';
 
-export function Navbar() {
+interface NavbarProps {
+  logoUrl?: string;
+}
+
+export function Navbar({ logoUrl }: NavbarProps) {
+  const effectiveLogoUrl = logoUrl || DEFAULT_LOGO_IMAGE_URL;
+
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,7 +16,7 @@ export function Navbar() {
           <Link href="/#page-top" className="flex items-center text-primary hover:opacity-80 transition-opacity -ml-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://i.imgur.com/4RDlzjM.png"
+              src={effectiveLogoUrl}
               alt="PanthStore Logo"
               style={{
                 width: '292px',
@@ -17,9 +24,10 @@ export function Navbar() {
                 objectFit: 'contain',
                 display: 'block',
               }}
+              data-ai-hint="store logo"
             />
           </Link>
-          <nav className="flex items-center"> {/* Adicionado flex items-center aqui */}
+          <nav className="flex items-center">
             <ul className="flex items-center space-x-4 sm:space-x-6">
               <li>
                 <Link
