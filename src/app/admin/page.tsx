@@ -510,7 +510,6 @@ export default function AdminPage() {
                   src={currentLogoImageUrl} 
                   alt="Logo preview" 
                   className="max-h-20 object-contain"
-                  data-ai-hint="store logo"
                 />
               </div>
             )}

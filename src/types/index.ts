@@ -25,11 +25,10 @@ export interface Account {
   details: string[];
   isSold: boolean;
   image: string;
-  imageHint: string;
   isVisible: boolean;
   isCustomService?: boolean;
   categoryId?: string;
-  automaticDeliveryLink?: string; // Added new field
+  automaticDeliveryLink?: string;
 }
 
 export interface CustomAccountFormData {

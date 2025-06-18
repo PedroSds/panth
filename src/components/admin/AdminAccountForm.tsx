@@ -28,7 +28,6 @@ const accountFormSchema = z.object({
   price: z.coerce.number().min(0, { message: "Preço deve ser positivo." }),
   details: z.string().min(10, { message: "Detalhes devem ter pelo menos 10 caracteres." }),
   image: z.string().url({ message: "URL da imagem inválida." }).or(z.literal("")),
-  imageHint: z.string().max(50).optional(),
   isVisible: z.boolean().default(true),
   isSold: z.boolean().default(false),
   automaticDeliveryLink: z.string().url({ message: "URL inválida para entrega automática." }).optional().or(z.literal('')),
@@ -52,7 +51,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
       price: 0,
       details: "",
       image: "https://placehold.co/300x200.png",
-      imageHint: "game account",
       isVisible: true,
       isSold: false,
       automaticDeliveryLink: "",
@@ -76,7 +74,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         price: initialData.price,
         details: initialData.details.join("\n"),
         image: initialData.image,
-        imageHint: initialData.imageHint,
         isVisible: initialData.isVisible,
         isSold: initialData.isSold,
         automaticDeliveryLink: initialData.automaticDeliveryLink || "",
@@ -88,7 +85,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
         price: 0,
         details: "",
         image: "https://placehold.co/300x200.png",
-        imageHint: "game account",
         isVisible: true,
         isSold: false,
         automaticDeliveryLink: "",
@@ -199,20 +195,6 @@ export function AdminAccountForm({ onSubmitAccount, initialData, onClose, isEdit
                 <Input placeholder="https://placehold.co/300x200.png" {...field} />
               </FormControl>
               <FormDescription>Use URLs do placehold.co ou outra URL de imagem pública (Ex: Imgur).</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imageHint"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Dica para IA da Imagem (opcional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: lol account" {...field} />
-              </FormControl>
-              <FormDescription>Máximo 2 palavras para busca de imagem (ex: 'warrior sword').</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -38,7 +38,6 @@ export function AccountCard({ account, whatsAppPhoneNumber }: AccountCardProps) 
             alt={`Imagem da conta ${account.name}`}
             layout="fill"
             objectFit="cover"
-            data-ai-hint={account.imageHint}
           />
         </div>
       </CardHeader>

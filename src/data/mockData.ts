@@ -31,7 +31,6 @@ export const customAccountServiceData: Account = {
   ],
   isSold: false,
   image: 'https://placehold.co/300x200.png',
-  imageHint: 'custom service account',
   isVisible: true,
   isCustomService: true,
   automaticDeliveryLink: '',
@@ -53,7 +52,6 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'lol ready',
     isVisible: true,
     automaticDeliveryLink: '',
   },
@@ -69,7 +67,6 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'league account',
     isVisible: true,
     automaticDeliveryLink: '',
   },
@@ -86,7 +83,6 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'lol smurf',
     isVisible: true,
     automaticDeliveryLink: '',
   },
@@ -102,7 +98,6 @@ export const accountsData: Account[] = [
     ],
     isSold: false,
     image: 'https://placehold.co/300x200.png',
-    imageHint: 'rare skin',
     isVisible: true,
     automaticDeliveryLink: '',
   }
@@ -118,13 +113,13 @@ export const initialFaqData: FaqItem[] = [
   {
     id: 'faq-2',
     question: 'Qual o tempo de entrega?',
-    answer: 'Para contas prontas, a entrega dos dados é feita imediatamente após a confirmação do pagamento via WhatsApp. Para contas personalizadas (serviço de upar), o prazo é de até 3 dias úteis. Contas com "Entrega Automática" são entregues instantaneamente após a compra pelo link fornecido.',
+    answer: 'Para contas prontas com "Entrega Automática", o acesso é liberado instantaneamente após a confirmação do pagamento pelo link fornecido. Para contas personalizadas (serviço de upar), o prazo é de até 3 dias úteis após o pagamento. Se uma conta não tiver link de entrega automática, o processo é manual via WhatsApp.',
     icon: 'Clock',
   },
   {
     id: 'faq-3',
     question: 'Qual o horário de funcionamento?',
-    answer: 'Nosso atendimento online via WhatsApp funciona das 10:00 às 22:00, de Segunda a Sábado. Compras podem ser iniciadas a qualquer momento, e a entrega automática funciona 24/7.',
+    answer: 'Nosso atendimento online via WhatsApp funciona das 10:00 às 22:00, de Segunda a Sábado. Compras com entrega automática podem ser feitas a qualquer momento, 24/7.',
     icon: 'CalendarDays',
   },
   {
@@ -136,7 +131,7 @@ export const initialFaqData: FaqItem[] = [
   {
     id: 'faq-5',
     question: 'Quais as formas de pagamento?',
-    answer: 'Aceitamos pagamentos via PIX, transferência bancária e PicPay para compras via WhatsApp. Para entrega automática, o link de pagamento fornecerá as opções disponíveis na plataforma de venda.',
+    answer: 'Para entrega automática, o link de pagamento fornecerá as opções disponíveis na plataforma de venda. Para serviços de conta personalizada via WhatsApp, aceitamos PIX, transferência bancária e PicPay.',
     icon: 'CircleDollarSign',
   },
 ];
