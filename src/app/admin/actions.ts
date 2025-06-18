@@ -32,7 +32,7 @@ export async function loginAction(
       secure: process.env.NODE_ENV === 'production',
       path: '/',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: 5 * 60, // 5 minutes
     });
     redirect('/admin');
     // Redirect might not immediately stop execution here,
@@ -47,4 +47,8 @@ export async function loginAction(
 export async function logoutAction() {
   cookies().delete(ADMIN_AUTH_COOKIE_NAME);
   redirect('/admin/login');
+}
+
+export async function clearAuthCookieAction() {
+  cookies().delete(ADMIN_AUTH_COOKIE_NAME);
 }

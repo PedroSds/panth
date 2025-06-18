@@ -40,7 +40,7 @@ import { Accordion, AccordionContent, AccordionItem } from "@/components/ui/acco
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { logoutAction } from '@/app/admin/actions';
+import { logoutAction, clearAuthCookieAction } from '@/app/admin/actions';
 
 
 const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
@@ -238,6 +238,18 @@ export default function AdminPage() {
       localStorage.setItem(SECTION_STYLES_LOCAL_STORAGE_KEY, JSON.stringify(sectionCustomStyles));
     }
   }, [sectionCustomStyles, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      // Clear the auth cookie when the admin page mounts.
+      // This ensures that if the user navigates away and returns,
+      // or refreshes the page, they will be required to log in again.
+      const performClearCookie = async () => {
+        await clearAuthCookieAction();
+      };
+      performClearCookie();
+    }
+  }, [isMounted]);
 
 
   if (!isMounted) {
