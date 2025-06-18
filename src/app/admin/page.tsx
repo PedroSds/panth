@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Account, FaqItem, SocialLink, FeedbackItem } from "@/types";
+import type { Account, FaqItem, SocialLink } from "@/types";
 import { 
   accountsData as initialAccountsData, 
   customAccountServiceData, 
@@ -17,21 +17,17 @@ import {
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_LOGO_IMAGE_URL,
   DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY,
-  FEEDBACKS_LOCAL_STORAGE_KEY,
-  initialFeedbacksData
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
 } from "@/data/mockData";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon, Star } from "lucide-react";
+import { PlusCircle, Save, HelpCircleIcon, Image as ImageIcon, Share2, ChevronDown, ListChecks, Palette, Youtube as YoutubeIcon } from "lucide-react";
 import { AdminAccountList } from "@/components/admin/AdminAccountList";
 import { AdminAccountForm } from "@/components/admin/AdminAccountForm";
 import { AdminFaqList } from "@/components/admin/AdminFaqList";
 import { AdminFaqForm } from "@/components/admin/AdminFaqForm";
-import { AdminFeedbackList } from "@/components/admin/AdminFeedbackList";
-import { AdminFeedbackForm } from "@/components/admin/AdminFeedbackForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/layout/Navbar";
@@ -77,16 +73,13 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 export default function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
-  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
   const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
   const [isFaqFormOpen, setIsFaqFormOpen] = useState(false);
-  const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
 
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [editingFaqItem, setEditingFaqItem] = useState<FaqItem | null>(null);
-  const [editingFeedbackItem, setEditingFeedbackItem] = useState<FeedbackItem | null>(null);
   
   const [whatsAppNumberInput, setWhatsAppNumberInput] = useState('');
   const [currentWhatsAppNumber, setCurrentWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
@@ -149,21 +142,6 @@ export default function AdminPage() {
       setFaqItems([...initialFaqData]);
       toast({ title: "Erro ao carregar FAQs", description: "Não foi possível carregar os FAQs salvos.", variant: "destructive" });
     }
-
-    // Load Feedbacks
-    try {
-      const storedFeedbacksData = localStorage.getItem(FEEDBACKS_LOCAL_STORAGE_KEY);
-      if (storedFeedbacksData) {
-        const parsedFeedbacks = JSON.parse(storedFeedbacksData) as FeedbackItem[];
-        setFeedbackItems(Array.isArray(parsedFeedbacks) ? parsedFeedbacks : [...initialFeedbacksData]);
-      } else {
-        setFeedbackItems([...initialFeedbacksData]);
-      }
-    } catch (error) {
-      console.error("Error parsing Feedbacks from localStorage:", error);
-      setFeedbackItems([...initialFeedbacksData]);
-      toast({ title: "Erro ao carregar Feedbacks", description: "Não foi possível carregar os feedbacks salvos.", variant: "destructive" });
-    }
     
     // Load WhatsApp Number, Logo, Banner, YouTube, Social Links
     const storedWhatsAppNumber = localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY);
@@ -210,10 +188,9 @@ export default function AdminPage() {
   }, [toast]);
 
 
-  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, YouTube, Social Links, Feedbacks
+  // Save Effects for Accounts, FAQs, WhatsApp, Logo, Banner, YouTube, Social Links
   useEffect(() => { if (isMounted) localStorage.setItem(ACCOUNTS_LOCAL_STORAGE_KEY, JSON.stringify(accounts)); }, [accounts, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(FAQ_LOCAL_STORAGE_KEY, JSON.stringify(faqItems)); }, [faqItems, isMounted]);
-  useEffect(() => { if (isMounted) localStorage.setItem(FEEDBACKS_LOCAL_STORAGE_KEY, JSON.stringify(feedbackItems)); }, [feedbackItems, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(WHATSAPP_LOCAL_STORAGE_KEY, currentWhatsAppNumber); }, [currentWhatsAppNumber, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY, currentLogoImageUrl); }, [currentLogoImageUrl, isMounted]);
   useEffect(() => { if (isMounted) localStorage.setItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, currentBannerImageUrl); }, [currentBannerImageUrl, isMounted]);
@@ -289,25 +266,6 @@ export default function AdminPage() {
   const openEditFaqForm = (faqItem: FaqItem) => { setEditingFaqItem({ ...faqItem }); setIsFaqFormOpen(true); };
   const openAddFaqForm = () => { setEditingFaqItem(null); setIsFaqFormOpen(true); };
 
-  // Feedback Handlers
-  const handleAddFeedbackItem = (newFeedbackItemData: Omit<FeedbackItem, "id">) => {
-    const newFeedbackItem: FeedbackItem = { ...newFeedbackItemData, id: `fbk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}` };
-    setFeedbackItems((prev) => [newFeedbackItem, ...prev]);
-    toast({ title: "Sucesso!", description: "Novo feedback adicionado." });
-    setIsFeedbackFormOpen(false);
-  };
-  const handleUpdateFeedbackItem = (updatedFeedbackItemData: FeedbackItem) => {
-    setFeedbackItems((prev) => prev.map((item) => item.id === updatedFeedbackItemData.id ? { ...item, ...updatedFeedbackItemData } : item));
-    toast({ title: "Sucesso!", description: "Feedback atualizado." });
-    setIsFeedbackFormOpen(false); setEditingFeedbackItem(null);
-  };
-  const handleDeleteFeedbackItem = (feedbackId: string) => {
-    setFeedbackItems((prev) => prev.filter((item) => item.id !== feedbackId));
-    toast({ title: "Feedback Removido", variant: "destructive" });
-  };
-  const openEditFeedbackForm = (feedbackItem: FeedbackItem) => { setEditingFeedbackItem({ ...feedbackItem }); setIsFeedbackFormOpen(true); };
-  const openAddFeedbackForm = () => { setEditingFeedbackItem(null); setIsFeedbackFormOpen(true); };
-
   // Other Save Handlers (WhatsApp, Logo, Banner, YouTube, Social Links)
   const handleSaveWhatsAppNumber = () => {
     if (whatsAppNumberInput.trim() && /^\d+$/.test(whatsAppNumberInput.trim())) {
@@ -331,6 +289,11 @@ export default function AdminPage() {
     const embedUrl = getYouTubeEmbedUrl(trimmedUrl);
     if (embedUrl) { setCurrentYoutubeVideoUrl(embedUrl); toast({ title: "Sucesso!", description: "URL do vídeo do YouTube atualizada." });
     } else { toast({ title: "Erro de Validação", description: "URL do YouTube inválida.", variant: "destructive" });}
+  };
+  const handleSocialLinkChange = (index: number, url: string) => {
+    setEditableSocialLinks(prevLinks => 
+      prevLinks.map((link, i) => i === index ? { ...link, url } : link)
+    );
   };
   const handleSaveSocialLinks = () => {
     let allValid = true;
@@ -437,31 +400,6 @@ export default function AdminPage() {
               </AccordionContent>
             </Card>
           </AccordionItem>
-
-          <AccordionItem value="feedbacks-section" className="border-none overflow-hidden rounded-lg shadow-lg">
-            <Card className="m-0 shadow-none border-none rounded-none">
-              <AccordionPrimitive.Header className="flex items-center justify-between w-full text-left bg-card data-[state=closed]:rounded-b-lg transition-all duration-300 ease-in-out">
-                <AccordionPrimitive.Trigger className={cn("flex flex-1 items-center justify-between p-6 font-medium transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:text-primary [&[data-state=closed]>svg]:text-primary/70 hover:bg-muted/50")}>
-                  <div className="flex items-center"><Star className="mr-3 h-5 w-5 text-primary" /><div><h3 className="text-xl font-semibold text-card-foreground">Gerenciar Feedbacks de Clientes</h3><p className="text-sm text-muted-foreground mt-1">Adicione, edite ou remova feedbacks exibidos na loja.</p></div></div>
-                  <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                </AccordionPrimitive.Trigger>
-              </AccordionPrimitive.Header>
-              <AccordionContent className="bg-card rounded-b-lg">
-                <div className="p-6">
-                  <div className="flex justify-end mb-4">
-                    <Dialog open={isFeedbackFormOpen} onOpenChange={(isOpen) => { setIsFeedbackFormOpen(isOpen); if (!isOpen) setEditingFeedbackItem(null); }}>
-                      <DialogTrigger asChild><Button onClick={openAddFeedbackForm} size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Adicionar Feedback</Button></DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-                        <DialogHeader><DialogTitle>{editingFeedbackItem ? "Editar Feedback" : "Adicionar Novo Feedback"}</DialogTitle></DialogHeader>
-                        <AdminFeedbackForm onSubmitFeedback={editingFeedbackItem ? handleUpdateFeedbackItem : handleAddFeedbackItem} initialData={editingFeedbackItem} onClose={() => { setIsFeedbackFormOpen(false); setEditingFeedbackItem(null); }} />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <AdminFeedbackList feedbackItems={feedbackItems} onEdit={openEditFeedbackForm} onDelete={handleDeleteFeedbackItem} />
-                </div>
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
           
           <AccordionItem value="faq-section" className="border-none overflow-hidden rounded-lg shadow-lg">
              <Card className="m-0 shadow-none border-none rounded-none">
@@ -494,3 +432,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    

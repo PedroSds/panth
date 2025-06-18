@@ -79,9 +79,4 @@ export interface SocialLink extends SocialPlatformConfigEntry {
   url: string;
 }
 
-export interface FeedbackItem {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  text?: string;
-}
+    

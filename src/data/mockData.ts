@@ -1,5 +1,5 @@
 
-import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink, FeedbackItem } from '@/types';
+import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink } from '@/types';
 import { Instagram, Twitter, Youtube, Send, Star } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
@@ -19,21 +19,6 @@ export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData';
 
 export const DEFAULT_YOUTUBE_VIDEO_URL = '';
 export const YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreYoutubeVideoUrl';
-
-export const FEEDBACKS_LOCAL_STORAGE_KEY = 'panthStoreFeedbacks';
-export const initialFeedbacksData: FeedbackItem[] = [
-  // Example Feedbacks (initially empty, loaded from localStorage)
-  // {
-  //   id: 'feedback-example-1',
-  //   name: 'Cliente Exemplo 1',
-  //   imageUrl: 'https://placehold.co/300x300.png',
-  // },
-  // {
-  //   id: 'feedback-example-2',
-  //   name: 'Cliente Exemplo 2',
-  //   text: 'Serviço incrível e muito rápido! Recomendo a todos.',
-  // },
-];
 
 
 export const customAccountServiceData: Account = {
@@ -188,3 +173,5 @@ export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(pla
     url: '', // Initially empty, will be loaded from localStorage or kept empty
   };
 });
+
+    

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem, SocialLink, FeedbackItem } from '@/types';
+import type { Account, FaqItem, SocialLink } from '@/types';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { 
@@ -19,12 +19,9 @@ import {
   DEFAULT_LOGO_IMAGE_URL,
   LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
   DEFAULT_YOUTUBE_VIDEO_URL,
-  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY,
-  FEEDBACKS_LOCAL_STORAGE_KEY,
-  initialFeedbacksData as fallbackFeedbacksData
+  YOUTUBE_VIDEO_URL_LOCAL_STORAGE_KEY
 } from '@/data/mockData';
 import { AccountCard } from '@/components/AccountCard';
-import { FeedbackSection } from '@/components/FeedbackSection';
 import { FaqSection } from '@/components/FaqSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Button } from '@/components/ui/button';
@@ -36,7 +33,6 @@ const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
 export default function HomePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
-  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
   const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
   const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
@@ -57,20 +53,6 @@ export default function HomePage() {
       }
     } else {
       setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
-    }
-
-    // Load Feedbacks
-    const storedFeedbacksData = localStorage.getItem(FEEDBACKS_LOCAL_STORAGE_KEY);
-    if (storedFeedbacksData) {
-      try {
-        const parsedFeedbacks = JSON.parse(storedFeedbacksData) as FeedbackItem[];
-        setFeedbackItems(Array.isArray(parsedFeedbacks) ? parsedFeedbacks : fallbackFeedbacksData);
-      } catch (error) {
-        console.error("Error parsing feedbacks from localStorage for homepage:", error);
-        setFeedbackItems(fallbackFeedbacksData);
-      }
-    } else {
-      setFeedbackItems(fallbackFeedbacksData);
     }
 
     // Load FAQs
@@ -127,12 +109,11 @@ export default function HomePage() {
   const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
   
   const showYouTubeSection = isMounted && youtubeVideoUrl;
-  const showFeedbackSection = feedbackItems.length > 0;
   const showFaqSection = faqItems.length > 0;
   const showContactSection = hasActiveSocialLinks;
 
   // Determine if any content section (other than hero) will be displayed
-  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showYouTubeSection || showFeedbackSection || showFaqSection || showContactSection;
+  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showYouTubeSection || showFaqSection || showContactSection;
 
 
   return (
@@ -178,7 +159,7 @@ export default function HomePage() {
                 ))}
                 </div>
             ) : (
-                !showYouTubeSection && !showFeedbackSection && !showFaqSection && !showContactSection && ( // Only show if no other content follows
+                !showYouTubeSection && !showFaqSection && !showContactSection && ( // Only show if no other content follows
                     <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
                 )
             )}
@@ -204,11 +185,6 @@ export default function HomePage() {
           </section>
         )}
         
-        {/* Feedbacks Section */}
-        {showFeedbackSection && (
-           <FeedbackSection feedbackItems={feedbackItems} />
-        )}
-        
         {/* FAQ Section */}
         {showFaqSection && (
           <section id="faq-container" className="py-12 md:py-16 lg:py-20 bg-background">
@@ -224,7 +200,7 @@ export default function HomePage() {
         )}
 
         {/* Fallback content if no main sections are visible and no accounts shown above */}
-        {visibleAndUnsoldAccounts.length === 0 && !showYouTubeSection && !showFeedbackSection && !showFaqSection && !showContactSection && (
+        {visibleAndUnsoldAccounts.length === 0 && !showYouTubeSection && !showFaqSection && !showContactSection && (
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
               <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
           </div>
@@ -234,3 +210,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
