@@ -26,7 +26,7 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) { // Renamed prop 
   const effectiveLogoUrl = logoUrlProp || DEFAULT_LOGO_IMAGE_URL;
 
   const navLinks = [
-    { href: "/inicio", label: "Início" },
+    { href: "/", label: "Início" },
     { href: "/contas", label: "Contas" },
     { href: "/video", label: "Vídeo" },
     { href: "/faq", label: "FAQ" },
@@ -38,7 +38,7 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) { // Renamed prop 
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
           <Link
-            href="/inicio"
+            href="/"
             className="flex items-center text-primary hover:opacity-80 transition-opacity"
             aria-label="Voltar para o início da página PanthStore"
           >
