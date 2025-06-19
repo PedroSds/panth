@@ -2,6 +2,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'export', // Adicionado para exportação estática
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -10,7 +11,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    // unoptimized: true, // Removed for Netlify SSR builds
+    // unoptimized: true, // Considerar se houver problemas com next/image em exportações estáticas
     remotePatterns: [
       {
         protocol: 'https',
