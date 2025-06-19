@@ -24,10 +24,10 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) {
   const effectiveLogoUrl = logoUrlProp || DEFAULT_LOGO_IMAGE_URL;
 
   const navLinks = [
-    { href: "/#inicio", label: "Início" }, // href alterado para /#inicio
+    { href: "/#inicio", label: "Início" },
     { href: "/#contas", label: "Contas" },
-    { href: "/#faq", label: "FAQ" },
     { href: "/#contact", label: "Contato" },
+    { href: "/#faq", label: "FAQ" },
   ];
 
   return (
