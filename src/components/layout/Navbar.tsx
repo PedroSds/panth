@@ -24,7 +24,7 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) {
   const effectiveLogoUrl = logoUrlProp || DEFAULT_LOGO_IMAGE_URL;
 
   const navLinks = [
-    { href: "/#page-top", label: "Início" },
+    { href: "/", label: "Início" },
     { href: "/#contas", label: "Contas" },
     { href: "/#video-player", label: "Vídeo" },
     { href: "/#faq", label: "FAQ" },
