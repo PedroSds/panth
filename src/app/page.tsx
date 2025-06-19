@@ -84,7 +84,7 @@ export default function HomePage() {
             100% SEGURA DE BANIMENTOS
           </p>
           <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary-foreground px-10 py-6 text-lg font-semibold">
-            <Link href="/#available-accounts-content">VER CONTAS DISPONÍVEIS</Link>
+            <Link href="/#contas">VER CONTAS DISPONÍVEIS</Link>
           </Button>
         </div>
         <div
@@ -99,7 +99,7 @@ export default function HomePage() {
 
       {/* Available Accounts Section */}
       <section
-        id="available-accounts-content"
+        id="contas"
         className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20 pt-0"
         style={accountsSectionStyleValues}
       >
