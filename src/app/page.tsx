@@ -178,7 +178,7 @@ export default function HomePage() {
           data-ai-hint="game hero background"
         >
           <div className="absolute inset-0 bg-black/60"></div>
-          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-56 lg:pb-64">
+          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-64 lg:pb-72">
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
               COMPRE SUA SMURF DE LEAGUE OF LEGENDS
             </h1>
