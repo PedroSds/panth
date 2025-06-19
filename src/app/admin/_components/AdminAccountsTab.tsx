@@ -30,9 +30,18 @@ export default function AdminAccountsTab() {
           
           const fallbackCustomService = fallbackAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
 
-          const currentCustomService = customServiceFromStorage 
-            ? { ...fallbackCustomService, ...customServiceFromStorage, name: fallbackCustomService.name, details: fallbackCustomService.details, isCustomService: true, automaticDeliveryLink: fallbackCustomService.automaticDeliveryLink }
-            : { ...fallbackCustomService };
+          let currentCustomService;
+          if (customServiceFromStorage) {
+              currentCustomService = { 
+                  ...fallbackCustomService, // Pega a estrutura base e valores padrão
+                  ...customServiceFromStorage, // Sobrescreve com os dados do localStorage (incluindo nome, detalhes, preço, imagem, isVisible, automaticDeliveryLink atualizados)
+                  id: CUSTOM_ACCOUNT_SERVICE_ID, // Garante o ID correto
+                  isCustomService: true, // Garante la flag correta
+                  isSold: fallbackCustomService.isSold // Garante que isSold para o serviço personalizado não seja alterado (vem do fallback)
+              };
+          } else {
+              currentCustomService = { ...fallbackCustomService }; // Se não há nada no storage, usa o fallback
+          }
             
           setAccounts([currentCustomService, ...otherAccounts].sort((a, b) => (a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1 : 0) ));
         } else {
