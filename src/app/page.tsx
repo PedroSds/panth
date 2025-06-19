@@ -94,14 +94,14 @@ export default function HomePage() {
       </section>
 
       {/* Available Accounts Section */}
-      <section 
-        id="available-accounts-content" 
-        className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20"
+      <section
+        id="available-accounts-content"
+        className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20 pt-0" // Ensured pt-0 on section
         style={accountsSectionStyle}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-0"> {/* Ensured pt-0 on container */}
           {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Removed pt-8 here */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-0"> {/* Ensured pt-0 on grid container */}
               {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
@@ -118,7 +118,7 @@ export default function HomePage() {
           <div className="text-center mb-8">
             <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
               <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
-              <h2 id="video-heading-mainpage" className="text-2xl sm:text-3xl font-headline font-semibold text-primary"> {/* Changed ID to avoid conflict if VideoPage component is reused */}
+              <h2 id="video-heading-mainpage" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
                 Como comprar com segurança:
               </h2>
             </div>
