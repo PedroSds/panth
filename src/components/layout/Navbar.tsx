@@ -24,7 +24,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
 
   const navLinks = [
     { href: "/#page-top", label: "Início" },
-    { href: "/#available-accounts", label: "Contas" },
+    { href: "/#available-accounts-content", label: "Contas" },
     { href: "/#contact", label: "Contato" },
     { href: "/#faq", label: "FAQ" },
   ];
