@@ -49,7 +49,7 @@ export default function HomePage() {
   const waveFillColor = accountsSectionStyleValues.backgroundColor || bodyBackgroundColor;
 
   const waveContainerStyle: React.CSSProperties = {
-    transform: 'translateY(1px)', // Slight adjustment to avoid thin lines on some browsers
+    transform: 'translateY(1px)', 
     color: waveFillColor,
   };
 
@@ -69,9 +69,9 @@ export default function HomePage() {
     <main className="flex-grow">
       {/* Hero Section */}
       <section
-        id="hero"
+        id="inicio" // ID alterado de "hero" para "inicio"
         aria-labelledby="hero-heading"
-        className="relative text-white bg-cover bg-center"
+        className="relative text-white bg-cover bg-center scroll-mt-20" // Adicionado scroll-mt-20
         style={{ backgroundImage: `url(${effectiveBannerImageUrl})` }}
         data-ai-hint="game hero background"
       >
