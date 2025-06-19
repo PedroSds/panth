@@ -69,9 +69,9 @@ export default function HomePage() {
     <main className="flex-grow">
       {/* Hero Section */}
       <section
-        id="inicio" // ID alterado de "hero" para "inicio"
+        id="inicio"
         aria-labelledby="hero-heading"
-        className="relative text-white bg-cover bg-center scroll-mt-20" // Adicionado scroll-mt-20
+        className="relative text-white bg-cover bg-center scroll-mt-20"
         style={{ backgroundImage: `url(${effectiveBannerImageUrl})` }}
         data-ai-hint="game hero background"
       >
@@ -117,22 +117,22 @@ export default function HomePage() {
       </section>
 
       {/* Video Section */}
-      <section id="video-player" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={videoSectionStyle}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
-              <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
-              <h2 id="video-heading-mainpage" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
-                Como comprar com segurança:
-              </h2>
+      {showVideoSection && (
+        <section id="video-player" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={videoSectionStyle}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
+                <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
+                <h2 id="video-heading-mainpage" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
+                  Como comprar com segurança:
+                </h2>
+              </div>
             </div>
-          </div>
-          {showVideoSection ? (
             <div className="aspect-video w-full max-w-3xl mx-auto rounded-lg shadow-2xl overflow-hidden border border-border">
               <iframe
                 width="100%"
                 height="100%"
-                src={videoUrl}
+                src={videoUrl} // videoUrl is guaranteed to be non-empty here
                 title="Vídeo em destaque"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -140,11 +140,9 @@ export default function HomePage() {
                 className="rounded-md">
               </iframe>
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-8">Nenhum vídeo configurado no momento.</p>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* FAQ Section */}
       <section id="faq" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={faqSectionStyle}>
@@ -158,15 +156,13 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={contactSectionStyle}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {hasActiveSocialLinks ? (
+      {hasActiveSocialLinks && (
+        <section id="contact" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={contactSectionStyle}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <ContactSection socialLinks={socialLinks} />
-          ) : (
-            <p className="text-center text-muted-foreground py-8">Nenhuma informação de contato configurada no momento.</p>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
