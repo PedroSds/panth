@@ -94,11 +94,14 @@ export default function HomePage() {
       </section>
 
       {/* Available Accounts Section */}
-      <section id="available-accounts-content" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={accountsSectionStyle}>
+      <section 
+        id="available-accounts-content" 
+        className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20"  // Removed py-..., relying on pt-8 of inner div for top spacing of cards
+        style={accountsSectionStyle}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* O título "Contas e Serviços Disponíveis" foi removido daqui */}
           {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"> {/* Mantido pt-8 para algum espaçamento superior */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"> {/* pt-8 here provides spacing for cards */}
               {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
