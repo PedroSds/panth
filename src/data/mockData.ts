@@ -22,6 +22,17 @@ export const VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreVideoUrl';
 
 export const SECTION_STYLES_LOCAL_STORAGE_KEY = 'panthStoreSectionStyles';
 
+// Favicon URLs and localStorage keys
+export const DEFAULT_FAVICON_ICO_URL = '/favicon.ico'; // Default to a static one if not set
+export const FAVICON_ICO_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconIcoUrl';
+export const DEFAULT_FAVICON_PNG_URL = '/icon.png'; // Default to a static one if not set
+export const FAVICON_PNG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconPngUrl';
+export const DEFAULT_FAVICON_SVG_URL = '/icon.svg'; // Default to a static one if not set
+export const FAVICON_SVG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconSvgUrl';
+export const DEFAULT_APPLE_ICON_URL = '/apple-icon.png'; // Default to a static one if not set
+export const APPLE_ICON_URL_LOCAL_STORAGE_KEY = 'panthStoreAppleIconUrl';
+
+
 export const initialSectionStyles: PageSectionStyles = {
   accounts: undefined,
   video: undefined,
