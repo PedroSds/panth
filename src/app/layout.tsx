@@ -1,38 +1,37 @@
 
-'use client'; // Tornando este um Client Component
+'use client';
 
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import React, { useState, useEffect } from 'react';
-import { 
-  DEFAULT_FAVICON_ICO_URL, 
+import React, { useState, useEffect, useContext } from 'react'; // Added useContext
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
+import { StoreDataProvider, StoreDataContext, type StoreDataContextType } from '@/contexts/StoreDataContext'; // Import context
+import {
+  DEFAULT_FAVICON_ICO_URL,
   FAVICON_ICO_URL_LOCAL_STORAGE_KEY,
   DEFAULT_FAVICON_PNG_URL,
   FAVICON_PNG_URL_LOCAL_STORAGE_KEY,
   DEFAULT_FAVICON_SVG_URL,
   FAVICON_SVG_URL_LOCAL_STORAGE_KEY,
   DEFAULT_APPLE_ICON_URL,
-  APPLE_ICON_URL_LOCAL_STORAGE_KEY
+  APPLE_ICON_URL_LOCAL_STORAGE_KEY,
+  DEFAULT_LOGO_IMAGE_URL // Added missing import
 } from '@/data/mockData';
 
-// Não podemos exportar 'metadata' de um Client Component.
-// O título e a descrição serão definidos dinamicamente no useEffect.
+// RootLayoutContent handles dynamic parts that need context
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const context = useContext(StoreDataContext);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  // Favicon states are now local to this component, but could be from context if preferred
   const [faviconIcoUrl, setFaviconIcoUrl] = useState(DEFAULT_FAVICON_ICO_URL);
   const [faviconPngUrl, setFaviconPngUrl] = useState(DEFAULT_FAVICON_PNG_URL);
   const [faviconSvgUrl, setFaviconSvgUrl] = useState(DEFAULT_FAVICON_SVG_URL);
   const [appleIconUrl, setAppleIconUrl] = useState(DEFAULT_APPLE_ICON_URL);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMountedForFavicon, setIsMountedForFavicon] = useState(false); // Renamed to avoid conflict
 
   useEffect(() => {
-    // Definir título e meta descrição dinamicamente
     document.title = 'PanthStore';
-    
     let descriptionMeta = document.querySelector('meta[name="description"]');
     if (!descriptionMeta) {
       descriptionMeta = document.createElement('meta');
@@ -41,26 +40,26 @@ export default function RootLayout({
     }
     descriptionMeta.setAttribute('content', 'Encontre sua conta perfeita de League of Legends!');
 
-    // Carregar URLs de favicon do localStorage
     setFaviconIcoUrl(localStorage.getItem(FAVICON_ICO_URL_LOCAL_STORAGE_KEY) || DEFAULT_FAVICON_ICO_URL);
     setFaviconPngUrl(localStorage.getItem(FAVICON_PNG_URL_LOCAL_STORAGE_KEY) || DEFAULT_FAVICON_PNG_URL);
     setFaviconSvgUrl(localStorage.getItem(FAVICON_SVG_URL_LOCAL_STORAGE_KEY) || DEFAULT_FAVICON_SVG_URL);
     setAppleIconUrl(localStorage.getItem(APPLE_ICON_URL_LOCAL_STORAGE_KEY) || DEFAULT_APPLE_ICON_URL);
     
-    setIsMounted(true);
+    setIsMountedForFavicon(true);
   }, []);
+
+  // Ensure context is loaded before rendering Navbar
+  const logoUrl = context?.isMounted ? context.logoImageUrl : DEFAULT_LOGO_IMAGE_URL;
 
   return (
     <html lang="pt-BR">
       <head>
-        {/* Favicons dinâmicos baseados no localStorage */}
-        {isMounted && faviconIcoUrl && faviconIcoUrl.trim() !== '' && <link key="favicon-ico" rel="icon" href={faviconIcoUrl} sizes="any" />}
-        {isMounted && faviconPngUrl && faviconPngUrl.trim() !== '' && <link key="favicon-png" rel="icon" href={faviconPngUrl} type="image/png" />}
-        {isMounted && faviconSvgUrl && faviconSvgUrl.trim() !== '' && <link key="favicon-svg" rel="icon" href={faviconSvgUrl} type="image/svg+xml" />}
-        {isMounted && appleIconUrl && appleIconUrl.trim() !== '' && <link key="apple-icon" rel="apple-touch-icon" href={appleIconUrl} />}
+        {isMountedForFavicon && faviconIcoUrl && faviconIcoUrl.trim() !== '' && <link key="favicon-ico" rel="icon" href={faviconIcoUrl} sizes="any" />}
+        {isMountedForFavicon && faviconPngUrl && faviconPngUrl.trim() !== '' && <link key="favicon-png" rel="icon" href={faviconPngUrl} type="image/png" />}
+        {isMountedForFavicon && faviconSvgUrl && faviconSvgUrl.trim() !== '' && <link key="favicon-svg" rel="icon" href={faviconSvgUrl} type="image/svg+xml" />}
+        {isMountedForFavicon && appleIconUrl && appleIconUrl.trim() !== '' && <link key="apple-icon" rel="apple-touch-icon" href={appleIconUrl} />}
         
-        {/* Fallback para favicons estáticos se os do localStorage não forem válidos ou não estiverem montados */}
-        {!isMounted && (
+        {!isMountedForFavicon && (
             <>
                 <link key="default-favicon-ico" rel="icon" href={DEFAULT_FAVICON_ICO_URL} sizes="any" />
                 <link key="default-favicon-png" rel="icon" href={DEFAULT_FAVICON_PNG_URL} type="image/png" />
@@ -73,10 +72,26 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased" id="page-top">
-        {children}
+      <body className="font-body antialiased flex flex-col min-h-screen" id="page-top">
+        <Navbar logoUrl={logoUrl} />
+        <div className="flex-grow">
+            {children}
+        </div>
+        <Footer />
         <Toaster />
       </body>
     </html>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <StoreDataProvider>
+      <RootLayoutContent>{children}</RootLayoutContent>
+    </StoreDataProvider>
   );
 }

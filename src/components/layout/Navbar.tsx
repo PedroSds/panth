@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useContext } from 'react'; // Added useContext
 import Link from 'next/link';
 import { DEFAULT_LOGO_IMAGE_URL } from '@/data/mockData';
 import { Menu } from 'lucide-react';
@@ -11,31 +11,34 @@ import {
   SheetContent,
   SheetClose,
   SheetTrigger,
-  SheetTitle, // Added SheetTitle import
+  SheetTitle,
 } from "@/components/ui/sheet";
+// Removed StoreDataContext import as logoUrl will be passed as prop
 
 interface NavbarProps {
-  logoUrl?: string;
+  logoUrl?: string; // Keep this prop
 }
 
-export function Navbar({ logoUrl }: NavbarProps) {
-  const effectiveLogoUrl = logoUrl || DEFAULT_LOGO_IMAGE_URL;
+export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) { // Renamed prop to avoid conflict
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Use logoUrlProp if provided, otherwise default
+  const effectiveLogoUrl = logoUrlProp || DEFAULT_LOGO_IMAGE_URL;
 
   const navLinks = [
-    { href: "/#page-top", label: "Início" },
-    { href: "/#available-accounts-content", label: "Contas" },
-    { href: "/#contact", label: "Contato" },
-    { href: "/#faq", label: "FAQ" },
+    { href: "/", label: "Início" },
+    { href: "/contas", label: "Contas" },
+    { href: "/video", label: "Vídeo" },
+    { href: "/faq", label: "FAQ" },
+    { href: "/contato", label: "Contato" },
   ];
 
   return (
     <header className="bg-card shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logotipo */}
           <Link
-            href="/#page-top"
+            href="/"
             className="flex items-center text-primary hover:opacity-80 transition-opacity"
             aria-label="Voltar para o início da página PanthStore"
           >
@@ -44,7 +47,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
               alt="PanthStore Logo"
               style={{
                 height: '70px',
-                width: 'auto', 
+                width: 'auto',
                 objectFit: 'contain',
                 display: 'block',
               }}
@@ -52,7 +55,6 @@ export function Navbar({ logoUrl }: NavbarProps) {
             />
           </Link>
 
-          {/* Navegação Desktop */}
           <nav className="hidden md:flex items-center">
             <ul className="flex items-center space-x-4 md:space-x-6">
               {navLinks.map((link) => (
@@ -68,7 +70,6 @@ export function Navbar({ logoUrl }: NavbarProps) {
             </ul>
           </nav>
 
-          {/* Navegação Mobile (Hamburger) */}
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -77,7 +78,7 @@ export function Navbar({ logoUrl }: NavbarProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-card">
-                <SheetTitle className="sr-only">Menu de Navegação</SheetTitle> {/* Added visually hidden title */}
+                <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
                 <nav className="flex flex-col space-y-5 pt-8 text-lg">
                   {navLinks.map((link) => (
                     <SheetClose asChild key={link.href}>

@@ -1,299 +1,79 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import Link from 'next/link';
-import type { Account, FaqItem, SocialLink, PageSectionStyles, SectionIdentifier } from '@/types';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
-import { 
-  accountsData as fallbackAccountsData, 
-  DEFAULT_WHATSAPP_PHONE_NUMBER, 
-  initialFaqData as fallbackFaqData, 
-  FAQ_LOCAL_STORAGE_KEY, 
-  DEFAULT_BANNER_IMAGE_URL, 
-  BANNER_IMAGE_URL_LOCAL_STORAGE_KEY, 
-  SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY, 
-  initialSocialLinksData, 
-  socialPlatformConfig,
-  DEFAULT_LOGO_IMAGE_URL,
-  LOGO_IMAGE_URL_LOCAL_STORAGE_KEY,
-  DEFAULT_VIDEO_URL,
-  VIDEO_URL_LOCAL_STORAGE_KEY,
-  SECTION_STYLES_LOCAL_STORAGE_KEY,
-  initialSectionStyles,
-  sectionConfig
-} from '@/data/mockData';
-import { AccountCard } from '@/components/AccountCard';
-import { FaqSection } from '@/components/FaqSection';
-import { ContactSection } from '@/components/ContactSection';
+import { StoreDataContext, type StoreDataContextType } from '@/contexts/StoreDataContext';
 import { Button } from '@/components/ui/button';
-import { Film } from 'lucide-react';
-
-const ACCOUNTS_LOCAL_STORAGE_KEY = 'panthStoreAccounts';
-const WHATSAPP_LOCAL_STORAGE_KEY = 'panthStoreWhatsAppNumber';
+import { DEFAULT_BANNER_IMAGE_URL } from '@/data/mockData'; // For fallback before mount
 
 export default function HomePage() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
-  const [whatsAppNumber, setWhatsAppNumber] = useState(DEFAULT_WHATSAPP_PHONE_NUMBER);
-  const [logoImageUrl, setLogoImageUrl] = useState(DEFAULT_LOGO_IMAGE_URL);
-  const [bannerImageUrl, setBannerImageUrl] = useState(DEFAULT_BANNER_IMAGE_URL);
-  const [videoUrl, setVideoUrl] = useState(DEFAULT_VIDEO_URL);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinksData);
-  const [currentSectionStyles, setCurrentSectionStyles] = useState<PageSectionStyles>(initialSectionStyles);
-  const [isMounted, setIsMounted] = useState(false);
+  const context = useContext(StoreDataContext);
 
-  useEffect(() => {
-    // Load Accounts
-    const storedAccountsData = localStorage.getItem(ACCOUNTS_LOCAL_STORAGE_KEY);
-    if (storedAccountsData) {
-      try {
-        const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-        setAccounts(Array.isArray(parsedAccounts) ? parsedAccounts : fallbackAccountsData.map(acc => ({ ...acc })));
-      } catch (error) {
-        console.error("Error parsing accounts from localStorage for homepage:", error);
-        setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
-      }
-    } else {
-      setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
-    }
-
-    // Load FAQs
-    const storedFaqData = localStorage.getItem(FAQ_LOCAL_STORAGE_KEY);
-    if (storedFaqData) {
-      try {
-        const parsedFaqs = JSON.parse(storedFaqData) as FaqItem[];
-        setFaqItems(Array.isArray(parsedFaqs) ? parsedFaqs : [...fallbackFaqData]);
-      } catch (error) {
-        console.error("Error parsing FAQs from localStorage for homepage:", error);
-        setFaqItems([...fallbackFaqData]);
-      }
-    } else {
-      setFaqItems([...fallbackFaqData]);
-    }
-
-    // Load WhatsApp Number, Logo, Banner, Video, Social Links
-    setWhatsAppNumber(localStorage.getItem(WHATSAPP_LOCAL_STORAGE_KEY) || DEFAULT_WHATSAPP_PHONE_NUMBER);
-    setLogoImageUrl(localStorage.getItem(LOGO_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_LOGO_IMAGE_URL);
-    setBannerImageUrl(localStorage.getItem(BANNER_IMAGE_URL_LOCAL_STORAGE_KEY) || DEFAULT_BANNER_IMAGE_URL);
-    setVideoUrl(localStorage.getItem(VIDEO_URL_LOCAL_STORAGE_KEY) || DEFAULT_VIDEO_URL);
-
-    const storedSocialLinksData = localStorage.getItem(SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY);
-    if (storedSocialLinksData) {
-        try {
-            const parsedStoredLinks = JSON.parse(storedSocialLinksData) as Partial<SocialLink>[];
-            const mergedLinks = socialPlatformConfig.map(configPlatform => {
-                const storedPlatform = parsedStoredLinks.find(p => p.key === configPlatform.key);
-                return { ...configPlatform, url: storedPlatform?.url || '' };
-            });
-            setSocialLinks(mergedLinks);
-        } catch (error) {
-            console.error("Error parsing social media links from localStorage for homepage:", error);
-            setSocialLinks(initialSocialLinksData.map(link => ({...link})));
-        }
-    } else {
-        setSocialLinks(initialSocialLinksData.map(link => ({...link})));
-    }
-
-    // Load Section Styles
-    const storedSectionStylesData = localStorage.getItem(SECTION_STYLES_LOCAL_STORAGE_KEY);
-    if (storedSectionStylesData) {
-      try {
-        const parsedStyles = JSON.parse(storedSectionStylesData) as PageSectionStyles;
-        const validatedStyles: PageSectionStyles = { ...initialSectionStyles };
-         for (const config of sectionConfig) {
-          if (parsedStyles[config.key]) {
-            validatedStyles[config.key] = parsedStyles[config.key];
-          }
-        }
-        setCurrentSectionStyles(validatedStyles);
-      } catch (error) {
-        console.error("Error parsing section styles from localStorage for homepage:", error);
-        setCurrentSectionStyles(initialSectionStyles);
-      }
-    } else {
-      setCurrentSectionStyles(initialSectionStyles);
-    }
-
-    setIsMounted(true);
-  }, []);
-
-  const getSectionStyle = (sectionKey: SectionIdentifier): React.CSSProperties => {
-    const style = currentSectionStyles[sectionKey];
-    const cssProps: React.CSSProperties = {};
-    if (style?.bgImageUrl && style.bgImageUrl.trim() !== '') {
-      cssProps.backgroundImage = `url(${style.bgImageUrl})`;
-      cssProps.backgroundSize = 'cover';
-      cssProps.backgroundPosition = 'center';
-      cssProps.backgroundRepeat = 'no-repeat';
-    } else if (style?.bgColor && style.bgColor.trim() !== '') {
-      cssProps.backgroundColor = style.bgColor;
-    }
-    return cssProps;
-  };
-
-
-  if (!isMounted) {
+  if (!context) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar logoUrl={DEFAULT_LOGO_IMAGE_URL} />
-        <main className="flex-grow container mx-auto px-4 py-8"><p>Carregando loja...</p></main>
-        <Footer />
-      </div>
+        <main className="flex-grow container mx-auto px-4 py-8 text-center">
+            <p>Erro ao carregar dados da loja...</p>
+        </main>
     );
   }
 
-  const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
-  const hasActiveSocialLinks = socialLinks.some(p => p.url && p.url.trim() !== '');
-  
-  const showVideoSection = isMounted && videoUrl && videoUrl.trim() !== '';
-  const showFaqSection = faqItems.length > 0;
-  const showContactSection = hasActiveSocialLinks;
+  const { bannerImageUrl, isMounted, getSectionStyle } = context;
+  const effectiveBannerImageUrl = isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL;
 
-  const accountsSectionStyle = getSectionStyle('accounts');
-  const videoSectionStyle = getSectionStyle('video');
-  const faqSectionStyle = getSectionStyle('faq');
-  const contactSectionStyle = getSectionStyle('contact');
+  // For the wave, use a generic background color or the body background.
+  // The 'accounts' section is now on a separate page.
+  const bodyBackgroundColor = typeof window !== 'undefined' 
+    ? getComputedStyle(document.body).backgroundColor || 'hsl(var(--background))'
+    : 'hsl(var(--background))';
   
-  // Determine if any content section (other than hero) will be displayed
-  const hasAnyContentSection = visibleAndUnsoldAccounts.length > 0 || showVideoSection || showFaqSection || showContactSection;
-
   const waveContainerStyle: React.CSSProperties = {
-    transform: 'translateY(1px)', // Keep the slight overlap for seamless transition
-    color: accountsSectionStyle.backgroundColor || 'hsl(var(--background))', // Dynamic color or fallback
+    transform: 'translateY(1px)',
+    color: bodyBackgroundColor,
   };
 
-
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Navbar logoUrl={logoImageUrl} />
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <section
-          id="hero"
-          aria-labelledby="hero-heading"
-          className="relative text-white bg-cover bg-center"
-          style={{ backgroundImage: `url(${isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL})` }}
-          data-ai-hint="game hero background"
+    <main className="flex-grow">
+      {/* Hero Section */}
+      <section
+        id="hero"
+        aria-labelledby="hero-heading"
+        className="relative text-white bg-cover bg-center"
+        style={{ backgroundImage: `url(${effectiveBannerImageUrl})` }}
+        data-ai-hint="game hero background"
+      >
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-64 lg:pb-72">
+          <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
+            COMPRE SUA SMURF DE LEAGUE OF LEGENDS
+          </h1>
+          <p className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-3xl mx-auto text-shadow-md">
+            100% SEGURA DE BANIMENTOS
+          </p>
+          <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary-foreground px-10 py-6 text-lg font-semibold">
+            <Link href="/contas">VER CONTAS DISPONÍVEIS</Link>
+          </Button>
+        </div>
+        <div 
+          className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0px]" 
+          style={waveContainerStyle}
         >
-          <div className="absolute inset-0 bg-black/60"></div>
-          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20 pb-28 sm:pt-28 sm:pb-36 lg:pt-64 lg:pb-72">
-            <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-headline font-bold mb-4 text-shadow-lg">
-              COMPRE SUA SMURF DE LEAGUE OF LEGENDS
-            </h1>
-            <p className="text-xl sm:text-2xl text-neutral-200 mb-10 max-w-3xl mx-auto text-shadow-md">
-              100% SEGURA DE BANIMENTOS
-            </p>
-            <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-primary-foreground px-10 py-6 text-lg font-semibold">
-              <Link href="/#available-accounts-content">VER CONTAS DISPONÍVEIS</Link>
-            </Button>
-          </div>
-          {hasAnyContentSection && (
-            <div 
-              className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0px]" 
-              style={waveContainerStyle}
-            >
-              <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block " style={{ minHeight: '40px', maxHeight: '120px' }}>
-                <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
-              </svg>
-            </div>
-          )}
-        </section>
-
-        {/* Available Accounts Section */}
-        <section 
-          aria-labelledby="available-accounts-heading" 
-          className="py-12 md:py-16 lg:py-20"
-          style={accountsSectionStyle}
-        >
-          <div id="available-accounts-content" className="container mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-            {visibleAndUnsoldAccounts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
-                {visibleAndUnsoldAccounts.map(account => (
-                    <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
-                ))}
-                </div>
-            ) : (
-                !showVideoSection && !showFaqSection && !showContactSection && ( 
-                    <p className="text-center text-muted-foreground py-8">Nenhuma conta ou serviço disponível no momento. Volte em breve!</p>
-                )
-            )}
-          </div>
-        </section>
-
-        {/* Video Section */}
-        {showVideoSection && (
-          <section 
-            id="video-player" 
-            aria-labelledby="video-heading" 
-            className="py-12 md:py-16 lg:py-20"
-            style={videoSectionStyle}
-          >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-8">
-                <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
-                  <Film className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mb-2 sm:mb-0 sm:mr-3" />
-                  <h2 id="video-heading" className="text-2xl sm:text-3xl font-headline font-semibold text-primary">
-                    Veja como comprar com segurança:
-                  </h2>
-                </div>
-              </div>
-              <div className="aspect-video w-full max-w-3xl mx-auto rounded-lg shadow-2xl overflow-hidden border border-border">
-                <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src={videoUrl!} 
-                    title="Vídeo em destaque" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                    className="rounded-md">
-                </iframe>
-              </div>
-            </div>
-          </section>
-        )}
-        
-        {/* FAQ Section */}
-        {showFaqSection && (
-          <section 
-            id="faq-container" 
-            className="py-12 md:py-16 lg:py-20"
-            style={faqSectionStyle}
-          >
-             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <FaqSection faqItems={faqItems} />
-             </div>
-          </section>
-        )}
-        
-        {/* Contact Section */}
-        {showContactSection && (
-           <section 
-            id="contact-outer-wrapper" 
-            className="pt-4 pb-12 md:pt-6 md:pb-16 lg:pt-8 lg:pb-20"
-            style={contactSectionStyle}
-           >
-             <ContactSection socialLinks={socialLinks} />
-           </section>
-        )}
-
-        {/* Fallback content if no main sections are visible and no accounts shown above */}
-        {visibleAndUnsoldAccounts.length === 0 && !showVideoSection && !showFaqSection && !showContactSection && (
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-              <p className="text-muted-foreground">Nenhum conteúdo disponível no momento. Volte em breve!</p>
-          </div>
-        )}
-      </main>
-      <Footer />
-    </div>
+          <svg viewBox="0 0 1440 80" preserveAspectRatio="none" className="w-full h-auto block " style={{ minHeight: '40px', maxHeight: '120px' }}>
+            <path d="M0,40 C360,0 1080,80 1440,40 L1440,80 L0,80 Z" fill="currentColor"></path>
+          </svg>
+        </div>
+      </section>
+      
+      {/* Placeholder for additional home-specific content if needed in the future */}
+      {/* Example: Call to action or brief intro */}
+      <section className="py-12 md:py-16 lg:py-20 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-headline font-semibold text-primary mb-4">Bem-vindo à PanthStore!</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Sua fonte confiável para contas de League of Legends. Explore nossas contas prontas ou solicite uma personalizada.
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
-    
-    
-    
-
-    
-
-    
