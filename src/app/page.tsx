@@ -41,10 +41,10 @@ export default function HomePage() {
   const contactSectionStyle = getSectionStyle('contact');
   
   const bodyBackgroundColor = typeof window !== 'undefined'
-    ? getComputedStyle(document.documentElement).getPropertyValue('--background') // Get from CSS var for consistency
+    ? getComputedStyle(document.documentElement).getPropertyValue('--background') 
       ? `hsl(${getComputedStyle(document.documentElement).getPropertyValue('--background')})` 
-      : getComputedStyle(document.body).backgroundColor || 'hsl(0 0% 96%)' // Fallback to body or default
-    : 'hsl(0 0% 96%)'; // Default for SSR
+      : getComputedStyle(document.body).backgroundColor || 'hsl(0 0% 96%)'
+    : 'hsl(0 0% 96%)';
 
   const waveFillColor = accountsSectionStyle.backgroundColor || bodyBackgroundColor;
 
@@ -105,7 +105,7 @@ export default function HomePage() {
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-0">
           {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
               {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
