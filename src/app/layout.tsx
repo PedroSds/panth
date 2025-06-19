@@ -7,6 +7,23 @@ import React from 'react';
 export const metadata: Metadata = {
   title: 'PanthStore',
   description: 'Encontre sua conta perfeita de League of Legends!',
+  icons: {
+    icon: [
+      // Use um array para fornecer múltiplos ícones para diferentes propósitos ou formatos
+      // O navegador escolherá o mais apropriado.
+      // Coloque seu arquivo icon.svg ou icon.png em src/app/
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', type: 'image/png' },
+      // Para o favicon.ico tradicional
+      // Coloque seu arquivo favicon.ico em src/app/
+      { url: '/favicon.ico', sizes: 'any', rel: 'icon' }
+    ],
+    // Para o ícone da Apple
+    // Coloque seu arquivo apple-icon.png em src/app/
+    apple: '/apple-icon.png',
+    // Atalho, muitas vezes usa o favicon.ico
+    shortcut: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
