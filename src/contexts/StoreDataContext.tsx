@@ -62,22 +62,36 @@ export function StoreDataProvider({ children }: StoreDataProviderProps) {
     if (storedAccountsData) {
       try {
         const parsedAccounts = JSON.parse(storedAccountsData) as Account[];
-         const customServiceFromStorage = parsedAccounts.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID);
-          const otherAccounts = parsedAccounts.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID);
-          
-          const fallbackCustomService = fallbackAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
+        const customServiceFromStorage = parsedAccounts.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID);
+        const otherAccounts = parsedAccounts.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID);
+        
+        const fallbackCustomService = fallbackAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
 
-          const currentCustomService = customServiceFromStorage 
-            ? { ...fallbackCustomService, ...customServiceFromStorage, name: fallbackCustomService.name, details: fallbackCustomService.details, isCustomService: true, automaticDeliveryLink: fallbackCustomService.automaticDeliveryLink }
-            : { ...fallbackCustomService };
+        let currentCustomService;
+        if (customServiceFromStorage) {
+            currentCustomService = {
+                ...fallbackCustomService,      // 1. Start with fallback defaults (includes isCustomService, isSold, automaticDeliveryLink)
+                ...customServiceFromStorage,   // 2. Override with stored custom values (name, details, price, image, isVisible)
+                id: CUSTOM_ACCOUNT_SERVICE_ID, // 3. Ensure fixed properties that should not change
+                isCustomService: true,
+                isSold: fallbackCustomService.isSold, 
+                automaticDeliveryLink: fallbackCustomService.automaticDeliveryLink
+            };
+        } else {
+            currentCustomService = { ...fallbackCustomService };
+        }
             
-          setAccounts([currentCustomService, ...otherAccounts].sort((a, b) => (a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1 : 0) ));
+        setAccounts([currentCustomService, ...otherAccounts].sort((a, b) => (a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1 : 0) ));
       } catch (error) {
         console.error("Error parsing accounts from localStorage for context:", error);
-        setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
+        const customServiceOnError = fallbackAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
+        const otherAccountsOnError = fallbackAccountsData.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID);
+        setAccounts([customServiceOnError, ...otherAccountsOnError].sort((a, b) => (a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1 : 0)));
       }
     } else {
-      setAccounts(fallbackAccountsData.map(acc => ({ ...acc })));
+      const customServiceInitial = fallbackAccountsData.find(acc => acc.id === CUSTOM_ACCOUNT_SERVICE_ID)!;
+      const otherAccountsInitial = fallbackAccountsData.filter(acc => acc.id !== CUSTOM_ACCOUNT_SERVICE_ID);
+      setAccounts([customServiceInitial, ...otherAccountsInitial].sort((a, b) => (a.id === CUSTOM_ACCOUNT_SERVICE_ID ? -1 : b.id === CUSTOM_ACCOUNT_SERVICE_ID ? 1 : 0)));
     }
 
     // Load FAQs
@@ -172,3 +186,4 @@ export function StoreDataProvider({ children }: StoreDataProviderProps) {
     </StoreDataContext.Provider>
   );
 }
+
