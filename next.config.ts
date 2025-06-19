@@ -36,8 +36,28 @@ const nextConfig: NextConfig = {
         hostname: 'thinkworklab.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ddragon.leagueoflegends.com',
+        port: '',
+        pathname: '/**',
       }
     ],
+  },
+  // Adicionado para permitir iframes do Wistia
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://fast.wistia.net;",
+          },
+        ],
+      },
+    ];
   },
 };
 

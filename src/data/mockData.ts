@@ -1,15 +1,15 @@
 
 import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink, PageSectionStyles, SectionConfig } from '@/types';
-import { Instagram, Twitter, Youtube, Send, Star, Brush } from 'lucide-react'; // Added Brush
+import { Instagram, Twitter, Youtube, Send, Star, Brush } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
 
 
-export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5500000000000';
+export const DEFAULT_WHATSAPP_PHONE_NUMBER = '5538998047553';
 export const CUSTOM_ACCOUNT_SERVICE_ID = 'custom-account-service';
 export const FAQ_LOCAL_STORAGE_KEY = 'panthStoreFaqItems';
 
-export const DEFAULT_BANNER_IMAGE_URL = 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png';
+export const DEFAULT_BANNER_IMAGE_URL = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Pantheon_0.jpg';
 export const BANNER_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreBannerImageUrl';
 
 export const DEFAULT_LOGO_IMAGE_URL = 'https://i.imgur.com/4RDlzjM.png';
@@ -17,19 +17,19 @@ export const LOGO_IMAGE_URL_LOCAL_STORAGE_KEY = 'panthStoreLogoImageUrl';
 
 export const SOCIAL_MEDIA_LINKS_LOCAL_STORAGE_KEY = 'panthStoreSocialLinksData';
 
-export const DEFAULT_VIDEO_URL = '';
+export const DEFAULT_VIDEO_URL = 'https://fast.wistia.net/embed/iframe/p9nfm9gt03';
 export const VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreVideoUrl';
 
 export const SECTION_STYLES_LOCAL_STORAGE_KEY = 'panthStoreSectionStyles';
 
 // Favicon URLs and localStorage keys
-export const DEFAULT_FAVICON_ICO_URL = '/favicon.ico'; 
+export const DEFAULT_FAVICON_ICO_URL = 'https://i.imgur.com/cp6T8Ot.png';
 export const FAVICON_ICO_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconIcoUrl';
-export const DEFAULT_FAVICON_PNG_URL = '/icon.png'; 
+export const DEFAULT_FAVICON_PNG_URL = 'https://i.imgur.com/cp6T8Ot.png';
 export const FAVICON_PNG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconPngUrl';
-export const DEFAULT_FAVICON_SVG_URL = '/icon.svg'; 
+export const DEFAULT_FAVICON_SVG_URL = 'https://i.imgur.com/cp6T8Ot.png';
 export const FAVICON_SVG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconSvgUrl';
-export const DEFAULT_APPLE_ICON_URL = '/apple-icon.png'; 
+export const DEFAULT_APPLE_ICON_URL = 'https://i.imgur.com/cp6T8Ot.png';
 export const APPLE_ICON_URL_LOCAL_STORAGE_KEY = 'panthStoreAppleIconUrl';
 
 
@@ -60,7 +60,7 @@ export const customAccountServiceData: Account = {
     'Prazo de entrega de 3 dias após o pagamento',
   ],
   isSold: false,
-  image: 'https://i.imgur.com/uV2xf4x.png',
+  image: 'https://noticias.maisesports.com.br/wp-content/uploads/2018/11/honra-riot.png',
   isVisible: true,
   isCustomService: true,
   automaticDeliveryLink: '',
@@ -72,34 +72,34 @@ export const accountsData: Account[] = [
   {
     id: 'pronta001',
     name: 'UNRANKED LVL 30+ (PRONTA PARA RANQUEADA)',
-    price: 60,
-    details: [
-      '10.000+ essências azuis',
-      'Baús para abrir',
-      'Capsulas para abrir',
-      'MMR perfeito',
-      '10 normal games jogados'
-    ],
-    isSold: false,
-    image: 'https://i.imgur.com/XKmAnQj.png',
-    isVisible: true,
-    automaticDeliveryLink: 'https://example.com/buy-pronta001',
-  },
-  {
-    id: 'simples001',
-    name: 'UNRANKED LVL 30+ (SIMPLES)',
     price: 45,
     details: [
-      '10.000+ essências azuis',
-      'Baús para abrir',
-      'Capsulas para abrir',
-      'MMR perfeito',
+      '10.000+ essências azuis.',
+      'Baús para abrir.',
+      'Capsulas para abrir.',
+      'MMR Excelente.',
+      '10 Normal Games Jogados'
+    ],
+    isSold: false,
+    image: 'https://i.imgur.com/AKlQVNM.png',
+    isVisible: true,
+    automaticDeliveryLink: 'https://discord.gg/vxxrK3bd',
+  },
+  {
+    id: 'pronta002',
+    name: 'UNRANKED LVL 30+ (SIMPLES)',
+    price: 35,
+    details: [
+      '10.000+ essências azuis.',
+      'Baús para abrir.',
+      'Capsulas para abrir.',
+      'MMR Excelente.',
       'Precisa jogar 10 normal games para ir ranqueada'
     ],
     isSold: false,
-    image: 'https://i.imgur.com/XKmAnQj.png',
+    image: 'https://i.imgur.com/gxrSpzR.png',
     isVisible: true,
-    automaticDeliveryLink: 'https://example.com/buy-simples001',
+    automaticDeliveryLink: 'https://discord.gg/vxxrK3bd',
   },
 ];
 
@@ -165,9 +165,19 @@ export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
   { key: 'telegram', name: 'Telegram', placeholder: 'https://t.me/seuusuario', lucideIcon: Send },
 ];
 
+const userSocialLinks: {key: SocialMediaKey, url: string}[] = [
+  {key: "discord", url: "https://discord.gg/vxxrK3bd"},
+  {key: "whatsapp", url: ""},
+  {key: "instagram", url: "https://instagram.com/storepanth"},
+  {key: "twitter", url: ""},
+  {key: "youtube", url: ""},
+  {key: "telegram", url: ""}
+];
+
 export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(platform => {
+  const userLink = userSocialLinks.find(link => link.key === platform.key);
   return {
     ...platform,
-    url: '', 
+    url: userLink ? userLink.url : '',
   };
 });
