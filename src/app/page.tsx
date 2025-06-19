@@ -94,7 +94,7 @@ export default function HomePage() {
       </section>
 
       {/* Available Accounts Section */}
-      <section id="available-accounts-content" className="scroll-mt-20 py-12 md:py-16 lg:py-20" style={accountsSectionStyle}>
+      <section id="available-accounts-content" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={accountsSectionStyle}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl sm:text-4xl font-headline font-bold text-primary mb-10 text-center">
             Contas e Serviços Disponíveis
@@ -112,7 +112,7 @@ export default function HomePage() {
       </section>
 
       {/* Video Section */}
-      <section id="video-player" className="scroll-mt-20 py-12 md:py-16 lg:py-20" style={videoSectionStyle}>
+      <section id="video-player" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={videoSectionStyle}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <div className="inline-flex flex-col items-center sm:flex-row sm:items-center">
@@ -142,7 +142,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="scroll-mt-20 py-12 md:py-16 lg:py-20" style={faqSectionStyle}>
+      <section id="faq" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={faqSectionStyle}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {faqItems.length > 0 ? (
             <FaqSection faqItems={faqItems} />
@@ -153,7 +153,7 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="scroll-mt-20 py-12 md:py-16 lg:py-20" style={contactSectionStyle}>
+      <section id="contact" className="scroll-mt-24 py-12 md:py-16 lg:py-20" style={contactSectionStyle}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {hasActiveSocialLinks ? (
             <ContactSection socialLinks={socialLinks} />
