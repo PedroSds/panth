@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useContext } from 'react'; // Added useContext
+import { useState, useContext } from 'react';
 import Link from 'next/link';
 import { DEFAULT_LOGO_IMAGE_URL } from '@/data/mockData';
 import { Menu } from 'lucide-react';
@@ -13,24 +13,22 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-// Removed StoreDataContext import as logoUrl will be passed as prop
 
 interface NavbarProps {
-  logoUrl?: string; // Keep this prop
+  logoUrl?: string;
 }
 
-export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) { // Renamed prop to avoid conflict
+export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Use logoUrlProp if provided, otherwise default
   const effectiveLogoUrl = logoUrlProp || DEFAULT_LOGO_IMAGE_URL;
 
   const navLinks = [
-    { href: "/", label: "Início" },
-    { href: "/contas", label: "Contas" },
-    { href: "/video", label: "Vídeo" },
-    { href: "/faq", label: "FAQ" },
-    { href: "/contato", label: "Contato" },
+    { href: "/#page-top", label: "Início" }, // Use /#page-top or just / if page-top ID is on body
+    { href: "/#available-accounts-content", label: "Contas" },
+    { href: "/#video-player", label: "Vídeo" },
+    { href: "/#faq", label: "FAQ" },
+    { href: "/#contact", label: "Contato" },
   ];
 
   return (
@@ -38,7 +36,7 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) { // Renamed prop 
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
           <Link
-            href="/"
+            href="/" // Logo links to the top of the single page
             className="flex items-center text-primary hover:opacity-80 transition-opacity"
             aria-label="Voltar para o início da página PanthStore"
           >
