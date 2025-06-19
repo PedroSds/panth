@@ -54,18 +54,18 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         {/* Favicons dinâmicos baseados no localStorage */}
-        {isMounted && faviconIcoUrl && faviconIcoUrl.trim() !== '' && <link rel="icon" href={faviconIcoUrl} sizes="any" />}
-        {isMounted && faviconPngUrl && faviconPngUrl.trim() !== '' && <link rel="icon" href={faviconPngUrl} type="image/png" />}
-        {isMounted && faviconSvgUrl && faviconSvgUrl.trim() !== '' && <link rel="icon" href={faviconSvgUrl} type="image/svg+xml" />}
-        {isMounted && appleIconUrl && appleIconUrl.trim() !== '' && <link rel="apple-touch-icon" href={appleIconUrl} />}
+        {isMounted && faviconIcoUrl && faviconIcoUrl.trim() !== '' && <link key="favicon-ico" rel="icon" href={faviconIcoUrl} sizes="any" />}
+        {isMounted && faviconPngUrl && faviconPngUrl.trim() !== '' && <link key="favicon-png" rel="icon" href={faviconPngUrl} type="image/png" />}
+        {isMounted && faviconSvgUrl && faviconSvgUrl.trim() !== '' && <link key="favicon-svg" rel="icon" href={faviconSvgUrl} type="image/svg+xml" />}
+        {isMounted && appleIconUrl && appleIconUrl.trim() !== '' && <link key="apple-icon" rel="apple-touch-icon" href={appleIconUrl} />}
         
         {/* Fallback para favicons estáticos se os do localStorage não forem válidos ou não estiverem montados */}
         {!isMounted && (
             <>
-                <link rel="icon" href={DEFAULT_FAVICON_ICO_URL} sizes="any" />
-                <link rel="icon" href={DEFAULT_FAVICON_PNG_URL} type="image/png" />
-                <link rel="icon" href={DEFAULT_FAVICON_SVG_URL} type="image/svg+xml" />
-                <link rel="apple-touch-icon" href={DEFAULT_APPLE_ICON_URL} />
+                <link key="default-favicon-ico" rel="icon" href={DEFAULT_FAVICON_ICO_URL} sizes="any" />
+                <link key="default-favicon-png" rel="icon" href={DEFAULT_FAVICON_PNG_URL} type="image/png" />
+                <link key="default-favicon-svg" rel="icon" href={DEFAULT_FAVICON_SVG_URL} type="image/svg+xml" />
+                <link key="default-apple-icon" rel="apple-touch-icon" href={DEFAULT_APPLE_ICON_URL} />
             </>
         )}
 
