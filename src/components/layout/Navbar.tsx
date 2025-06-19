@@ -36,7 +36,7 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
           <Link
-            href="/" // Logo links to the top of the single page
+            href="/" 
             className="flex items-center text-primary hover:opacity-80 transition-opacity"
             aria-label="Voltar para o início da página PanthStore"
           >
