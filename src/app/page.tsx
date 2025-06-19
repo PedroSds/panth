@@ -35,7 +35,7 @@ export default function HomePage() {
 
   const effectiveBannerImageUrl = isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL;
 
-  const accountsSectionStyle = getSectionStyle('accounts');
+  const accountsSectionStyleValues = getSectionStyle('accounts');
   const videoSectionStyle = getSectionStyle('video');
   const faqSectionStyle = getSectionStyle('faq');
   const contactSectionStyle = getSectionStyle('contact');
@@ -46,10 +46,10 @@ export default function HomePage() {
       : getComputedStyle(document.body).backgroundColor || 'hsl(0 0% 96%)'
     : 'hsl(0 0% 96%)';
 
-  const waveFillColor = accountsSectionStyle.backgroundColor || bodyBackgroundColor;
+  const waveFillColor = accountsSectionStyleValues.backgroundColor || bodyBackgroundColor;
 
   const waveContainerStyle: React.CSSProperties = {
-    transform: 'translateY(1px)',
+    transform: 'translateY(1px)', // Slight adjustment to avoid thin lines on some browsers
     color: waveFillColor,
   };
 
@@ -101,11 +101,11 @@ export default function HomePage() {
       <section
         id="available-accounts-content"
         className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20 pt-0"
-        style={accountsSectionStyle}
+        style={accountsSectionStyleValues}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-0">
           {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-16">
               {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
