@@ -26,7 +26,6 @@ export function Navbar({ logoUrl: logoUrlProp }: NavbarProps) {
   const navLinks = [
     { href: "/", label: "Início" },
     { href: "/#contas", label: "Contas" },
-    { href: "/#video-player", label: "Vídeo" },
     { href: "/#faq", label: "FAQ" },
     { href: "/#contact", label: "Contato" },
   ];
