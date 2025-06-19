@@ -35,19 +35,23 @@ export default function HomePage() {
 
   const effectiveBannerImageUrl = isMounted ? bannerImageUrl : DEFAULT_BANNER_IMAGE_URL;
 
-  const bodyBackgroundColor = typeof window !== 'undefined'
-    ? getComputedStyle(document.body).backgroundColor || 'hsl(var(--background))'
-    : 'hsl(var(--background))';
-
-  const waveContainerStyle: React.CSSProperties = {
-    transform: 'translateY(1px)',
-    color: bodyBackgroundColor,
-  };
-
   const accountsSectionStyle = getSectionStyle('accounts');
   const videoSectionStyle = getSectionStyle('video');
   const faqSectionStyle = getSectionStyle('faq');
   const contactSectionStyle = getSectionStyle('contact');
+  
+  const bodyBackgroundColor = typeof window !== 'undefined'
+    ? getComputedStyle(document.documentElement).getPropertyValue('--background') // Get from CSS var for consistency
+      ? `hsl(${getComputedStyle(document.documentElement).getPropertyValue('--background')})` 
+      : getComputedStyle(document.body).backgroundColor || 'hsl(0 0% 96%)' // Fallback to body or default
+    : 'hsl(0 0% 96%)'; // Default for SSR
+
+  const waveFillColor = accountsSectionStyle.backgroundColor || bodyBackgroundColor;
+
+  const waveContainerStyle: React.CSSProperties = {
+    transform: 'translateY(1px)',
+    color: waveFillColor,
+  };
 
   const visibleAndUnsoldAccounts = accounts.filter(acc => (!acc.isSold || acc.isCustomService) && acc.isVisible);
   const showVideoSection = videoUrl && videoUrl.trim() !== '';
@@ -96,12 +100,12 @@ export default function HomePage() {
       {/* Available Accounts Section */}
       <section
         id="available-accounts-content"
-        className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20 pt-0" // Ensured pt-0 on section
+        className="scroll-mt-24 pb-12 md:pb-16 lg:pb-20 pt-0"
         style={accountsSectionStyle}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-0"> {/* Ensured pt-0 on container */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-0">
           {visibleAndUnsoldAccounts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-0"> {/* Ensured pt-0 on grid container */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-0">
               {visibleAndUnsoldAccounts.map(account => (
                 <AccountCard key={account.id} account={account} whatsAppPhoneNumber={whatsAppNumber} />
               ))}
