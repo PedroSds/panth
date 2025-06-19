@@ -1,6 +1,6 @@
 
 import type { Account, FaqItem, LucideIconName, SocialPlatformConfigEntry, SocialLink, PageSectionStyles, SectionConfig } from '@/types';
-import { Instagram, Twitter, Youtube, Send, Star } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send, Star, Brush } from 'lucide-react'; // Added Brush
 import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon';
 import { DiscordIcon } from '@/components/icons/DiscordIcon';
 
@@ -23,13 +23,13 @@ export const VIDEO_URL_LOCAL_STORAGE_KEY = 'panthStoreVideoUrl';
 export const SECTION_STYLES_LOCAL_STORAGE_KEY = 'panthStoreSectionStyles';
 
 // Favicon URLs and localStorage keys
-export const DEFAULT_FAVICON_ICO_URL = '/favicon.ico'; // Default to a static one if not set
+export const DEFAULT_FAVICON_ICO_URL = '/favicon.ico'; 
 export const FAVICON_ICO_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconIcoUrl';
-export const DEFAULT_FAVICON_PNG_URL = '/icon.png'; // Default to a static one if not set
+export const DEFAULT_FAVICON_PNG_URL = '/icon.png'; 
 export const FAVICON_PNG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconPngUrl';
-export const DEFAULT_FAVICON_SVG_URL = '/icon.svg'; // Default to a static one if not set
+export const DEFAULT_FAVICON_SVG_URL = '/icon.svg'; 
 export const FAVICON_SVG_URL_LOCAL_STORAGE_KEY = 'panthStoreFaviconSvgUrl';
-export const DEFAULT_APPLE_ICON_URL = '/apple-icon.png'; // Default to a static one if not set
+export const DEFAULT_APPLE_ICON_URL = '/apple-icon.png'; 
 export const APPLE_ICON_URL_LOCAL_STORAGE_KEY = 'panthStoreAppleIconUrl';
 
 
@@ -50,17 +50,17 @@ export const sectionConfig: SectionConfig[] = [
 
 export const customAccountServiceData: Account = {
   id: CUSTOM_ACCOUNT_SERVICE_ID,
-  name: 'Crie sua Conta Personalizada (Serviço de Upar)',
-  price: 50,
+  name: 'PERSONALIZADA (PERSONALIZE SUA CONTA)',
+  price: 60,
   details: [
     'Iremos upar uma conta do 0 ao 30 pra você',
     'Você escolhe o nome para login e o primeiro nickname',
     'Capsulas adquiridas serão preservadas pra você abrir',
-    'Baùs adquiridos serão preservados para você abrir',
+    'Baús adquiridos serão preservados para você abrir',
     'Prazo de entrega de 3 dias após o pagamento',
   ],
   isSold: false,
-  image: 'https://placehold.co/300x200.png',
+  image: 'https://i.imgur.com/uV2xf4x.png',
   isVisible: true,
   isCustomService: true,
   automaticDeliveryLink: '',
@@ -72,7 +72,7 @@ export const accountsData: Account[] = [
   {
     id: 'pronta001',
     name: 'UNRANKED LVL 30+ (PRONTA PARA RANQUEADA)',
-    price: 85,
+    price: 60,
     details: [
       '10.000+ essências azuis',
       'Baús para abrir',
@@ -81,29 +81,14 @@ export const accountsData: Account[] = [
       '10 normal games jogados'
     ],
     isSold: false,
-    image: 'https://placehold.co/300x200.png',
+    image: 'https://i.imgur.com/XKmAnQj.png',
     isVisible: true,
     automaticDeliveryLink: 'https://example.com/buy-pronta001',
   },
   {
-    id: 'pronta002',
-    name: 'UNRANKED LVL 30+ (PRONTA)',
-    price: 90,
-    details: [
-      '15.000+ essências azuis',
-      'Baús e Cápsulas',
-      'MMR Excelente',
-      'Pronta para Ranqueadas'
-    ],
-    isSold: false,
-    image: 'https://placehold.co/300x200.png',
-    isVisible: true,
-    automaticDeliveryLink: 'https://example.com/buy-pronta002',
-  },
-  {
     id: 'simples001',
     name: 'UNRANKED LVL 30+ (SIMPLES)',
-    price: 65,
+    price: 45,
     details: [
       '10.000+ essências azuis',
       'Baús para abrir',
@@ -112,25 +97,10 @@ export const accountsData: Account[] = [
       'Precisa jogar 10 normal games para ir ranqueada'
     ],
     isSold: false,
-    image: 'https://placehold.co/300x200.png',
+    image: 'https://i.imgur.com/XKmAnQj.png',
     isVisible: true,
     automaticDeliveryLink: 'https://example.com/buy-simples001',
   },
-  {
-    id: 'skins001',
-    name: 'CONTA GOLD IV (VAYNE PRESTÍGIO)',
-    price: 250,
-    details: [
-      'Vayne Sentinela Prestígio',
-      'Yasuo True Damage',
-      'Elo: Gold IV',
-      '50+ Campeões'
-    ],
-    isSold: false,
-    image: 'https://placehold.co/300x200.png',
-    isVisible: true,
-    automaticDeliveryLink: 'https://example.com/buy-skins001',
-  }
 ];
 
 export const initialFaqData: FaqItem[] = [
@@ -198,6 +168,6 @@ export const socialPlatformConfig: SocialPlatformConfigEntry[] = [
 export const initialSocialLinksData: SocialLink[] = socialPlatformConfig.map(platform => {
   return {
     ...platform,
-    url: '', // Initially empty, will be loaded from localStorage or kept empty
+    url: '', 
   };
 });
